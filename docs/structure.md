@@ -9,6 +9,7 @@ classDiagram
             string name
             string email        
             string password
+            RoleEnum role
         }
 
         class Pokemon{
@@ -59,7 +60,14 @@ classDiagram
             string id
             string user_id
             int total
-            PaymentMethodsEnum payment_method
+            bool is_approved
+            time payment_limit_time
+            string payment_method_id
+        }
+
+        class PaymentMethod {
+            string id
+            string name
         }
     }    
 
@@ -82,10 +90,12 @@ classDiagram
     Pokemon "1" *-- Item : refere-se a
     Purchase "1" --* "1..N" Item : é composta de
     Purchase "0..N" --* "1" User : possuí
+    Purchase "0..N" --o "1" PaymentMethod : possuí
 
     User "1" --> "N" UserPokemon 
     Pokemon "1" --> "N" UserPokemon 
 
     User "1" *-- "1" UserStats : possuí   
+
 
 ```

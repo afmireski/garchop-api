@@ -9,6 +9,8 @@ classDiagram
             string name
             string email        
             string password
+            string phone
+            time birth_date
             RoleEnum role
         }
 

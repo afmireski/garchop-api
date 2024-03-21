@@ -17,6 +17,7 @@ classDiagram
         class Pokemon{
             string id
             int reference_id
+            string tier_id
             int weight
             int height
             int generation 
@@ -79,9 +80,22 @@ classDiagram
         int quantity
     }
 
-    class UserStats{
-        string user_id
+    namespace Diferencial {
+        class UserStats{
+            string user_id
+            int experience
+            string tier_id
+        }
+
+
+        class Tier{
+            int id
+            string name
+            int minimal_experience
+            int limit_experience
+        }
     }
+    
 
     Pokemon "1" --* "1..N" Type : possui
     Pokemon "1" --* "1..N" Price : tem
@@ -97,7 +111,9 @@ classDiagram
     User "1" --> "N" UserPokemon 
     Pokemon "1" --> "N" UserPokemon 
 
-    User "1" *-- "1" UserStats : possuí   
+    User "1" *-- "1" UserStats : possuí  
 
+    UserStats "0..N" --* "1" Tier : está 
+    Pokemon "0..N" --* "1" Tier : está 
 
 ```

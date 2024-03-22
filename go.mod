@@ -9,4 +9,6 @@ require (
 	github.com/nedpals/postgrest-go v0.1.3 // indirect
 	github.com/nedpals/supabase-go v0.4.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
+	github.com/supabase-community/supabase-go v0.0.1 // indirect
+	github.com/supabase/postgrest-go v0.0.7 // indirect
 )

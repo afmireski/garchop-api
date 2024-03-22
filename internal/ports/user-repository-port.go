@@ -7,7 +7,7 @@ import (
 )
 
 type UserRepositoryPort interface {
-	Create(input CreateUserInput) error
+	Create(input CreateUserInput) string
 
 	FindById(id string) (interface{}, error)
 
@@ -17,9 +17,9 @@ type UserRepositoryPort interface {
 }
 
 type CreateUserInput struct {
-	Name string
-	Email string
-	Phone string
-	BirthDate time.Time
-	Role entities.UserRoleEnum
+	Name string `json:"name"`
+	Email string `json:"email"`
+	Phone string `json:"phone"`
+	BirthDate time.Time `json:"birth_date"`
+	Role entities.UserRoleEnum `json:"role"`
 }

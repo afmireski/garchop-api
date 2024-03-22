@@ -31,3 +31,9 @@ func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, e
 
 	return result.Id, nil
 }
+
+func (r *SupabaseUsersRepository) FindById(id string) (interface{}, error)
+
+func (r *SupabaseUsersRepository) Update(id string, input interface{}) (interface{}, error)
+
+func (r *SupabaseUsersRepository) Delete(id string) error

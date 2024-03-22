@@ -1,8 +1,6 @@
 package adapters
 
 import (
-	"encoding/json"
-
 	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
 	supabase "github.com/nedpals/supabase-go"

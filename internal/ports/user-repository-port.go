@@ -7,7 +7,7 @@ import (
 )
 
 type UserRepositoryPort interface {
-	Create(input CreateUserInput) string
+	Create(input CreateUserInput) (string, error)
 
 	FindById(id string) (interface{}, error)
 

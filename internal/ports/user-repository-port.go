@@ -2,8 +2,6 @@ package ports
 
 import (
 	"time"
-
-	"github.com/afmireski/garchop-api/internal/entities"
 )
 
 type UserRepositoryPort interface {
@@ -21,5 +19,4 @@ type CreateUserInput struct {
 	Email string `json:"email"`
 	Phone string `json:"phone"`
 	BirthDate time.Time `json:"birth_date"`
-	Role entities.UserRoleEnum `json:"role"`
 }

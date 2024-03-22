@@ -40,7 +40,7 @@ func (s *UsersService) NewUser(input ports.CreateUserInput) *customErrors.Intern
 	_, err := s.repository.Create(input);
 
 	if err != nil {
-		return customErrors.NewInternalError("a failure occurred when try to create a new user", 500, []string{})
+		return customErrors.NewInternalError("a failure occurred when try to create a new user", 500, []string{err.Error()})
 	}
 
 	return nil;

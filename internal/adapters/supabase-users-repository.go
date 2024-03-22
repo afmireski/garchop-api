@@ -1,7 +1,7 @@
 package adapters
 
 import (
-	"github.com/afmireski/garchop-api/internal/models"
+	"errors"
 	"github.com/afmireski/garchop-api/internal/ports"
 	supabase "github.com/nedpals/supabase-go"
 )
@@ -17,23 +17,29 @@ func NewSupabaseUsersRepository(client *supabase.Client) *SupabaseUsersRepositor
 }
 
 func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, error) {
-	var result models.UserModel;
+	var supabaseData []map[string]string
 
-	err := r.client.DB.From("users").Insert(input).Execute(&result);
-
-	if err != nil {
-		return "", err
-	}
+	err := r.client.DB.From("users").Insert(input).Execute(&supabaseData)
 
 	if err != nil {
 		return "", err
 	}
 
-	return result.Id, nil
+	if err != nil {
+		return "", err
+	}
+
+	return supabaseData[0]["id"], nil
 }
 
-func (r *SupabaseUsersRepository) FindById(id string) (interface{}, error)
+func (r *SupabaseUsersRepository) FindById(id string) (interface{}, error) {
+	return nil, errors.New("not implemented")
+}
 
-func (r *SupabaseUsersRepository) Update(id string, input interface{}) (interface{}, error)
+func (r *SupabaseUsersRepository) Update(id string, input interface{}) (interface{}, error) {
+	return nil, errors.New("not implemented")
+}
 
-func (r *SupabaseUsersRepository) Delete(id string) error
+func (r *SupabaseUsersRepository) Delete(id string) error {
+	return errors.New("not implemented")
+}

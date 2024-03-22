@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/afmireski/garchop-api/internal/adapters"
-	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/services"
 	"github.com/afmireski/garchop-api/internal/web/controllers"
 	"github.com/afmireski/garchop-api/internal/web/routers"
@@ -29,7 +28,7 @@ func main() {
 
 func setupSupabase() *supabase.Client {
 	supabaseUrl := os.Getenv("SUPABASE_URL")
-	supabaseKey := os.Getenv("SUPABASE_API_KEY")
+	supabaseKey := os.Getenv("SUPABASE_KEY")
 	return supabase.CreateClient(supabaseUrl, supabaseKey)
 }
 

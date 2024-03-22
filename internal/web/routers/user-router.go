@@ -6,5 +6,5 @@ import (
 )
 
 func SetupUsersRouter(router *chi.Mux, controller *controllers.UsersController) {
-	router.Post("/creators/new", controller.NewUser)
+	router.Post("/users/new", controller.NewUser)
 }

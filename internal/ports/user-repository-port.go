@@ -1,11 +1,25 @@
 package ports
 
+import (
+	"time"
+
+	"github.com/afmireski/garchop-api/internal/entities"
+)
+
 type UserRepositoryPort interface {
-	Create(input interface{}) error
+	Create(input CreateUserInput) error
 
-	FindById(input interface{}) (interface{}, error)
+	FindById(id string) (interface{}, error)
 
-	Update(input interface{}) (interface{}, error)
+	Update(id string, input interface{}) (interface{}, error)
 
-	Delete(input interface{}) error
+	Delete(id string) error
+}
+
+type CreateUserInput struct {
+	Name string
+	Email string
+	Phone string
+	BirthDate time.Time
+	Role entities.UserRoleEnum
 }

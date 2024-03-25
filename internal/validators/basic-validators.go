@@ -37,3 +37,10 @@ func IsValidateAge(birthDate time.Time, age int) bool {
     // Compare the birth date with the minimum date
     return !birthDate.After(time.Now()) && (birthDate.Before(minDate) || birthDate.Equal(minDate))
 }
+
+func IsPhoneNumber(phone string) bool {
+ 	if phone == "" {
+		return false;
+	}
+	return regexp.MustCompile(`^\+55\D*([1-9]{2})\D*9?\D*(\d{4})\D*(\d{4})$`).MatchString(phone);
+}

@@ -1,6 +1,8 @@
 package services
 
 import (
+	"regexp"
+
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
 
@@ -22,7 +24,7 @@ func validateNewUserInput(input ports.CreateUserInput) *customErrors.InternalErr
 		return customErrors.NewInternalError("invalid email", 400, []string{})
 	} else if (!validators.IsValidName(input.Name, 3, 200)) {
 		return customErrors.NewInternalError("invalid name", 400, []string{})
-	} else if (input.Phone == "") {
+	} else if (!validators.IsPhoneNumber(input.Phone)) {
 		return customErrors.NewInternalError("invalid phone", 400, []string{})
 	} else if (validators.IsValidateAge(input.BirthDate, 18)) {
 		customErrors.NewInternalError("invalid birth date", 400, []string{})
@@ -32,11 +34,14 @@ func validateNewUserInput(input ports.CreateUserInput) *customErrors.InternalErr
 }
 
 func (s *UsersService) NewUser(input ports.CreateUserInput) *customErrors.InternalError {
-
 	if inputErr := validateNewUserInput(input); inputErr != nil {
 		return inputErr
 	}
 
+	// Remove special characters except '+' from phone
+	re := regexp.MustCompile(`[^+\d]`)
+	input.Phone = re.ReplaceAllString(input.Phone, "")	
+	
 	_, err := s.repository.Create(input);
 
 	if err != nil {

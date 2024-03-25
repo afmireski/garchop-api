@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 )
 
-
 func IsValidEmail(email string) bool {
 	if email == "" {
 		return false
@@ -30,17 +29,17 @@ func IsValidNumericId(id int32) bool {
 	return id > 0
 }
 
-func IsValidateAge(birthDate time.Time, age int) bool {
-    // Calculate the date `age`` years ago from today
-    minDate := time.Now().AddDate(-age, 0, 0)
-    
-    // Compare the birth date with the minimum date
-    return !birthDate.After(time.Now()) && (birthDate.Before(minDate) || birthDate.Equal(minDate))
+func IsValidAge(birthDate time.Time, age int) bool {
+	// Calculate the date `age`` years ago from today
+	minDate := time.Now().AddDate(-age, 0, 0)
+
+	// Compare the birth date with the minimum date
+	return !birthDate.After(time.Now()) && (birthDate.Before(minDate) || birthDate.Equal(minDate))
 }
 
 func IsPhoneNumber(phone string) bool {
- 	if phone == "" {
-		return false;
+	if phone == "" {
+		return false
 	}
-	return regexp.MustCompile(`^\+55\D*([1-9]{2})\D*9?\D*(\d{4})\D*(\d{4})$`).MatchString(phone);
+	return regexp.MustCompile(`^\+55\D*([1-9]{2})\D*9?\D*(\d{4})\D*(\d{4})$`).MatchString(phone)
 }

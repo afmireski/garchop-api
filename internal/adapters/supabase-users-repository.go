@@ -7,6 +7,8 @@ import (
 	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
 	supabase "github.com/nedpals/supabase-go"
+
+	myTypes "github.com/afmireski/garchop-api/internal/types"
 )
 
 type SupabaseUsersRepository struct {
@@ -49,11 +51,11 @@ func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, e
 	return supabaseData[0]["id"], nil
 }
 
-func (r *SupabaseUsersRepository) FindById(id string) (interface{}, error) {
+func (r *SupabaseUsersRepository) FindById(id string) (myTypes.AnyMap, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (r *SupabaseUsersRepository) Update(id string, input interface{}, where map[string]map[string]string) (interface{}, error) {
+func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where map[string]map[string]string) (myTypes.Any, error) {
 	var supabaseData []map[string]string
 
 	query := r.client.DB.From("users").Update(input).Eq("id", id)

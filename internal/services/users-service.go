@@ -2,11 +2,13 @@ package services
 
 import (
 	"regexp"
+	"time"
 
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
 
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
+	myTypes "github.com/afmireski/garchop-api/internal/types"
 )
 
 type UsersService struct {
@@ -49,6 +51,23 @@ func (s *UsersService) NewUser(input ports.CreateUserInput) *customErrors.Intern
 
 	if err != nil {
 		return customErrors.NewInternalError("a failure occurred when try to create a new user", 500, []string{err.Error()})
+	}
+
+	return nil
+}
+
+func (s *UsersService) DeleteUser(id string) *customErrors.InternalError {
+	if !validators.IsValidUuid(id) {
+		return customErrors.NewInternalError("invalid uuid", 400, []string{})
+	}
+
+	data := myTypes.AnyMap{
+		"deleted_at": time.Now(),
+		"updated_at": time.Now(),
+	}
+
+	_, err := s.repository.Update(id, data); if err != nil {
+		return customErrors.NewInternalError("a failure occurred when try to delete a user", 500, []string{err.Error()})
 	}
 
 	return nil

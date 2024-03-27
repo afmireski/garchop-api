@@ -11,7 +11,7 @@ type UserRepositoryPort interface {
 
 	FindById(id string) (myTypes.Any, error)
 
-	Update(id string, input myTypes.AnyMap) (myTypes.Any, error)
+	Update(id string, input myTypes.AnyMap, where myTypes.Where) (myTypes.Any, error)
 
 	Delete(id string) error
 }

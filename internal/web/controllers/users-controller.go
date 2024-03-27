@@ -9,7 +9,6 @@ import (
 	"github.com/afmireski/garchop-api/internal/services"
 	"github.com/go-chi/chi/v5"
 
-	myTypes "github.com/afmireski/garchop-api/internal/types"
 )
 
 type UsersController struct {

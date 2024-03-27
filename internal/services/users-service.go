@@ -66,7 +66,11 @@ func (s *UsersService) DeleteUser(id string) *customErrors.InternalError {
 		"updated_at": time.Now(),
 	}
 
-	_, err := s.repository.Update(id, data); if err != nil {
+	where := myTypes.Where{
+		"deleted_at": map[string]string{"is": "null"},		
+	}
+
+	_, err := s.repository.Update(id, data, where); if err != nil {
 		return customErrors.NewInternalError("a failure occurred when try to delete a user", 500, []string{err.Error()})
 	}
 

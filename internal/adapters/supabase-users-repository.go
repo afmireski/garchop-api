@@ -51,11 +51,11 @@ func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, e
 	return supabaseData[0]["id"], nil
 }
 
-func (r *SupabaseUsersRepository) FindById(id string) (myTypes.AnyMap, error) {
+func (r *SupabaseUsersRepository) FindById(id string) (myTypes.Any, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where map[string]map[string]string) (myTypes.Any, error) {
+func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (myTypes.Any, error) {
 	var supabaseData []map[string]string
 
 	query := r.client.DB.From("users").Update(input).Eq("id", id)

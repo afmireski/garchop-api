@@ -7,6 +7,9 @@ import (
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/services"
+	"github.com/go-chi/chi/v5"
+
+	myTypes "github.com/afmireski/garchop-api/internal/types"
 )
 
 type UsersController struct {
@@ -34,6 +37,22 @@ func (c *UsersController) NewUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	serviceErr := c.service.NewUser(input)
+
+	if serviceErr != nil {
+		w.WriteHeader(serviceErr.HttpCode)
+		json.NewEncoder(w).Encode(serviceErr)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+func (c *UsersController) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	idParam := chi.URLParam(r, "id")
+
+	serviceErr := c.service.DeleteUser(idParam)
 
 	if serviceErr != nil {
 		w.WriteHeader(serviceErr.HttpCode)

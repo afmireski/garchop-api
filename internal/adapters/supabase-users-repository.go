@@ -57,7 +57,6 @@ func (r *SupabaseUsersRepository) FindById(id string) (myTypes.Any, error) {
 
 func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (myTypes.Any, error) {
 	var supabaseData []map[string]string
-
 	query := r.client.DB.From("users").Update(input).Eq("id", id)
 	if len(where) > 0 {
 		for column, filter := range where {
@@ -69,6 +68,10 @@ func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where 
 
 	err := query.Execute(&supabaseData); if err != nil {
 		return nil, err
+	}
+
+	if (len(supabaseData) == 0) {
+		return nil, nil
 	}
 
 	result, err := serializeMany(supabaseData); if err != nil {

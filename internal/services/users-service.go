@@ -70,9 +70,9 @@ func (s *UsersService) DeleteUser(id string) *customErrors.InternalError {
 		"deleted_at": map[string]string{"is": "null"},		
 	}
 
-	_, err := s.repository.Update(id, data, where); if err != nil {
-		return customErrors.NewInternalError("a failure occurred when try to delete a user", 500, []string{err.Error()})
-	}
+	updatedData, err := s.repository.Update(id, data, where); if err != nil || updatedData == nil {
+		return customErrors.NewInternalError("a failure occurred when try to delete a user", 500, []string{})
+	} 
 
 	return nil
 }

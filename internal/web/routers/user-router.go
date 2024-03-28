@@ -7,4 +7,5 @@ import (
 
 func SetupUsersRouter(router *chi.Mux, controller *controllers.UsersController) {
 	router.Post("/users/new", controller.NewUser)
+	router.Delete("/users/{id}/del", controller.DeleteClientAccount)
 }

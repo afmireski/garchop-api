@@ -7,7 +7,7 @@ import (
 )
 
 type UserRepositoryPort interface {
-	Create(input myTypes.AnyMap) (string, error)
+	Create(input CreateUserInput) (string, error)
 
 	FindById(id string) (myTypes.Any, error)
 

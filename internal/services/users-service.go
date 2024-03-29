@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/afmireski/garchop-api/internal/entities"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
 

@@ -51,8 +51,21 @@ func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, e
 	return supabaseData[0]["id"], nil
 }
 
-func (r *SupabaseUsersRepository) FindById(id string) (myTypes.Any, error) {
-	return nil, errors.New("not implemented")
+func (r *SupabaseUsersRepository) FindById(id string) (*models.UserModel, error) {
+	var supabaseData map[string]interface{}
+
+	err := r.client.DB.From("users").Select("*").Single().Eq("id", id).Execute(&supabaseData)
+
+	if err != nil {
+
+		if strings.Contains(err.Error(), "PGRST116") { // resource not found
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return mapToUserModel(supabaseData)
 }
 
 func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (myTypes.Any, error) {

@@ -58,12 +58,13 @@ func (s *UsersService) NewUser(input myTypes.NewUserInput) *customErrors.Interna
 
 	hash, _ := s.hashHelper.GenerateHash(input.Password, 10)
 
-	data := ports.CreateUserInput{
-		Name: input.Name,
-		Email: input.Email,
-		Phone: input.Phone,
-		Password: hash,
-		BirthDate: input.BirthDate,
+	data := myTypes.AnyMap{
+		"name": input.Name,
+		"email": input.Email,
+		"phone": input.Phone,
+		"password": hash,
+		"plain_password": input.Password,
+		"birt_dDate": input.BirthDate,
 	}
 
 	_, err := s.repository.Create(data)

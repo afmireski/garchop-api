@@ -7,7 +7,7 @@ import (
 )
 
 type UserRepositoryPort interface {
-	Create(input CreateUserInput) (string, error)
+	Create(input myTypes.AnyMap) (string, error)
 
 	FindById(id string) (myTypes.Any, error)
 
@@ -21,5 +21,6 @@ type CreateUserInput struct {
 	Email string `json:"email"`
 	Phone string `json:"phone"`
 	Password string `json:"password"`
+	PlainPassword string `json:"plain_password"`
 	BirthDate time.Time `json:"birth_date"`
 }

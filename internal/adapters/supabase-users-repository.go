@@ -28,11 +28,36 @@ func serializeMany(data []map[string]string) ([]models.UserModel, error) {
 		return nil, err
 	}
 
-
 	var result []models.UserModel
 	json.Unmarshal(jsonData, &result)
 
 	return result, nil
+}
+
+func mapToUserModel(data map[string]interface{}) (*models.UserModel, error) {
+	birthDate, _ := time.Parse("2006-01-02", data["birth_date"].(string))
+
+	createdAt, _ := time.Parse("2006-01-02T15:04:05.999999999Z07:00", data["created_at"].(string))
+
+	updatedAt, _ := time.Parse("2006-01-02T15:04:05.999999999Z07:00", data["updated_at"].(string))
+
+	var deletedAt time.Time
+	if deletedAtString, ok := data["deleted_at"].(string); ok {
+		deletedAt, _ = time.Parse("2006-01-02T15:04:05.999999999Z07:00", deletedAtString)
+	}
+
+	role, _ := data["role"].(entities.UserRoleEnum)
+
+	return models.NewUserModel(
+		data["id"].(string),
+		data["name"].(string),
+		data["email"].(string),
+		data["phone"].(string),
+		birthDate,
+		role,
+		createdAt,
+		updatedAt,
+		deletedAt), nil
 }
 
 func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, error) {

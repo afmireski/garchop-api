@@ -44,11 +44,11 @@ func IsPhoneNumber(phone string) bool {
 	return regexp.MustCompile(`^\+55\D*([1-9]{2})\D*9?\D*(\d{4})\D*(\d{4})$`).MatchString(phone)
 }
 
-func MinLength(texr string, min int) bool {
-	return len(texr) >= min
+func MinLength(text string, min int) bool {
+	return len(text) >= min
 }
 
 func IsValidPassword(password string) bool {
-	re := regexp.MustCompile(`^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()])(?=.{6,})`)
+	re := regexp.MustCompile(`^(.{6,})`)
 	return re.MatchString(password)
 }

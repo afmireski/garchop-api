@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/afmireski/garchop-api/internal/adapters"
+	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/services"
 	"github.com/afmireski/garchop-api/internal/web/controllers"
 	"github.com/afmireski/garchop-api/internal/web/routers"
@@ -16,8 +17,9 @@ import (
 
 func main() {
 	supabaseClient := setupSupabase()
+	hashHelper := adapters.NewBcryptHashHelper()
 
-	usersController := setupUsersModule(supabaseClient)
+	usersController := setupUsersModule(supabaseClient, hashHelper)
 
 	r := chi.NewRouter()
 	routers.SetupUsersRouter(r, usersController)
@@ -32,9 +34,9 @@ func setupSupabase() *supabase.Client {
 	return supabase.CreateClient(supabaseUrl, supabaseKey)
 }
 
-func setupUsersModule(supabaseClient *supabase.Client) *controllers.UsersController {
+func setupUsersModule(supabaseClient *supabase.Client, hashHelper ports.HashHelperPort) *controllers.UsersController {
 	usersRepository := adapters.NewSupabaseUsersRepository(supabaseClient)
-	usersService := services.NewUsersService(usersRepository)
+	usersService := services.NewUsersService(usersRepository, hashHelper)
 	usersController := controllers.NewUsersController(usersService)
 
 	return usersController

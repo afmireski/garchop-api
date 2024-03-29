@@ -17,3 +17,14 @@ type User struct {
 	BirthDate time.Time
 	Role      UserRoleEnum
 }
+
+func NewUser(id string, name string, email string, phone string, birthDate time.Time, role UserRoleEnum) *User {
+	return &User{
+		Id:        id,
+		Name:      name,
+		Email:     email,
+		Phone:     phone,
+		BirthDate: birthDate,
+		Role:      role,
+	}
+}

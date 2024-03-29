@@ -21,8 +21,11 @@ func main() {
 
 	usersController := setupUsersModule(supabaseClient, hashHelper)
 
+	authController := setupAuthModule(supabaseClient)
+
 	r := chi.NewRouter()
 	routers.SetupUsersRouter(r, usersController)
+	routers.SetupAuthRouter(r, authController)
 
 	fmt.Println("API is running...")
 	http.ListenAndServe(":3000", r)
@@ -40,4 +43,10 @@ func setupUsersModule(supabaseClient *supabase.Client, hashHelper ports.HashHelp
 	usersController := controllers.NewUsersController(usersService)
 
 	return usersController
+}
+
+func setupAuthModule(supabaseClient *supabase.Client) *controllers.AuthController {
+	authAdapter := adapters.NewSupabaseAuthenticator(supabaseClient)
+	authService := services.NewAuthService(authAdapter)
+	return controllers.NewAuthController(authService)
 }

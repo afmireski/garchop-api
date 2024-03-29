@@ -10,3 +10,8 @@ type NewUserInput struct {
 	ConfirmPassword string `json:"confirm_password"`
 	BirthDate time.Time `json:"birth_date"`
 }
+
+type LoginInput struct {
+	Email string `json:"email"`
+	Password string `json:"password"`
+}

@@ -18,8 +18,8 @@ type UserRepositoryPort interface {
 }
 
 type CreateUserInput struct {
-	Name string `json:"name"`
-	Email string `json:"email"`
-	Phone string `json:"phone"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Phone     string    `json:"phone"`
 	BirthDate time.Time `json:"birth_date"`
 }

@@ -1,8 +1,6 @@
 package services
 
 import (
-	"fmt"
-
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
 
@@ -29,17 +27,15 @@ func validateLoginInput(input myTypes.LoginInput) *customErrors.InternalError {
 	}
 	return nil
 }
-func (s *AuthService) Login(input myTypes.LoginInput) *customErrors.InternalError {
+func (s *AuthService) Login(input myTypes.LoginInput) (*myTypes.LoginOutput, *customErrors.InternalError) {
 
 	if inputErr := validateLoginInput(input); inputErr != nil {
-		return inputErr
+		return nil, inputErr
 	}
 
 	response, err := s.authenticator.ValidateCredentials(input.Email, input.Password); if err != nil {
-		return customErrors.NewInternalError("invalid credentials", 500, []string{})
+		return nil, customErrors.NewInternalError("invalid credentials", 500, []string{err.Error()})
 	}
-	
-	fmt.Println(response)
 
-	return nil
+	return response, nil
 }

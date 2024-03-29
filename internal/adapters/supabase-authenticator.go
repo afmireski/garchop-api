@@ -19,7 +19,7 @@ func NewSupabaseAuthenticator(client *supabase.Client) *SupabaseAuthenticator {
 }
 
 
-func (a *SupabaseAuthenticator) ValidateCredentials(email string, password string) (myTypes.Any, error) {
+func (a *SupabaseAuthenticator) ValidateCredentials(email string, password string) (*myTypes.LoginOutput, error) {
 	ctx := context.Background()
 	// Valdiate credentials and create a session
 	authData, err := a.client.Auth.SignIn(ctx, supabase.UserCredentials{
@@ -27,5 +27,8 @@ func (a *SupabaseAuthenticator) ValidateCredentials(email string, password strin
 		Password: password,
 	})
 
-	return authData, err
+	return &myTypes.LoginOutput{
+		AccessToken: authData.AccessToken,
+		RefreshToken: authData.RefreshToken,
+	}, err
 }

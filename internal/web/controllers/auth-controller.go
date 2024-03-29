@@ -34,7 +34,7 @@ func (c *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serviceErr := c.service.Login(credentials)
+	response, serviceErr := c.service.Login(credentials)
 
 	if serviceErr != nil {
 		w.WriteHeader(serviceErr.HttpCode)
@@ -43,5 +43,7 @@ func (c *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(response)
+	return
 
 }

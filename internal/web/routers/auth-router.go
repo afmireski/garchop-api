@@ -6,5 +6,5 @@ import (
 )
 
 func SetupAuthRouter(router *chi.Mux, controller *controllers.AuthController) {
-	router.Post("/auth/signin", controller.SignIn)
+	router.Post("/sign-in", controller.SignIn)
 }

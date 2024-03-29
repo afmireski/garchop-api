@@ -3,6 +3,7 @@ package adapters
 import (
 	"encoding/json"
 	"errors"
+	"context"
 
 	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
@@ -38,13 +39,15 @@ func serializeMany(data []map[string]string) ([]models.UserModel, error) {
 func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, error) {
 	var supabaseData []map[string]string
 
-	err := r.client.DB.From("users").Insert(input).Execute(&supabaseData)
-
-	if err != nil {
+	err := r.client.DB.From("users").Insert(input).Execute(&supabaseData); if err != nil {
 		return "", err
 	}
 
-	if err != nil {
+	// SignUp the user into supabase auth table
+	_, signUpErr := r.client.Auth.SignUp(context.Background(), supabase.UserCredentials{
+		Email: input.Email,
+		Password: input.Password,
+	}); if signUpErr != nil {
 		return "", err
 	}
 

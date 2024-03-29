@@ -13,15 +13,18 @@ import (
 
 type UsersService struct {
 	repository ports.UserRepositoryPort
+	hashHelper ports.HashHelperPort
 }
 
-func NewUsersService(repository ports.UserRepositoryPort) *UsersService {
+func NewUsersService(repository ports.UserRepositoryPort, hashHelper ports.HashHelperPort) *UsersService {
 	return &UsersService{
 		repository,
+		hashHelper,
 	}
 }
 
-func validateNewUserInput(input ports.CreateUserInput) *customErrors.InternalError {
+
+func validateNewUserInput(input myTypes.NewUserInput) *customErrors.InternalError {
 	if !validators.IsValidEmail(input.Email) {
 		return customErrors.NewInternalError("invalid email", 400, []string{})
 	}
@@ -33,12 +36,18 @@ func validateNewUserInput(input ports.CreateUserInput) *customErrors.InternalErr
 	}
 	if !validators.IsValidAge(input.BirthDate, 18) {
 		return customErrors.NewInternalError("invalid birth date", 400, []string{})
+	} 
+	if !validators.IsValidPassword(input.Password) {
+		return customErrors.NewInternalError("invalid password", 400, []string{})
+	}
+	if input.Password != input.ConfirmPassword {
+		return customErrors.NewInternalError("passwords do not match", 400, []string{})
 	}
 
 	return nil
 }
 
-func (s *UsersService) NewUser(input ports.CreateUserInput) *customErrors.InternalError {
+func (s *UsersService) NewUser(input myTypes.NewUserInput) *customErrors.InternalError {
 	if inputErr := validateNewUserInput(input); inputErr != nil {
 		return inputErr
 	}
@@ -47,7 +56,17 @@ func (s *UsersService) NewUser(input ports.CreateUserInput) *customErrors.Intern
 	re := regexp.MustCompile(`[^+\d]`)
 	input.Phone = re.ReplaceAllString(input.Phone, "")
 
-	_, err := s.repository.Create(input)
+	hash, _ := s.hashHelper.GenerateHash(input.Password, 10)
+
+	data := ports.CreateUserInput{
+		Name: input.Name,
+		Email: input.Email,
+		Phone: input.Phone,
+		Password: hash,
+		BirthDate: input.BirthDate,
+	}
+
+	_, err := s.repository.Create(data)
 
 	if err != nil {
 		return customErrors.NewInternalError("a failure occurred when try to create a new user", 500, []string{err.Error()})

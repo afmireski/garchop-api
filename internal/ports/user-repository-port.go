@@ -3,6 +3,7 @@ package ports
 import (
 	"time"
 
+	"github.com/afmireski/garchop-api/internal/models"
 	myTypes "github.com/afmireski/garchop-api/internal/types"
 )
 

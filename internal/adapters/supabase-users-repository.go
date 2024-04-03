@@ -3,6 +3,7 @@ package adapters
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -48,8 +49,13 @@ func mapToUserModel(data map[string]interface{}) (*models.UserModel, error) {
 	if deletedAtString, ok := data["deleted_at"].(string); ok {
 		deletedAt, _ = time.Parse("2006-01-02T15:04:05.999999999Z07:00", deletedAtString)
 	}
-
-	role, _ := data["role"].(entities.UserRoleEnum)
+	
+	var role entities.UserRoleEnum;
+	if data["role"] == "client" {
+		role = entities.Client
+	} else {
+		role = entities.Admin
+	}
 
 	return models.NewUserModel(
 		data["id"].(string),

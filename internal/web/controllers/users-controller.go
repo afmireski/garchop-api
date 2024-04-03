@@ -45,12 +45,12 @@ func (c *UsersController) NewUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (c *UsersController) GetUser(w http.ResponseWriter, r *http.Request) {
+func (c *UsersController) GetUserById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	idParam := chi.URLParam(r, "id")
 
-	user, serviceErr := c.service.GetUser(idParam)
+	user, serviceErr := c.service.GetUserById(idParam)
 
 	if serviceErr != nil {
 		w.WriteHeader(serviceErr.HttpCode)

@@ -1,6 +1,7 @@
 package adapters
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -68,16 +69,33 @@ func mapToUserModel(data map[string]interface{}) (*models.UserModel, error) {
 		deletedAt), nil
 }
 
+type CreateInput struct {
+	Name string `json:"name"`
+	Email string `json:"email"`
+	Phone string `json:"phone"`
+	Password string `json:"password"`
+	BirthDate time.Time `json:"birth_date"`
+}
 func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, error) {
 	var supabaseData []map[string]string
 
-	err := r.client.DB.From("users").Insert(input).Execute(&supabaseData)
+	data := CreateInput{
+		Name: input.Name,
+		Email: input.Email,
+		Phone: input.Phone,
+		Password: input.Password,
+		BirthDate: input.BirthDate,
+	}	
 
-	if err != nil {
+	err := r.client.DB.From("users").Insert(data).Execute(&supabaseData); if err != nil {
 		return "", err
 	}
 
-	if err != nil {
+	// SignUp the user into supabase auth table
+	_, signUpErr := r.client.Auth.SignUp(context.Background(), supabase.UserCredentials{
+		Email: input.Email,
+		Password: input.PlainPassword,
+	}); if signUpErr != nil {
 		return "", err
 	}
 

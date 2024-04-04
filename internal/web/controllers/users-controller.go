@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
-	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/services"
 	"github.com/go-chi/chi/v5"
+	myTypes "github.com/afmireski/garchop-api/internal/types"
 )
 
 type UsersController struct {
@@ -23,7 +23,7 @@ func NewUsersController(service *services.UsersService) *UsersController {
 func (c *UsersController) NewUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var input ports.CreateUserInput
+	var input myTypes.NewUserInput
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 

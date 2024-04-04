@@ -52,3 +52,19 @@ func IsValidPassword(password string) bool {
 	re := regexp.MustCompile(`^(.{6,})`)
 	return re.MatchString(password)
 }
+
+func IsNotEmpty(text string) bool {
+	return len(text) > 0
+}
+
+func IsPositiveNumber(number int) bool {
+	return number > 0
+}
+
+func IsGreaterThanInt(value int, min int) bool {
+	return value > min
+}
+
+func IsGreaterThanEqualInt(value int, min int) bool {
+	return value >= min
+}

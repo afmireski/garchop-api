@@ -1,13 +1,13 @@
 package types
 
 type CreatePokemonInput struct {
-	ReferenceId int    `json:"reference_id"`
+	ReferenceId uint    `json:"reference_id"`
 	TierId      string `json:"tier_id"`
 	Name        string `json:"name"`
-	Weight      int    `json:"weight"`
-	Height      int    `json:"height"`
+	Weight      uint    `json:"weight"`
+	Height      uint    `json:"height"`
 	ImageUrl    string `json:"image_url"`
-	Experience  int    `json:"experience"`
+	Experience  uint    `json:"experience"`
 }
 
 type NewPokemonInput struct {

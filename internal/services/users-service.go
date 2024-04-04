@@ -56,6 +56,26 @@ func (s *UsersService) NewUser(input ports.CreateUserInput) *customErrors.Intern
 	return nil
 }
 
+func (s *UsersService) UpdateClient(id string, input ports.UpdateUserInput) *customErrors.InternalError {
+	if !validators.IsValidUuid(id) {
+		return customErrors.NewInternalError("invalid id", 400, []string{})
+	}
+
+	if len(input.Name) > 0 && !validators.IsValidName(input.Name, 3, 200) {
+		return customErrors.NewInternalError("invalid name", 400, []string{})
+	}
+
+	if len(input.Email) > 0 && !validators.IsValidEmail(input.Email) {
+		return customErrors.NewInternalError("invalid email", 400, []string{})
+	}
+
+	if len(input.Phone) > 0 && !validators.IsPhoneNumber(input.Phone) {
+		return customErrors.NewInternalError("invalid phone", 400, []string{})
+	}
+
+	return nil
+}
+
 func (s *UsersService) DeleteClient(id string) *customErrors.InternalError {
 	if !validators.IsValidUuid(id) {
 		return customErrors.NewInternalError("invalid uuid", 400, []string{})
@@ -68,7 +88,7 @@ func (s *UsersService) DeleteClient(id string) *customErrors.InternalError {
 
 	where := myTypes.Where{
 		"deleted_at": map[string]string{"is": "null"},
-	}	
+	}
 
 	updatedData, err := s.repository.Update(id, data, where)
 	if err != nil || updatedData == nil {

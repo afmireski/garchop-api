@@ -45,6 +45,10 @@ func (c *UsersController) NewUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+func (c *UsersController) UpdateUserById(w http.ResponseWriter, r *http.Request) {
+	// TODO
+}
+
 func (c *UsersController) DeleteClientAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 

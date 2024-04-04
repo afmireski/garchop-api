@@ -3,13 +3,14 @@ package ports
 import (
 	"time"
 
+	"github.com/afmireski/garchop-api/internal/models"
 	myTypes "github.com/afmireski/garchop-api/internal/types"
 )
 
 type UserRepositoryPort interface {
 	Create(input CreateUserInput) (string, error)
 
-	FindById(id string) (myTypes.Any, error)
+	FindById(id string) (*models.UserModel, error)
 
 	Update(id string, input myTypes.AnyMap, where myTypes.Where) (myTypes.Any, error)
 

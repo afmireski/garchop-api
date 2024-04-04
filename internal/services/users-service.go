@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/afmireski/garchop-api/internal/entities"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
 
@@ -74,6 +75,22 @@ func (s *UsersService) NewUser(input myTypes.NewUserInput) *customErrors.Interna
 	}
 
 	return nil
+}
+
+func (s *UsersService) GetUserById(id string) (*entities.User, *customErrors.InternalError) {
+	if !validators.IsValidUuid(id) {
+		return nil, customErrors.NewInternalError("invalid id", 400, []string{})
+	}
+
+	response, err := s.repository.FindById(id)
+
+	if err != nil {
+		return nil, customErrors.NewInternalError("a failure occurred when try to retrieve a new user", 500, []string{})
+	} else if response == nil {
+		return nil, customErrors.NewInternalError("user not found", 404, []string{})
+	}
+
+	return entities.NewUser(response.Id, response.Name, response.Email, response.Phone, response.BirthDate, response.Role), nil
 }
 
 func (s *UsersService) DeleteClient(id string) *customErrors.InternalError {

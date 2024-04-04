@@ -2,6 +2,9 @@
 ---
 title: Projeto Integrador
 ---
+---
+title: Projeto Integrador
+---
 classDiagram
     namespace Cruds {
         class User{
@@ -21,8 +24,8 @@ classDiagram
             string name
             int weight
             int height
-            int generation 
-            JSON details
+            string img_url 
+            int experience
         }
 
         class Type{
@@ -101,7 +104,7 @@ classDiagram
     }
     
 
-    Pokemon "1" --* "1..N" Type : possui
+    Pokemon "1..N" --* "1..N" Type : possui
     Pokemon "1" --* "1..N" Price : tem
     Pokemon "1" --o "1" Stock : possui
 
@@ -120,6 +123,4 @@ classDiagram
 
     UserStats "0..N" --* "1" Tier : está 
     Pokemon "0..N" --* "1" Tier : está 
-
-
 ```

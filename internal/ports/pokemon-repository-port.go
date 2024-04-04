@@ -3,7 +3,7 @@ package ports
 import myTypes "github.com/afmireski/garchop-api/internal/types"
 
 type PokemonRepositoryPort interface {
-	Create(input myTypes.Any) (string, error)
+	Create(input myTypes.CreatePokemonInput) (string, error)
 
 	FindById(id string) (*myTypes.Any, error)
 

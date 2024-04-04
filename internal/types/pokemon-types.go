@@ -13,6 +13,6 @@ type CreatePokemonInput struct {
 type NewPokemonInput struct {
 	Name         string `json:"name"`
 	Price        int    `json:"price"`
-	InitialStock int    `json:"stock"`
+	InitialStock int    `json:"initial_stock"`
 	TierId       string `json:"tier_id"`
 }

@@ -10,6 +10,13 @@ type CreatePokemonInput struct {
 	Experience  uint    `json:"experience"`
 }
 
+type RegistryPokemonInput struct {
+	CreatePokemonInput
+	Price        int    `json:"price"`
+	InitialStock int    `json:"initial_stock"`
+	Types        []string `json:"types"`
+}
+
 type NewPokemonInput struct {
 	Name         string `json:"name"`
 	Price        int    `json:"price"`

@@ -50,3 +50,10 @@ func setupAuthModule(supabaseClient *supabase.Client) *controllers.AuthControlle
 	authService := services.NewAuthService(authAdapter)
 	return controllers.NewAuthController(authService)
 }
+
+func setupPokemonModule(supabaseClient *supabase.Client) *controllers.PokemonController {
+	pokemonRepository := adapters.NewSupabasePokemonRepository(supabaseClient)
+	pokemonService := services.NewPokemonService(pokemonRepository)
+	return controllers.NewPokemonController(pokemonService)
+
+}

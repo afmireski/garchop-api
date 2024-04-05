@@ -23,9 +23,10 @@ type PokemonService struct {
 	cache           *cache.Cache
 }
 
-func NewPokemonService(repository ports.PokemonRepositoryPort, cache *cache.Cache) *PokemonService {
+func NewPokemonService(repository ports.PokemonRepositoryPort, typesRepository ports.PokemonTypesRepositoryPort, cache *cache.Cache) *PokemonService {
 	return &PokemonService{
 		repository: repository,
+		typesRepository: typesRepository,
 		cache:      cache,
 	}
 }
@@ -134,7 +135,9 @@ func (s *PokemonService) NewPokemon(input myTypes.NewPokemonInput) *customErrors
 		return err
 	}
 
-	typeIds, err := s.obtainTypeData(pokeData["types"].(map[int]myTypes.Any))
+	typeIds, err := s.obtainTypeData(pokeData["types"].(map[int]myTypes.Any)); if err != nil {
+		return err
+	}
 
 	pokemonData := myTypes.CreatePokemonInput{
 		ReferenceId: pokeData["id"].(uint),

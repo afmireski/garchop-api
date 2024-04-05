@@ -46,8 +46,30 @@ func (c *UsersController) NewUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *UsersController) UpdateUserById(w http.ResponseWriter, r *http.Request) {
-	// TODO
+	w.Header().Set("Content-Type", "application/json")
 
+	idParam := chi.URLParam(r, "id")
+
+	var input myTypes.UpdateUserInput
+
+	err := json.NewDecoder(r.Body).Decode(&input)
+
+	if err != nil {
+		err := customErrors.NewInternalError("fail on deserialize request body", 400, []string{})
+		w.WriteHeader(err.HttpCode)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+
+	user := c.service.UpdateClient(idParam, input)
+
+	if user != nil {
+		w.WriteHeader(user.HttpCode)
+		json.NewEncoder(w).Encode(user)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (c *UsersController) GetUserById(w http.ResponseWriter, r *http.Request) {

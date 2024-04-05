@@ -2,6 +2,9 @@
 ---
 title: Projeto Integrador
 ---
+---
+title: Projeto Integrador
+---
 classDiagram
     namespace Cruds {
         class User{
@@ -18,11 +21,11 @@ classDiagram
             string id
             int reference_id
             string tier_id
+            string name
             int weight
             int height
-            int generation 
-            int quantity
-            JSON details
+            string img_url 
+            int experience
         }
 
         class Type{
@@ -32,10 +35,14 @@ classDiagram
         }
 
         class Price{
-            string id
             string pokemon_id
             time created_at
             int value
+        }
+
+        class Stock{
+            string pokemon_id
+            int quantity
         }
     }
 
@@ -97,8 +104,9 @@ classDiagram
     }
     
 
-    Pokemon "1" --* "1..N" Type : possui
+    Pokemon "1..N" --* "1..N" Type : possui
     Pokemon "1" --* "1..N" Price : tem
+    Pokemon "1" --o "1" Stock : possui
 
     User "1" --o "0..N" Cart : possui
     Cart "1" *-- "1..N" Item : é composto
@@ -115,5 +123,4 @@ classDiagram
 
     UserStats "0..N" --* "1" Tier : está 
     Pokemon "0..N" --* "1" Tier : está 
-
 ```

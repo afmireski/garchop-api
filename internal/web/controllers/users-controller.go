@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
-	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/services"
+	myTypes "github.com/afmireski/garchop-api/internal/types"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -23,7 +23,7 @@ func NewUsersController(service *services.UsersService) *UsersController {
 func (c *UsersController) NewUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var input ports.CreateUserInput
+	var input myTypes.NewUserInput
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 
@@ -47,6 +47,23 @@ func (c *UsersController) NewUser(w http.ResponseWriter, r *http.Request) {
 
 func (c *UsersController) UpdateUserById(w http.ResponseWriter, r *http.Request) {
 	// TODO
+
+}
+
+func (c *UsersController) GetUserById(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	idParam := chi.URLParam(r, "id")
+
+	user, serviceErr := c.service.GetUserById(idParam)
+
+	if serviceErr != nil {
+		w.WriteHeader(serviceErr.HttpCode)
+		json.NewEncoder(w).Encode(serviceErr)
+		return
+	}
+
+	json.NewEncoder(w).Encode(user)
 }
 
 func (c *UsersController) DeleteClientAccount(w http.ResponseWriter, r *http.Request) {

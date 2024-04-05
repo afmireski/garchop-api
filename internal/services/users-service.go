@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/afmireski/garchop-api/internal/entities"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
 
@@ -13,15 +14,17 @@ import (
 
 type UsersService struct {
 	repository ports.UserRepositoryPort
+	hashHelper ports.HashHelperPort
 }
 
-func NewUsersService(repository ports.UserRepositoryPort) *UsersService {
+func NewUsersService(repository ports.UserRepositoryPort, hashHelper ports.HashHelperPort) *UsersService {
 	return &UsersService{
 		repository,
+		hashHelper,
 	}
 }
 
-func validateNewUserInput(input ports.CreateUserInput) *customErrors.InternalError {
+func validateNewUserInput(input myTypes.NewUserInput) *customErrors.InternalError {
 	if !validators.IsValidEmail(input.Email) {
 		return customErrors.NewInternalError("invalid email", 400, []string{})
 	}
@@ -34,11 +37,17 @@ func validateNewUserInput(input ports.CreateUserInput) *customErrors.InternalErr
 	if !validators.IsValidAge(input.BirthDate, 18) {
 		return customErrors.NewInternalError("invalid birth date", 400, []string{})
 	}
+	if !validators.IsValidPassword(input.Password) {
+		return customErrors.NewInternalError("invalid password", 400, []string{})
+	}
+	if input.Password != input.ConfirmPassword {
+		return customErrors.NewInternalError("passwords do not match", 400, []string{})
+	}
 
 	return nil
 }
 
-func (s *UsersService) NewUser(input ports.CreateUserInput) *customErrors.InternalError {
+func (s *UsersService) NewUser(input myTypes.NewUserInput) *customErrors.InternalError {
 	if inputErr := validateNewUserInput(input); inputErr != nil {
 		return inputErr
 	}
@@ -47,7 +56,18 @@ func (s *UsersService) NewUser(input ports.CreateUserInput) *customErrors.Intern
 	re := regexp.MustCompile(`[^+\d]`)
 	input.Phone = re.ReplaceAllString(input.Phone, "")
 
-	_, err := s.repository.Create(input)
+	hash, _ := s.hashHelper.GenerateHash(input.Password, 10)
+
+	data := ports.CreateUserInput{
+		Name:          input.Name,
+		Email:         input.Email,
+		Phone:         input.Phone,
+		Password:      hash,
+		PlainPassword: input.Password,
+		BirthDate:     input.BirthDate,
+	}
+
+	_, err := s.repository.Create(data)
 
 	if err != nil {
 		return customErrors.NewInternalError("a failure occurred when try to create a new user", 500, []string{err.Error()})
@@ -74,6 +94,22 @@ func (s *UsersService) UpdateClient(id string, input ports.UpdateUserInput) *cus
 	}
 
 	return nil
+}
+
+func (s *UsersService) GetUserById(id string) (*entities.User, *customErrors.InternalError) {
+	if !validators.IsValidUuid(id) {
+		return nil, customErrors.NewInternalError("invalid id", 400, []string{})
+	}
+
+	response, err := s.repository.FindById(id)
+
+	if err != nil {
+		return nil, customErrors.NewInternalError("a failure occurred when try to retrieve a new user", 500, []string{})
+	} else if response == nil {
+		return nil, customErrors.NewInternalError("user not found", 404, []string{})
+	}
+
+	return entities.NewUser(response.Id, response.Name, response.Email, response.Phone, response.BirthDate, response.Role), nil
 }
 
 func (s *UsersService) DeleteClient(id string) *customErrors.InternalError {

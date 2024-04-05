@@ -1,9 +1,13 @@
 package adapters
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"strings"
+	"time"
 
+	"github.com/afmireski/garchop-api/internal/entities"
 	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
 	supabase "github.com/nedpals/supabase-go"
@@ -28,31 +32,91 @@ func serializeMany(data []map[string]string) ([]models.UserModel, error) {
 		return nil, err
 	}
 
-
 	var result []models.UserModel
 	json.Unmarshal(jsonData, &result)
 
 	return result, nil
 }
 
+func mapToUserModel(data map[string]interface{}) (*models.UserModel, error) {
+	birthDate, _ := time.Parse("2006-01-02", data["birth_date"].(string))
+
+	createdAt, _ := time.Parse("2006-01-02T15:04:05.999999999Z07:00", data["created_at"].(string))
+
+	updatedAt, _ := time.Parse("2006-01-02T15:04:05.999999999Z07:00", data["updated_at"].(string))
+
+	var deletedAt time.Time
+	if deletedAtString, ok := data["deleted_at"].(string); ok {
+		deletedAt, _ = time.Parse("2006-01-02T15:04:05.999999999Z07:00", deletedAtString)
+	}
+
+	var role entities.UserRoleEnum;
+	if data["role"] == "client" {
+		role = entities.Client
+	} else {
+		role = entities.Admin
+	}
+
+	return models.NewUserModel(
+		data["id"].(string),
+		data["name"].(string),
+		data["email"].(string),
+		data["phone"].(string),
+		birthDate,
+		role,
+		createdAt,
+		updatedAt,
+		deletedAt), nil
+}
+
+type CreateInput struct {
+	Name string `json:"name"`
+	Email string `json:"email"`
+	Phone string `json:"phone"`
+	Password string `json:"password"`
+	BirthDate time.Time `json:"birth_date"`
+}
 func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, error) {
 	var supabaseData []map[string]string
 
-	err := r.client.DB.From("users").Insert(input).Execute(&supabaseData)
+	data := CreateInput{
+		Name: input.Name,
+		Email: input.Email,
+		Phone: input.Phone,
+		Password: input.Password,
+		BirthDate: input.BirthDate,
+	}	
 
-	if err != nil {
+	err := r.client.DB.From("users").Insert(data).Execute(&supabaseData); if err != nil {
 		return "", err
 	}
 
-	if err != nil {
+	// SignUp the user into supabase auth table
+	_, signUpErr := r.client.Auth.SignUp(context.Background(), supabase.UserCredentials{
+		Email: input.Email,
+		Password: input.PlainPassword,
+	}); if signUpErr != nil {
 		return "", err
 	}
 
 	return supabaseData[0]["id"], nil
 }
 
-func (r *SupabaseUsersRepository) FindById(id string) (myTypes.Any, error) {
-	return nil, errors.New("not implemented")
+func (r *SupabaseUsersRepository) FindById(id string) (*models.UserModel, error) {
+	var supabaseData map[string]interface{}
+
+	err := r.client.DB.From("users").Select("*").Single().Eq("id", id).Execute(&supabaseData)
+
+	if err != nil {
+
+		if strings.Contains(err.Error(), "PGRST116") { // resource not found
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return mapToUserModel(supabaseData)
 }
 
 func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (myTypes.Any, error) {

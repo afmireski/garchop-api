@@ -6,22 +6,27 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
+	cache "github.com/patrickmn/go-cache"
 
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
 	myTypes "github.com/afmireski/garchop-api/internal/types"
 )
 
 type PokemonService struct {
-	repository ports.PokemonRepositoryPort
+	repository      ports.PokemonRepositoryPort
+	typesRepository ports.PokemonTypesRepositoryPort
+	cache           *cache.Cache
 }
 
-func NewPokemonService(repository ports.PokemonRepositoryPort) *PokemonService {
+func NewPokemonService(repository ports.PokemonRepositoryPort, cache *cache.Cache) *PokemonService {
 	return &PokemonService{
 		repository: repository,
+		cache:      cache,
 	}
 }
 
@@ -39,7 +44,7 @@ func validateNewPokemonInput(input myTypes.NewPokemonInput) *customErrors.Intern
 	return nil
 }
 
-func obtainPokemonData(pokemonName string) (myTypes.AnyMap, *customErrors.InternalError) {
+func searchPokemonInPokeApi(pokemonName string) (myTypes.AnyMap, *customErrors.InternalError) {
 	url := fmt.Sprintf("%s/pokemon/%s", os.Getenv("POKE_API_URL"), strings.ToLower(pokemonName))
 	pokeApiResponse, err := http.Get(url)
 	if err != nil || pokeApiResponse.StatusCode != 200 {
@@ -62,18 +67,76 @@ func obtainPokemonData(pokemonName string) (myTypes.AnyMap, *customErrors.Intern
 	return pokeJson, nil
 }
 
+func (s *PokemonService) obtainPokemonData(pokemonName string) (myTypes.AnyMap, *customErrors.InternalError) {
+	pokeDataKey := fmt.Sprintf("pokemon_%s", pokemonName)
+
+	// Find PokeAPI data in cache, if not found made a new request
+	cacheData, found := s.cache.Get(pokeDataKey)
+	if found {
+		return cacheData.(myTypes.AnyMap), nil
+	}
+
+	pokeJson, err := searchPokemonInPokeApi(pokemonName)
+	if err != nil {
+		return nil, err
+	}
+
+	// Save PokeAPI data in cache permanently
+	s.cache.Set(pokeDataKey, pokeJson, cache.NoExpiration)
+
+	return pokeJson, nil
+}
+
+func (s *PokemonService) obtainTypeData(types map[int]myTypes.Any) ([]string, *customErrors.InternalError) {
+
+	typesIds := make([]string, 0)
+	for _, typeData := range types {
+		typeName := (typeData.(myTypes.AnyMap)["type"]).(string)
+		typeReferenceId := (strings.Split((typeData.(myTypes.AnyMap)["url"].(string)), "/")[6])
+
+		typeKey := fmt.Sprintf("type_%s", typeName)
+		// Find PokeAPI data in cache, if not found made a new request
+		cacheData, found := s.cache.Get(typeKey)
+		if found {
+			typesIds = append(typesIds, cacheData.(string))
+		} else {
+			typeData, err := s.typesRepository.FindByName(typeName)
+			if err != nil {
+				return nil, customErrors.NewInternalError("a failure occurred when try to obtain pokémon type data", 500, []string{})
+			}
+			if typeData == nil {
+				referenceId, _ := strconv.ParseUint(typeReferenceId, 10, 0)
+				createData := myTypes.CreatePokemonTypeInput{
+					ReferenceId: referenceId,
+					Name:        typeName,
+				}
+				typeData, err = s.typesRepository.Create(createData)
+				if err != nil {
+					return nil, customErrors.NewInternalError("a failure occurred when try to create a new pokémon type data", 500, []string{})
+				}
+				s.cache.Set(typeKey, typeData.Id, cache.NoExpiration)
+			}
+
+			typesIds = append(typesIds, typeData.Id)
+		}
+	}
+
+	return typesIds, nil
+}
+
 func (s *PokemonService) NewPokemon(input myTypes.NewPokemonInput) *customErrors.InternalError {
 
 	if inputErr := validateNewPokemonInput(input); inputErr != nil {
 		return inputErr
 	}
 
-	pokeData, err := obtainPokemonData(input.Name)
-	if err != nil {
+	pokeData, err := s.obtainPokemonData(input.Name); if err != nil {
 		return err
 	}
 
-	data := myTypes.CreatePokemonInput{
+	typeIds, err := s.obtainTypeData(pokeData["types"].(map[int]myTypes.Any))
+
+	pokemonData := myTypes.CreatePokemonInput{
 		ReferenceId: pokeData["id"].(uint),
 		TierId:      input.TierId,
 		Name:        input.Name,
@@ -83,7 +146,14 @@ func (s *PokemonService) NewPokemon(input myTypes.NewPokemonInput) *customErrors
 		ImageUrl:    (((pokeData["sprites"].(myTypes.AnyMap))["other"].(myTypes.AnyMap))["official-artwork"].(myTypes.AnyMap))["front_default"].(string),
 	}
 
-	_, repositoryErr := s.repository.Create(data)
+	data := myTypes.RegistryPokemonInput{
+		CreatePokemonInput: pokemonData,
+		Price:              input.Price,
+		InitialStock:       input.InitialStock,
+		Types:              typeIds,
+	}
+
+	_, repositoryErr := s.repository.Registry(data)
 	if repositoryErr != nil {
 		return customErrors.NewInternalError("a failure occurred when try to registry a new pokemon", 500, []string{})
 	}

@@ -23,3 +23,10 @@ type NewPokemonInput struct {
 	InitialStock int    `json:"initial_stock"`
 	TierId       string `json:"tier_id"`
 }
+
+
+
+type CreatePokemonTypeInput struct {
+	ReferenceId uint64 `json:"reference_id"`
+	Name      string `json:"name"`
+}

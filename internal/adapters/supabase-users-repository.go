@@ -137,7 +137,7 @@ func (r *SupabaseUsersRepository) FindById(id string) (*models.UserModel, error)
 	return mapToUserModel(supabaseData)
 }
 
-func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (myTypes.Any, error) {
+func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.UserModel, error) {
 	var supabaseData []map[string]string
 	query := r.client.DB.From("users").Update(input).Eq("id", id)
 	if len(where) > 0 {
@@ -160,7 +160,7 @@ func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where 
 		return nil, err
 	}	
 
-	return result[0], nil
+	return &result[0], nil
 }
 
 func (r *SupabaseUsersRepository) Delete(id string) error {

@@ -48,14 +48,18 @@ func validateNewUserInput(input myTypes.NewUserInput) *customErrors.InternalErro
 	return nil
 }
 
-func mapToUpdatedUserInput(input models.UserModel) myTypes.UpdateUserInput {
-	res := myTypes.UpdateUserInput{
+func mapToUpdateClientOutput(input *models.UserModel) *myTypes.UpdateClientOutput {
+	if input == nil {
+		return nil
+	}
+
+	res := myTypes.UpdateClientOutput{
 		Name:  input.Name,
 		Email: input.Email,
 		Phone: input.Phone,
 	}
 
-	return res
+	return &res
 }
 
 func (s *UsersService) NewUser(input myTypes.NewUserInput) *customErrors.InternalError {
@@ -87,41 +91,46 @@ func (s *UsersService) NewUser(input myTypes.NewUserInput) *customErrors.Interna
 	return nil
 }
 
-func (s *UsersService) UpdateClient(id string, input myTypes.UpdateUserInput) (myTypes.UpdateUserInput, *customErrors.InternalError) {
+func (s *UsersService) UpdateClient(id string, input myTypes.UpdateUserInput) (*myTypes.UpdateClientOutput, *customErrors.InternalError) {
 	data := myTypes.AnyMap{}
 
 	if !validators.IsValidUuid(id) {
-		return input, customErrors.NewInternalError("invalid id", 400, []string{})
+		return nil, customErrors.NewInternalError("invalid id", 400, []string{})
 	}
 
 	if len(input.Name) > 0 {
 		if !validators.IsValidName(input.Name, 3, 200) {
-			return input, customErrors.NewInternalError("invalid name", 400, []string{})
+			return nil, customErrors.NewInternalError("invalid name", 400, []string{})
 		}
 		data["name"] = input.Name
 	}
 
 	if len(input.Email) > 0 {
 		if !validators.IsValidEmail(input.Email) {
-			return input, customErrors.NewInternalError("invalid email", 400, []string{})
+			return nil, customErrors.NewInternalError("invalid email", 400, []string{})
 		}
 		data["email"] = input.Email
 	}
 
 	if len(input.Phone) > 0 {
 		if !validators.IsPhoneNumber(input.Phone) {
-			return input, customErrors.NewInternalError("invalid phone", 400, []string{})
+			return nil, customErrors.NewInternalError("invalid phone", 400, []string{})
 		}
 		data["phone"] = input.Phone
 	}
 
-	updatedUser, err := s.repository.Update(id, data, nil)
+	where := myTypes.Where{
+		"deleted_at": map[string]string{"is": "null"},
+	}
+	updatedUser, err := s.repository.Update(id, data, where)
 
 	if err != nil {
-		return input, customErrors.NewInternalError("a failure occurred when trying to update a user", 500, []string{})
+		return nil, customErrors.NewInternalError("a failure occurred when trying to update a user", 500, []string{})
+	} else if updatedUser == nil {
+		return nil, customErrors.NewInternalError("no user found to update", 404, []string{})
 	}
 
-	return mapToUpdatedUserInput(updatedUser.(models.UserModel)), nil
+	return mapToUpdateClientOutput(updatedUser), nil
 }
 
 func (s *UsersService) GetUserById(id string) (*entities.User, *customErrors.InternalError) {

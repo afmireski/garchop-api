@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/afmireski/garchop-api/internal/entities"
+	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
 
@@ -45,6 +46,16 @@ func validateNewUserInput(input myTypes.NewUserInput) *customErrors.InternalErro
 	}
 
 	return nil
+}
+
+func mapToUpdatedUserInput(input models.UserModel) myTypes.UpdateUserInput {
+	res := myTypes.UpdateUserInput{
+		Name:  input.Name,
+		Email: input.Email,
+		Phone: input.Phone,
+	}
+
+	return res
 }
 
 func (s *UsersService) NewUser(input myTypes.NewUserInput) *customErrors.InternalError {

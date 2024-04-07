@@ -7,7 +7,7 @@ import (
 	myTypes "github.com/afmireski/garchop-api/internal/types"
 )
 
-type SupabasePokemonTypesRepository struct  {
+type SupabasePokemonTypesRepository struct {
 	client *supabase.Client
 }
 
@@ -18,23 +18,25 @@ func NewSupabasePokemonTypesRepository(client *supabase.Client) *SupabasePokemon
 }
 
 func (r *SupabasePokemonTypesRepository) Create(input myTypes.CreatePokemonTypeInput) (*entities.PokemonType, error) {
-	var supabaseData myTypes.AnyMap
+	var supabaseData []myTypes.AnyMap
 
-	err := r.client.DB.From("types").Insert(input).Execute(&supabaseData); if err != nil {
+	err := r.client.DB.From("types").Insert(input).Execute(&supabaseData)
+	if err != nil {
 		return nil, err
 	}
 
 	return entities.NewPokemonType(
-		supabaseData["id"].(string),
-		supabaseData["reference_id"].(uint),
-		supabaseData["name"].(string),
+		supabaseData[0]["id"].(string),
+		uint(supabaseData[0]["reference_id"].(float64)),
+		supabaseData[0]["name"].(string),
 	), nil
 }
 
 func (r *SupabasePokemonTypesRepository) FindByName(name string) (*entities.PokemonType, error) {
-	var supabaseData []map[string]interface{}
+	var supabaseData []myTypes.AnyMap
 
-	err := r.client.DB.From("types").Select("*").Execute(&supabaseData); if err != nil {
+	err := r.client.DB.From("types").Select("*").Filter("name", "like", name).Execute(&supabaseData)
+	if err != nil {
 		return nil, err
 	}
 
@@ -44,7 +46,7 @@ func (r *SupabasePokemonTypesRepository) FindByName(name string) (*entities.Poke
 
 	return entities.NewPokemonType(
 		supabaseData[0]["id"].(string),
-		supabaseData[0]["reference_id"].(uint),
+		uint(supabaseData[0]["reference_id"].(float64)),
 		supabaseData[0]["name"].(string),
 	), nil
 }

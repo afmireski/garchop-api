@@ -17,51 +17,54 @@ func NewSupabasePokemonRepository(client *supabase.Client) *SupabasePokemonRepos
 }
 
 func (r *SupabasePokemonRepository) Create(input myTypes.CreatePokemonInput) (string, error) {
-	var supabaseData []map[string]string
+	var supabaseData []myTypes.AnyMap
 
 	err := r.client.DB.From("pokemons").Insert(input).Execute(&supabaseData); if err != nil {
 		return "", err
 	}
 
-	return supabaseData[0]["id"], nil
+	return supabaseData[0]["id"].(string), nil
 }
 
 type createPriceInput struct {
-	pokemonId string `json:"pokemon_id"`
-	price int `json:"price"`
+	PokemonId string `json:"pokemon_id"`
+	Value int `json:"value"`
 }
 type createStockInput struct {
-	pokemonId string `json:"pokemon_id"`
-	quantity int `json:"quantity"`
+	PokemonId string `json:"pokemon_id"`
+	Quantity int `json:"quantity"`
 }
 type createPokemonTypeInput struct {
-	pokemonId string `json:"pokemon_id"`
-	typeId string `json:"type_id"`
+	PokemonId string `json:"pokemon_id"`
+	TypeId string `json:"type_id"`
 }
 func (r *SupabasePokemonRepository) Registry(input myTypes.RegistryPokemonInput) (string, error) {
 	pokemonId, err := r.Create(input.CreatePokemonInput); if err != nil {
 		return "", err
 	}
 
-	var supabaseData []map[string]string
-	err = r.client.DB.From("prices").Insert(createPriceInput{
-		pokemonId: pokemonId,
-		price: input.Price,
-	}).Execute(&supabaseData); if err != nil {
+	var supabaseData []myTypes.AnyMap
+	
+	priceInput := createPriceInput{
+		PokemonId: pokemonId,
+		Value: input.Price,
+	}
+	err = r.client.DB.From("prices").Insert(priceInput).Execute(&supabaseData); if err != nil {
 		return "", err
 	}
 
-	err = r.client.DB.From("stocks").Insert(createStockInput{
-		pokemonId: pokemonId,
-		quantity: input.InitialStock,
-	}).Execute(&supabaseData); if err != nil {
+	stockInput := createStockInput{
+		PokemonId: pokemonId,
+		Quantity: input.InitialStock,
+	}
+	err = r.client.DB.From("stocks").Insert(stockInput).Execute(&supabaseData); if err != nil {
 		return "", err
 	}
 
 	for _, typeId := range input.Types {
 		err = r.client.DB.From("pokemon_types").Insert(createPokemonTypeInput{
-			pokemonId: pokemonId,
-			typeId: typeId,
+			PokemonId: pokemonId,
+			TypeId: typeId,
 		}).Execute(&supabaseData); if err != nil {
 			return "", err
 		}; if err != nil {

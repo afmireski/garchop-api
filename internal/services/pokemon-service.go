@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
@@ -25,16 +24,16 @@ type PokemonService struct {
 
 func NewPokemonService(repository ports.PokemonRepositoryPort, typesRepository ports.PokemonTypesRepositoryPort, cache *cache.Cache) *PokemonService {
 	return &PokemonService{
-		repository: repository,
+		repository:      repository,
 		typesRepository: typesRepository,
-		cache:      cache,
+		cache:           cache,
 	}
 }
 
 func validateNewPokemonInput(input myTypes.NewPokemonInput) *customErrors.InternalError {
 	if !validators.IsValidName(input.Name, 1, 100) {
 		return customErrors.NewInternalError("invalid name", 400, []string{"Name cannot be empty and must be between 1 and 100 characters"})
-	} else if !validators.IsValidUuid(input.TierId) {
+	} else if !validators.IsValidNumericId(input.TierId) {
 		return customErrors.NewInternalError("invalid tier_id", 400, []string{"Tier id must be a valid uuid"})
 	} else if !validators.IsPositiveNumber(input.Price) {
 		return customErrors.NewInternalError("invalid price", 400, []string{"Price must be a positive number"})
@@ -46,7 +45,8 @@ func validateNewPokemonInput(input myTypes.NewPokemonInput) *customErrors.Intern
 }
 
 func searchPokemonInPokeApi(pokemonName string) (myTypes.AnyMap, *customErrors.InternalError) {
-	url := fmt.Sprintf("%s/pokemon/%s", os.Getenv("POKE_API_URL"), strings.ToLower(pokemonName))
+	url := "https://pokeapi.co/api/v2/pokemon/" + pokemonName
+	fmt.Println(url)
 	pokeApiResponse, err := http.Get(url)
 	if err != nil || pokeApiResponse.StatusCode != 200 {
 		return nil, customErrors.NewInternalError("a failure occurred when try to obtain pokémon data", 500, []string{err.Error()})
@@ -74,8 +74,10 @@ func (s *PokemonService) obtainPokemonData(pokemonName string) (myTypes.AnyMap, 
 	// Find PokeAPI data in cache, if not found made a new request
 	cacheData, found := s.cache.Get(pokeDataKey)
 	if found {
+		fmt.Println("Pokemon em cache")
 		return cacheData.(myTypes.AnyMap), nil
 	}
+	fmt.Println("Pokemon fora cache")
 
 	pokeJson, err := searchPokemonInPokeApi(pokemonName)
 	if err != nil {
@@ -88,7 +90,7 @@ func (s *PokemonService) obtainPokemonData(pokemonName string) (myTypes.AnyMap, 
 	return pokeJson, nil
 }
 
-func (s *PokemonService) obtainTypeData(types map[int]myTypes.Any) ([]string, *customErrors.InternalError) {
+func (s *PokemonService) obtainTypeData(types []interface {}) ([]string, *customErrors.InternalError) {
 
 	typesIds := make([]string, 0)
 	for _, typeData := range types {
@@ -131,11 +133,13 @@ func (s *PokemonService) NewPokemon(input myTypes.NewPokemonInput) *customErrors
 		return inputErr
 	}
 
-	pokeData, err := s.obtainPokemonData(input.Name); if err != nil {
+	pokeData, err := s.obtainPokemonData(strings.ToLower(input.Name))
+	if err != nil {
 		return err
 	}
 
-	typeIds, err := s.obtainTypeData(pokeData["types"].(map[int]myTypes.Any)); if err != nil {
+	typeIds, err := s.obtainTypeData(pokeData["types"].([]interface {}))
+	if err != nil {
 		return err
 	}
 

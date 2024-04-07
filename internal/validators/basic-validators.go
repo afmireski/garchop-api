@@ -25,7 +25,7 @@ func IsValidUuid(id string) bool {
 	return err == nil
 }
 
-func IsValidNumericId(id int32) bool {
+func IsValidNumericId(id int) bool {
 	return id > 0
 }
 

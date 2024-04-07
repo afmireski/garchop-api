@@ -6,5 +6,5 @@ import (
 )
 
 func SetupPokemonRouter(r chi.Router, controller *controllers.PokemonController) {
-	r.Post("/pokemons/new", controller.RegistryNewPokemon)
+	r.Post("/pokemon/new", controller.RegistryNewPokemon)
 }

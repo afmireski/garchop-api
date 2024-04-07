@@ -76,7 +76,7 @@ func (s *UsersService) NewUser(input myTypes.NewUserInput) *customErrors.Interna
 	return nil
 }
 
-func (s *UsersService) UpdateClient(id string, input myTypes.UpdateUserInput) *customErrors.InternalError {
+func (s *UsersService) UpdateClient(id string, input myTypes.UpdateUserInput) (myTypes.UpdateUserInput, *customErrors.InternalError) {
 	if !validators.IsValidUuid(id) {
 		return customErrors.NewInternalError("invalid id", 400, []string{})
 	}
@@ -99,13 +99,13 @@ func (s *UsersService) UpdateClient(id string, input myTypes.UpdateUserInput) *c
 		"phone": input.Phone,
 	}
 
-	_, err := s.repository.Update(id, data, nil)
+	updatedUser, err := s.repository.Update(id, data, nil)
 
 	if err != nil {
-		return customErrors.NewInternalError("a failure occurred when trying to update a user", 500, []string{})
+		return input, customErrors.NewInternalError("a failure occurred when trying to update a user", 500, []string{})
 	}
 
-	return nil
+	return mapToUpdatedUserInput(updatedUser.(models.UserModel)), nil
 }
 
 func (s *UsersService) GetUserById(id string) (*entities.User, *customErrors.InternalError) {

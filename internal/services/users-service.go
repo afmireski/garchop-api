@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/afmireski/garchop-api/internal/entities"
+	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
 
@@ -24,7 +25,6 @@ func NewUsersService(repository ports.UserRepositoryPort, hashHelper ports.HashH
 	}
 }
 
-
 func validateNewUserInput(input myTypes.NewUserInput) *customErrors.InternalError {
 	if !validators.IsValidEmail(input.Email) {
 		return customErrors.NewInternalError("invalid email", 400, []string{})
@@ -37,7 +37,7 @@ func validateNewUserInput(input myTypes.NewUserInput) *customErrors.InternalErro
 	}
 	if !validators.IsValidAge(input.BirthDate, 18) {
 		return customErrors.NewInternalError("invalid birth date", 400, []string{})
-	} 
+	}
 	if !validators.IsValidPassword(input.Password) {
 		return customErrors.NewInternalError("invalid password", 400, []string{})
 	}
@@ -46,6 +46,20 @@ func validateNewUserInput(input myTypes.NewUserInput) *customErrors.InternalErro
 	}
 
 	return nil
+}
+
+func mapToUpdateClientOutput(input *models.UserModel) *myTypes.UpdateClientOutput {
+	if input == nil {
+		return nil
+	}
+
+	res := myTypes.UpdateClientOutput{
+		Name:  input.Name,
+		Email: input.Email,
+		Phone: input.Phone,
+	}
+
+	return &res
 }
 
 func (s *UsersService) NewUser(input myTypes.NewUserInput) *customErrors.InternalError {
@@ -60,12 +74,12 @@ func (s *UsersService) NewUser(input myTypes.NewUserInput) *customErrors.Interna
 	hash, _ := s.hashHelper.GenerateHash(input.Password, 10)
 
 	data := ports.CreateUserInput{
-		Name: input.Name,
-		Email: input.Email,
-		Phone: input.Phone,
-		Password: hash,
+		Name:          input.Name,
+		Email:         input.Email,
+		Phone:         input.Phone,
+		Password:      hash,
 		PlainPassword: input.Password,
-		BirthDate: input.BirthDate,
+		BirthDate:     input.BirthDate,
 	}
 
 	_, err := s.repository.Create(data)
@@ -75,6 +89,48 @@ func (s *UsersService) NewUser(input myTypes.NewUserInput) *customErrors.Interna
 	}
 
 	return nil
+}
+
+func (s *UsersService) UpdateClient(id string, input myTypes.UpdateUserInput) (*myTypes.UpdateClientOutput, *customErrors.InternalError) {
+	data := myTypes.AnyMap{}
+
+	if !validators.IsValidUuid(id) {
+		return nil, customErrors.NewInternalError("invalid id", 400, []string{})
+	}
+
+	if len(input.Name) > 0 {
+		if !validators.IsValidName(input.Name, 3, 200) {
+			return nil, customErrors.NewInternalError("invalid name", 400, []string{})
+		}
+		data["name"] = input.Name
+	}
+
+	if len(input.Email) > 0 {
+		if !validators.IsValidEmail(input.Email) {
+			return nil, customErrors.NewInternalError("invalid email", 400, []string{})
+		}
+		data["email"] = input.Email
+	}
+
+	if len(input.Phone) > 0 {
+		if !validators.IsPhoneNumber(input.Phone) {
+			return nil, customErrors.NewInternalError("invalid phone", 400, []string{})
+		}
+		data["phone"] = input.Phone
+	}
+
+	where := myTypes.Where{
+		"deleted_at": map[string]string{"is": "null"},
+	}
+	updatedUser, err := s.repository.Update(id, data, where)
+
+	if err != nil {
+		return nil, customErrors.NewInternalError("a failure occurred when trying to update a user", 500, []string{})
+	} else if updatedUser == nil {
+		return nil, customErrors.NewInternalError("no user found to update", 404, []string{})
+	}
+
+	return mapToUpdateClientOutput(updatedUser), nil
 }
 
 func (s *UsersService) GetUserById(id string) (*entities.User, *customErrors.InternalError) {
@@ -105,7 +161,7 @@ func (s *UsersService) DeleteClient(id string) *customErrors.InternalError {
 
 	where := myTypes.Where{
 		"deleted_at": map[string]string{"is": "null"},
-	}	
+	}
 
 	updatedData, err := s.repository.Update(id, data, where)
 	if err != nil || updatedData == nil {

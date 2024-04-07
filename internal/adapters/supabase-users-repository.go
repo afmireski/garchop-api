@@ -26,6 +26,24 @@ func NewSupabaseUsersRepository(client *supabase.Client) *SupabaseUsersRepositor
 }
 
 func serializeMany(data []map[string]string) ([]models.UserModel, error) {
+	timeLayout := "2006-01-02T15:04:05.999999-07:00"
+
+	for _, d := range data {
+		for key, value := range d {
+			if strings.Contains(key, "birth_date") {
+				t, err := time.Parse("2006-01-02", value)
+				if err != nil {
+					return nil, err
+				}
+				d[key] = t.Format(timeLayout)
+			}
+			if strings.Contains(key, "deleted_at") && len(value) == 0 {
+				tmp := time.Time{}
+				d[key] = tmp.Format(timeLayout)
+			}
+		}
+	}
+
 	jsonData, err := json.Marshal(data)
 
 	if err != nil {
@@ -119,7 +137,7 @@ func (r *SupabaseUsersRepository) FindById(id string) (*models.UserModel, error)
 	return mapToUserModel(supabaseData)
 }
 
-func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (myTypes.Any, error) {
+func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.UserModel, error) {
 	var supabaseData []map[string]string
 	query := r.client.DB.From("users").Update(input).Eq("id", id)
 	if len(where) > 0 {
@@ -142,7 +160,7 @@ func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where 
 		return nil, err
 	}	
 
-	return result[0], nil
+	return &result[0], nil
 }
 
 func (r *SupabaseUsersRepository) Delete(id string) error {

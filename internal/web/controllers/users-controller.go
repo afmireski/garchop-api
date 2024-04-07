@@ -6,8 +6,8 @@ import (
 
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
 	"github.com/afmireski/garchop-api/internal/services"
-	"github.com/go-chi/chi/v5"
 	myTypes "github.com/afmireski/garchop-api/internal/types"
+	"github.com/go-chi/chi/v5"
 )
 
 type UsersController struct {
@@ -43,6 +43,34 @@ func (c *UsersController) NewUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (c *UsersController) UpdateClient(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	idParam := chi.URLParam(r, "id")
+
+	var input myTypes.UpdateUserInput
+
+	err := json.NewDecoder(r.Body).Decode(&input)
+
+	if err != nil {
+		err := customErrors.NewInternalError("fail on deserialize request body", 400, []string{})
+		w.WriteHeader(err.HttpCode)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+
+	user, serviceErr := c.service.UpdateClient(idParam, input)
+
+	if serviceErr != nil {
+		w.WriteHeader(serviceErr.HttpCode)
+		json.NewEncoder(w).Encode(serviceErr)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(user)
 }
 
 func (c *UsersController) GetUserById(w http.ResponseWriter, r *http.Request) {

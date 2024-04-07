@@ -69,7 +69,7 @@ func (c *UsersController) UpdateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (c *UsersController) GetUserById(w http.ResponseWriter, r *http.Request) {

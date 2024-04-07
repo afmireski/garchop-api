@@ -45,7 +45,7 @@ func (c *UsersController) NewUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (c *UsersController) UpdateUserById(w http.ResponseWriter, r *http.Request) {
+func (c *UsersController) UpdateClient(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	idParam := chi.URLParam(r, "id")

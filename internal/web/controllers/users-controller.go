@@ -61,15 +61,15 @@ func (c *UsersController) UpdateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := c.service.UpdateClient(idParam, input)
+	user, serviceErr := c.service.UpdateClient(idParam, input)
 
-	if user != nil {
-		w.WriteHeader(user.HttpCode)
-		json.NewEncoder(w).Encode(user)
+	if serviceErr != nil {
+		w.WriteHeader(serviceErr.HttpCode)
+		json.NewEncoder(w).Encode(serviceErr)
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	json.NewEncoder(w).Encode(user)
 }
 
 func (c *UsersController) GetUserById(w http.ResponseWriter, r *http.Request) {

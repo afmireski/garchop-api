@@ -88,26 +88,31 @@ func (s *UsersService) NewUser(input myTypes.NewUserInput) *customErrors.Interna
 }
 
 func (s *UsersService) UpdateClient(id string, input myTypes.UpdateUserInput) (myTypes.UpdateUserInput, *customErrors.InternalError) {
+	data := myTypes.AnyMap{}
+
 	if !validators.IsValidUuid(id) {
-		return customErrors.NewInternalError("invalid id", 400, []string{})
+		return input, customErrors.NewInternalError("invalid id", 400, []string{})
 	}
 
-	if len(input.Name) > 0 && !validators.IsValidName(input.Name, 3, 200) {
-		return customErrors.NewInternalError("invalid name", 400, []string{})
+	if len(input.Name) > 0 {
+		if !validators.IsValidName(input.Name, 3, 200) {
+			return input, customErrors.NewInternalError("invalid name", 400, []string{})
+		}
+		data["name"] = input.Name
 	}
 
-	if len(input.Email) > 0 && !validators.IsValidEmail(input.Email) {
-		return customErrors.NewInternalError("invalid email", 400, []string{})
+	if len(input.Email) > 0 {
+		if !validators.IsValidEmail(input.Email) {
+			return input, customErrors.NewInternalError("invalid email", 400, []string{})
+		}
+		data["email"] = input.Email
 	}
 
-	if len(input.Phone) > 0 && !validators.IsPhoneNumber(input.Phone) {
-		return customErrors.NewInternalError("invalid phone", 400, []string{})
-	}
-
-	data := myTypes.AnyMap{
-		"name":  input.Name,
-		"email": input.Email,
-		"phone": input.Phone,
+	if len(input.Phone) > 0 {
+		if !validators.IsPhoneNumber(input.Phone) {
+			return input, customErrors.NewInternalError("invalid phone", 400, []string{})
+		}
+		data["phone"] = input.Phone
 	}
 
 	updatedUser, err := s.repository.Update(id, data, nil)

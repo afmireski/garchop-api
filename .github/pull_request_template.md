@@ -1,10 +1,3 @@
----
-name: New Pull Request
-about: Open a new PR
-title: ''
-
----
-
 ## Descrição
 <!-- Descreva os principais pontos trabalhados na tarefa -->
 

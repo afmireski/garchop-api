@@ -10,6 +10,7 @@ type UserModel struct {
 	Id        string                `json:"id"`
 	Name      string                `json:"name"`
 	Email     string                `json:"email"`
+	Password  string                `json:"password"`
 	Phone     string                `json:"phone"`
 	BirthDate time.Time             `json:"birth_date"`
 	Role      entities.UserRoleEnum `json:"role"`

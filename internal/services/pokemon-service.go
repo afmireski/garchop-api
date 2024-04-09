@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
 	cache "github.com/patrickmn/go-cache"
@@ -164,4 +165,8 @@ func (s *PokemonService) NewPokemon(input myTypes.NewPokemonInput) *customErrors
 	}
 
 	return nil
+}
+
+func (s *PokemonService) GetPokemonById(id string) (*models.PokemonModel, *customErrors.InternalError) {
+	
 }

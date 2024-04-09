@@ -14,8 +14,8 @@ type PokemonModel struct {
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   *time.Time     `json:"deleted_at,omitempty"`
-	Tiers       *TierModel     `json:"tiers"`
+	Tier       *TierModel     `json:"tiers"`
 	Types       []PokemonTypes `json:"types"`
 	Prices      []PriceModel   `json:"prices"`
-	Stocks      []StockModel   `json:"stocks"`
+	Stock      *StockModel   `json:"stocks"`
 }

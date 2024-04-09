@@ -95,7 +95,7 @@ func (r *SupabasePokemonRepository) Registry(input myTypes.RegistryPokemonInput)
 func (r *SupabasePokemonRepository) FindById(id string) (*models.PokemonModel, error) {
 	var supabaseData myTypes.AnyMap
 
-	err := r.client.DB.From("pokemons").Select("*").Single().Eq("id", id).Execute(&supabaseData); if err != nil {
+	err := r.client.DB.From("pokemons").Select("*", "prices (*)", "stocks (*)", "pokemon_types (*, types (*))", "tiers (*)").Single().Eq("id", id).Execute(&supabaseData); if err != nil {
 		if strings.Contains(err.Error(), "PGRST116") { // resource not found
 			return nil, nil
 		}

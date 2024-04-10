@@ -5,9 +5,10 @@ import (
 	"net/http"
 
 	"github.com/afmireski/garchop-api/internal/services"
+	"github.com/go-chi/chi/v5"
 
-	myTypes "github.com/afmireski/garchop-api/internal/types"
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
+	myTypes "github.com/afmireski/garchop-api/internal/types"
 )
 
 type PokemonController struct {
@@ -38,4 +39,19 @@ func (c *PokemonController) RegistryNewPokemon(w http.ResponseWriter, r *http.Re
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (c *PokemonController) GetAllPokemons(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	idParam := chi.URLParam(r, "id")
+
+	response, err := c.service.GetPokemonById(idParam); if err != nil {
+		w.WriteHeader(err.HttpCode)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+	
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }

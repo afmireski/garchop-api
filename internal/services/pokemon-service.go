@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/afmireski/garchop-api/internal/models"
+	"github.com/afmireski/garchop-api/internal/entities"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
 	cache "github.com/patrickmn/go-cache"
@@ -167,6 +167,16 @@ func (s *PokemonService) NewPokemon(input myTypes.NewPokemonInput) *customErrors
 	return nil
 }
 
-func (s *PokemonService) GetPokemonById(id string) (*models.PokemonModel, *customErrors.InternalError) {
-	
+func (s *PokemonService) GetPokemonById(id string) (*entities.PokemonProduct, *customErrors.InternalError) {
+	if !validators.IsValidUuid(id) {
+		return nil, customErrors.NewInternalError("invalid id", 400, []string{"the id must be a valid uuid"})
+	}
+
+	repositoryData, err := s.repository.FindById(id); if err != nil {
+		return nil, customErrors.NewInternalError("a failure occurred when try to find the pokemon", 400, []string{err.Error()})
+	} else if repositoryData == nil {
+		return nil, customErrors.NewInternalError("pokemon not found", 404, []string{})
+	}
+
+	return entities.BuildPokemonProductFromModel(*repositoryData), nil
 }

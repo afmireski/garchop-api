@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/afmireski/garchop-api/internal/entities"
 	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
 	supabase "github.com/nedpals/supabase-go"
@@ -68,11 +67,11 @@ func mapToUserModel(data map[string]interface{}) (*models.UserModel, error) {
 		deletedAt, _ = time.Parse("2006-01-02T15:04:05.999999999Z07:00", deletedAtString)
 	}
 
-	var role entities.UserRoleEnum;
+	var role models.UserModelRoleEnum;
 	if data["role"] == "client" {
-		role = entities.Client
+		role = models.Client
 	} else {
-		role = entities.Admin
+		role = models.Admin
 	}
 
 	return models.NewUserModel(

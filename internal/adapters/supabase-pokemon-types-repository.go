@@ -24,12 +24,12 @@ func (r *SupabasePokemonTypesRepository) Create(input myTypes.CreatePokemonTypeI
 	if err != nil {
 		return nil, err
 	}
-
-	return entities.NewPokemonType(
-		supabaseData[0]["id"].(string),
-		uint(supabaseData[0]["reference_id"].(float64)),
-		supabaseData[0]["name"].(string),
-	), nil
+	
+	return &entities.PokemonType{
+		Id: supabaseData[0]["id"].(string),
+		ReferenceId: uint(supabaseData[0]["reference_id"].(float64)),
+		Name: supabaseData[0]["name"].(string),
+	}, nil
 }
 
 func (r *SupabasePokemonTypesRepository) FindByName(name string) (*entities.PokemonType, error) {
@@ -44,9 +44,9 @@ func (r *SupabasePokemonTypesRepository) FindByName(name string) (*entities.Poke
 		return nil, nil
 	}
 
-	return entities.NewPokemonType(
-		supabaseData[0]["id"].(string),
-		uint(supabaseData[0]["reference_id"].(float64)),
-		supabaseData[0]["name"].(string),
-	), nil
+	return &entities.PokemonType{
+		Id: supabaseData[0]["id"].(string),
+		ReferenceId: uint(supabaseData[0]["reference_id"].(float64)),
+		Name: supabaseData[0]["name"].(string),
+	}, nil
 }

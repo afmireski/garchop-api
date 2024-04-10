@@ -5,11 +5,3 @@ type PokemonType struct {
 	ReferenceId uint `json:"reference_id"`
 	Name string `json:"name"`
 }
-
-func NewPokemonType(id string, referenceId uint, name string) *PokemonType {
-	return &PokemonType{
-		Id: id,
-		ReferenceId: referenceId,
-		Name: name,
-	}
-}

@@ -173,7 +173,7 @@ func (s *PokemonService) GetPokemonById(id string) (*entities.PokemonProduct, *c
 	}
 
 	repositoryData, err := s.repository.FindById(id); if err != nil {
-		return nil, customErrors.NewInternalError("a failure occurred when try to find the pokemon", 400, []string{err.Error()})
+		return nil, customErrors.NewInternalError("a failure occurred when try to find the pokemon", 500, []string{err.Error()})
 	} else if repositoryData == nil {
 		return nil, customErrors.NewInternalError("pokemon not found", 404, []string{})
 	}

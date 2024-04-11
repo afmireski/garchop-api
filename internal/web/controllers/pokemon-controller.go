@@ -51,7 +51,7 @@ func (c *PokemonController) GetAllPokemons(w http.ResponseWriter, r *http.Reques
 		json.NewEncoder(w).Encode(err)
 		return
 	}
-	
+		
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }

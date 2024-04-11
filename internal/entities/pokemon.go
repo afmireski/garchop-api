@@ -23,8 +23,8 @@ type PokemonProduct struct {
 
 func BuildPokemonProductFromModel(model models.PokemonModel) *PokemonProduct {
 	var types []PokemonType
-	for _, typeModel := range model.Types {
-		t := PokemonType{Id: typeModel.Id, Name: typeModel.Name, ReferenceId: typeModel.ReferenceId}
+	for _, pokemonType := range model.Types {
+		t := PokemonType{Id: pokemonType.Types.Id, Name: pokemonType.Types.Name, ReferenceId: pokemonType.Types.ReferenceId}
 		types = append(types, t)
 	}
 

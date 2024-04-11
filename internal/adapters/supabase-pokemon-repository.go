@@ -1,8 +1,12 @@
 package adapters
 
 import (
+	"encoding/json"
+	"strings"
+
 	supabase "github.com/nedpals/supabase-go"
 
+	"github.com/afmireski/garchop-api/internal/models"
 	myTypes "github.com/afmireski/garchop-api/internal/types"
 )
 
@@ -14,6 +18,19 @@ func NewSupabasePokemonRepository(client *supabase.Client) *SupabasePokemonRepos
 	return &SupabasePokemonRepository{
 		client: client,
 	}
+}
+
+func serializeToModel(supabaseData myTypes.AnyMap) (*models.PokemonModel, error) {
+	jsonData, err := json.Marshal(supabaseData); if err != nil {
+		return nil, err
+	}
+
+	var modelData models.PokemonModel
+	err = json.Unmarshal(jsonData, &modelData); if err != nil {
+		return nil, err
+	}
+	
+	return &modelData, nil
 }
 
 func (r *SupabasePokemonRepository) Create(input myTypes.CreatePokemonInput) (string, error) {
@@ -75,8 +92,28 @@ func (r *SupabasePokemonRepository) Registry(input myTypes.RegistryPokemonInput)
 	return pokemonId, nil
 }
 
-func (r *SupabasePokemonRepository) FindById(id string) (*myTypes.Any, error) {
-	panic("method not implemented")
+func (r *SupabasePokemonRepository) FindById(id string, where myTypes.Where) (*models.PokemonModel, error) {
+	var supabaseData myTypes.AnyMap
+
+	query := r.client.DB.From("pokemons").Select("*", "prices (*)", "stocks (*)", "pokemon_types (*, types (*))", "tiers (*)").Single().Eq("id", id);
+
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+	
+	err := query.Execute(&supabaseData); if err != nil {
+		if strings.Contains(err.Error(), "PGRST116") { // resource not found
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return serializeToModel(supabaseData)
 }
 
 func (r *SupabasePokemonRepository) FindAll(where myTypes.Where) ([]myTypes.Any, error) {

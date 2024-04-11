@@ -10,7 +10,7 @@ type PokemonRepositoryPort interface {
 
 	Registry(input myTypes.RegistryPokemonInput) (string, error)
 
-	FindById(id string) (*models.PokemonModel, error)
+	FindById(id string, where myTypes.Where) (*models.PokemonModel, error)
 
 	FindAll(where myTypes.Where) ([]myTypes.Any, error)
 

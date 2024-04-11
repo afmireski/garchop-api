@@ -92,10 +92,20 @@ func (r *SupabasePokemonRepository) Registry(input myTypes.RegistryPokemonInput)
 	return pokemonId, nil
 }
 
-func (r *SupabasePokemonRepository) FindById(id string) (*models.PokemonModel, error) {
+func (r *SupabasePokemonRepository) FindById(id string, where myTypes.Where) (*models.PokemonModel, error) {
 	var supabaseData myTypes.AnyMap
 
-	err := r.client.DB.From("pokemons").Select("*", "prices (*)", "stocks (*)", "pokemon_types (*, types (*))", "tiers (*)").Single().Eq("id", id).Execute(&supabaseData); if err != nil {
+	query := r.client.DB.From("pokemons").Select("*", "prices (*)", "stocks (*)", "pokemon_types (*, types (*))", "tiers (*)").Single().Eq("id", id);
+
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+	
+	err := query.Execute(&supabaseData); if err != nil {
 		if strings.Contains(err.Error(), "PGRST116") { // resource not found
 			return nil, nil
 		}

@@ -171,12 +171,13 @@ func (s *PokemonService) GetPokemonById(id string) (*entities.PokemonProduct, *c
 	if !validators.IsValidUuid(id) {
 		return nil, customErrors.NewInternalError("invalid id", 400, []string{"the id must be a valid uuid"})
 	}
-	
+
 	where := myTypes.Where{
 		"deleted_at": map[string]string{"is": "null"},
 	}
 
-	repositoryData, err := s.repository.FindById(id, where); if err != nil {
+	repositoryData, err := s.repository.FindById(id, where)
+	if err != nil {
 		return nil, customErrors.NewInternalError("a failure occurred when try to find the pokemon", 500, []string{err.Error()})
 	} else if repositoryData == nil {
 		return nil, customErrors.NewInternalError("pokemon not found", 404, []string{})
@@ -186,5 +187,13 @@ func (s *PokemonService) GetPokemonById(id string) (*entities.PokemonProduct, *c
 }
 
 func (s *PokemonService) GetAvailablePokemons() ([]entities.PokemonProduct, *customErrors.InternalError) {
-	panic("method not implemented")
+	repositoryData, err := s.repository.FindAll(nil)
+
+	if err != nil {
+		return nil, customErrors.NewInternalError("a failure occurred when try to find the pokemon", 500, []string{err.Error()})
+	} else if repositoryData == nil {
+		return nil, customErrors.NewInternalError("pokemon not found", 404, []string{})
+	}
+
+	return entities.BuildManyPokemonProductFromModel(repositoryData), nil
 }

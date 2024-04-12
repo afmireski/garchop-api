@@ -184,3 +184,7 @@ func (s *PokemonService) GetPokemonById(id string) (*entities.PokemonProduct, *c
 
 	return entities.BuildPokemonProductFromModel(*repositoryData), nil
 }
+
+func (s *PokemonService) GetAvailablePokemons() ([]entities.PokemonProduct, *customErrors.InternalError) {
+	panic("method not implemented")
+}

@@ -3,7 +3,7 @@
 ## [Unreleased]
 
 ### Added
-* [#20](https://github.com/afmireski/garchop-api/issues/20) - Implementar rota que permita listar todos os pokémons que estão a venda
+* [#20](https://github.com/afmireski/garchop-api/issues/20) - Implementar rota que exiba as informações detalhadas de um Pokémon
 * [#9](https://github.com/afmireski/garchop-api/issues/9) - Implementar rota que permita o cadastro de um novo pokémon
     * Criado novos recursos relacionados a pokemons e tipo de pokemon
 * [#4](https://github.com/afmireski/garchop-api/issues/4) - Implementar rota que permita a atualização das informações de um usuário

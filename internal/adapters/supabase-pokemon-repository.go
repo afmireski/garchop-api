@@ -148,7 +148,7 @@ func (r *SupabasePokemonRepository) FindById(id string, where myTypes.Where) (*m
 	return serializeToModel(supabaseData)
 }
 
-func (r *SupabasePokemonRepository) FindAll(where myTypes.Where) ([]myTypes.Any, error) {
+func (r *SupabasePokemonRepository) FindAll(where myTypes.Where) ([]models.PokemonModel, error) {
 	var supabaseData []myTypes.AnyMap
 
 	query := r.client.DB.From("pokemons").Select("*", "prices (*)", "stocks (*)", "pokemon_types (*, types (*))", "tiers (*)")

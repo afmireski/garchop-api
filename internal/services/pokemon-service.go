@@ -202,7 +202,12 @@ func (s *PokemonService) DeletePokemon(id string) *customErrors.InternalError {
 	}
 
 	repositoryData, err := s.repository.Update(id, data, where); if err != nil || repositoryData == nil {
-		return customErrors.NewInternalError("a failure occurred when try to delete the pokemon", 500, []string{err.Error()})
+		var details []string
+		if err != nil {
+			details = append(details, err.Error())
+		}
+
+		return customErrors.NewInternalError("a failure occurred when try to delete the pokemon", 500, details)
 	}
 
 	return nil

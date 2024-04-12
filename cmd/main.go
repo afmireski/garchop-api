@@ -34,7 +34,8 @@ func main() {
 	routers.SetupPokemonRouter(r, pokemonController)
 
 	fmt.Println("API is running...")
-	http.ListenAndServe(":3000", r)
+	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
+	http.ListenAndServe(port, r)
 }
 
 func setupSupabase() *supabase.Client {

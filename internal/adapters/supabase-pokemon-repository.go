@@ -120,8 +120,26 @@ func (r *SupabasePokemonRepository) FindAll(where myTypes.Where) ([]myTypes.Any,
 	panic("method not implemented")
 }
 
-func (r *SupabasePokemonRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (myTypes.Any, error) {
-	panic("method not implemented")
+func (r *SupabasePokemonRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.PokemonModel, error) {
+	var supabaseData []myTypes.AnyMap
+	query := r.client.DB.From("pokemons").Update(input).Eq("id", id);
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData); if err != nil {
+		return nil, err
+	}
+
+	if (len(supabaseData) == 0) {
+		return nil, nil
+	}
+
+	return serializeToModel(supabaseData[0])
 }
 
 

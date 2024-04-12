@@ -117,7 +117,22 @@ func (r *SupabasePokemonRepository) FindById(id string, where myTypes.Where) (*m
 }
 
 func (r *SupabasePokemonRepository) FindAll(where myTypes.Where) ([]myTypes.Any, error) {
-	panic("method not implemented")
+	var supabaseData []myTypes.AnyMap
+
+	query := r.client.DB.From("pokemons").Select("*", "prices (*)", "stocks (*)", "pokemon_types (*, types (*))", "tiers (*)")
+
+	err := query.Execute(&supabaseData)
+
+	if err != nil {
+		if strings.Contains(err.Error(), "PGRST116") { // resource not found
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return serializeManyToModel(supabaseData)
+
 }
 
 func (r *SupabasePokemonRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (myTypes.Any, error) {

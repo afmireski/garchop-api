@@ -41,7 +41,7 @@ func (c *PokemonController) RegistryNewPokemon(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (c *PokemonController) GetAllPokemons(w http.ResponseWriter, r *http.Request) {
+func (c *PokemonController) GetPokemonById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	idParam := chi.URLParam(r, "id")

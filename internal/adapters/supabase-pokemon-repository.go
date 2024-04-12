@@ -33,6 +33,38 @@ func serializeToModel(supabaseData myTypes.AnyMap) (*models.PokemonModel, error)
 	return &modelData, nil
 }
 
+func serializeManyToModel(supabaseData []myTypes.AnyMap) ([]models.PokemonModel, error) {
+	timeLayout := "2006-01-02T15:04:05.999999-07:00"
+
+	for _, d := range supabaseData {
+		for key, value := range d {
+			if strings.Contains(key, "deleted_at") {
+				if strValue, ok := value.(string); ok {
+					if len(strValue) == 0 {
+						tmp := time.Time{}
+						d[key] = tmp.Format(timeLayout)
+					}
+				}
+			}
+		}
+	}
+
+	jsonData, err := json.Marshal(supabaseData)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var result []models.PokemonModel
+	err = json.Unmarshal(jsonData, &result)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func (r *SupabasePokemonRepository) Create(input myTypes.CreatePokemonInput) (string, error) {
 	var supabaseData []myTypes.AnyMap
 

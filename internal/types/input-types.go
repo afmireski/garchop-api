@@ -8,7 +8,7 @@ type NewUserInput struct {
 	Phone           string    `json:"phone"`
 	Password        string    `json:"password"`
 	ConfirmPassword string    `json:"confirm_password"`
-	BirthDate       time.Time `json:"birth_date"`
+	BirthDate       *time.Time `json:"birth_date"`
 }
 
 type UpdateUserInput struct {

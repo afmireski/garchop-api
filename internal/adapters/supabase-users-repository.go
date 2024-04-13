@@ -91,7 +91,7 @@ type CreateInput struct {
 	Email     string                   `json:"email"`
 	Phone     string                   `json:"phone"`
 	Password  string                   `json:"password"`
-	BirthDate time.Time                `json:"birth_date"`
+	BirthDate *time.Time                `json:"birth_date"`
 	Role      models.UserModelRoleEnum `json:"role"`
 }
 

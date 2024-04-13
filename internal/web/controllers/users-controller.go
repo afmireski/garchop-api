@@ -53,7 +53,7 @@ func (c *UsersController) NewAdministrator(w http.ResponseWriter, r *http.Reques
 	err := json.NewDecoder(r.Body).Decode(&input)
 
 	if err != nil {
-		err := customErrors.NewInternalError("fail on deserialize request body", 400, []string{})
+		err := customErrors.NewInternalError("fail on deserialize request body", 400, []string{err.Error()})
 		w.WriteHeader(err.HttpCode)
 		json.NewEncoder(w).Encode(err)
 		return

@@ -23,26 +23,30 @@ func NewSupabaseTiersRepository(client *supabase.Client) *SupabaseTiersRepositor
 }
 
 func serializeSupabaseDataToModel(supabaseData myTypes.AnyMap) (*models.TierModel, error) {
-	jsonData, err := json.Marshal(supabaseData); if err != nil {
+	jsonData, err := json.Marshal(supabaseData)
+	if err != nil {
 		return nil, err
 	}
 
 	var modelData models.TierModel
-	err = json.Unmarshal(jsonData, &modelData); if err != nil {
+	err = json.Unmarshal(jsonData, &modelData)
+	if err != nil {
 		return nil, err
 	}
 
 	return &modelData, nil
-	
+
 }
 
 func serializeManySupabaseDataToModel(supabaseData []myTypes.AnyMap) ([]models.TierModel, error) {
-	jsonData, err := json.Marshal(supabaseData); if err != nil {
+	jsonData, err := json.Marshal(supabaseData)
+	if err != nil {
 		return nil, err
 	}
 
 	var modelData []models.TierModel
-	err = json.Unmarshal(jsonData, &modelData); if err != nil {
+	err = json.Unmarshal(jsonData, &modelData)
+	if err != nil {
 		return nil, err
 	}
 
@@ -62,7 +66,8 @@ func (r *SupabaseTiersRepository) FindAll(where myTypes.Where) ([]models.TierMod
 		}
 	}
 
-	err := query.Execute(&supabaseData); if err != nil {
+	err := query.Execute(&supabaseData)
+	if err != nil {
 		return nil, err
 	}
 
@@ -72,7 +77,7 @@ func (r *SupabaseTiersRepository) FindAll(where myTypes.Where) ([]models.TierMod
 func (r *SupabaseTiersRepository) FindById(id int, where myTypes.Where) (*models.TierModel, error) {
 	var supabaseData myTypes.AnyMap
 
-	query := r.client.DB.From("tiers").Select("*").Single().Eq("id", strconv.Itoa(id));
+	query := r.client.DB.From("tiers").Select("*").Single().Eq("id", strconv.Itoa(id))
 
 	if len(where) > 0 {
 		for column, filter := range where {
@@ -81,11 +86,12 @@ func (r *SupabaseTiersRepository) FindById(id int, where myTypes.Where) (*models
 			}
 		}
 	}
-	err := query.Execute(&supabaseData); if err != nil {
+	err := query.Execute(&supabaseData)
+	if err != nil {
 		if strings.Contains(err.Error(), "PGRST116") { // resource not found
 			return nil, nil
 		}
-		
+
 		return nil, err
 	}
 

@@ -24,7 +24,8 @@ func NewTiersController(service *services.TiersService) *TiersController {
 func (c *TiersController) FindAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	response, err := c.service.FindAll(); if err != nil {
+	response, err := c.service.FindAll()
+	if err != nil {
 		w.WriteHeader(err.HttpCode)
 		json.NewEncoder(w).Encode(err)
 		return
@@ -47,12 +48,13 @@ func (c *TiersController) FindById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, serviceErr := c.service.FindById(id); if serviceErr != nil {
+	response, serviceErr := c.service.FindById(id)
+	if serviceErr != nil {
 		w.WriteHeader(serviceErr.HttpCode)
 		json.NewEncoder(w).Encode(serviceErr)
 		return
 	}
-		
+
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }

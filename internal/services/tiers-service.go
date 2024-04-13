@@ -4,8 +4,8 @@ import (
 	"github.com/afmireski/garchop-api/internal/entities"
 	"github.com/afmireski/garchop-api/internal/ports"
 
-	myTypes "github.com/afmireski/garchop-api/internal/types"
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
+	myTypes "github.com/afmireski/garchop-api/internal/types"
 	"github.com/afmireski/garchop-api/internal/validators"
 )
 
@@ -22,7 +22,8 @@ func NewTiersService(repository ports.TiersRepositoryPort) *TiersService {
 func (s *TiersService) FindAll() ([]entities.Tier, *customErrors.InternalError) {
 
 	where := myTypes.Where{}
-	data, err := s.repository.FindAll(where); if err != nil {
+	data, err := s.repository.FindAll(where)
+	if err != nil {
 		return nil, customErrors.NewInternalError("a failure occurred when try to find the tiers", 500, []string{err.Error()})
 	}
 
@@ -39,14 +40,13 @@ func (s *TiersService) FindById(id int) (*entities.Tier, *customErrors.InternalE
 		"deleted_at": map[string]string{"is": "null"},
 	}
 
-	data, err := s.repository.FindById(id, where); if err != nil {
+	data, err := s.repository.FindById(id, where)
+	if err != nil {
 		return nil, customErrors.NewInternalError("a failure occurred when try to find the tiers", 500, []string{err.Error()})
 	} else if data == nil {
 		return nil, customErrors.NewInternalError("tier not found", 404, []string{})
 	}
 	response := entities.BuildTierFromModel(*data)
-	
+
 	return &response, nil
 }
-
-

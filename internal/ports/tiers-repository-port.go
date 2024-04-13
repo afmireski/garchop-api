@@ -3,11 +3,11 @@ package ports
 import (
 	"github.com/afmireski/garchop-api/internal/models"
 
-	customErrors "github.com/afmireski/garchop-api/internal/errors"
+	myTypes "github.com/afmireski/garchop-api/internal/types"
 )
 
 type TiersRepositoryPort interface {
-	FindAll() ([]models.TierModel, *customErrors.InternalError)
+	FindAll(where myTypes.Where) ([]models.TierModel, error)
 
-	FindById(id string) (*models.TierModel, *customErrors.InternalError)
+	FindById(id string, where myTypes.Where) (*models.TierModel, error)
 }

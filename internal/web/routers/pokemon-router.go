@@ -7,5 +7,6 @@ import (
 
 func SetupPokemonRouter(r chi.Router, controller *controllers.PokemonController) {
 	r.Post("/pokemon/new", controller.RegistryNewPokemon)
-	r.Get("/pokemon/{id}", controller.GetAllPokemons)
+	r.Get("/pokemon/{id}", controller.GetPokemonById)
+	r.Get("/pokemon", controller.GetAllPokemons)
 }

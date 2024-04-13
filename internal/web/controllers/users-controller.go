@@ -45,6 +45,31 @@ func (c *UsersController) NewClient(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+func (c *UsersController) NewAdministrator(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var input myTypes.NewUserInput
+
+	err := json.NewDecoder(r.Body).Decode(&input)
+
+	if err != nil {
+		err := customErrors.NewInternalError("fail on deserialize request body", 400, []string{})
+		w.WriteHeader(err.HttpCode)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+
+	serviceErr := c.service.NewAdmin(input)
+
+	if serviceErr != nil {
+		w.WriteHeader(serviceErr.HttpCode)
+		json.NewEncoder(w).Encode(serviceErr)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
 func (c *UsersController) UpdateClient(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 

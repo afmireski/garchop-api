@@ -24,4 +24,5 @@ type CreateUserInput struct {
 	Password string `json:"password"`
 	PlainPassword string `json:"plain_password"`
 	BirthDate time.Time `json:"birth_date"`
+	Role models.UserModelRoleEnum `json:"role"`
 }

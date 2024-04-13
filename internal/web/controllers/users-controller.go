@@ -20,7 +20,7 @@ func NewUsersController(service *services.UsersService) *UsersController {
 	}
 }
 
-func (c *UsersController) NewUser(w http.ResponseWriter, r *http.Request) {
+func (c *UsersController) NewClient(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var input myTypes.NewUserInput
@@ -34,7 +34,7 @@ func (c *UsersController) NewUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serviceErr := c.service.NewUser(input)
+	serviceErr := c.service.NewClient(input)
 
 	if serviceErr != nil {
 		w.WriteHeader(serviceErr.HttpCode)

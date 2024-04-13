@@ -14,5 +14,5 @@ type PokemonRepositoryPort interface {
 
 	FindAll(where myTypes.Where) ([]models.PokemonModel, error)
 
-	Update(id string, input myTypes.AnyMap, where myTypes.Where) (myTypes.Any, error)
+	Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.PokemonModel, error)
 }

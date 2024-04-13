@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/afmireski/garchop-api/internal/entities"
 	"github.com/afmireski/garchop-api/internal/ports"
@@ -196,4 +197,31 @@ func (s *PokemonService) GetAvailablePokemons() ([]entities.PokemonProduct, *cus
 	}
 
 	return entities.BuildManyPokemonProductFromModel(repositoryData), nil
+}
+
+func (s *PokemonService) DeletePokemon(id string) *customErrors.InternalError {
+
+	if !validators.IsValidUuid(id) {
+		return customErrors.NewInternalError("invalid id", 400, []string{"the id must be a valid uuid"})
+	}
+	
+	data := myTypes.AnyMap{
+		"deleted_at": time.Now(),
+		"updated_at": time.Now(),
+	}
+
+	where := myTypes.Where{
+		"deleted_at": map[string]string{"is": "null"},
+	}
+
+	repositoryData, err := s.repository.Update(id, data, where); if err != nil || repositoryData == nil {
+		var details []string
+		if err != nil {
+			details = append(details, err.Error())
+		}
+
+		return customErrors.NewInternalError("a failure occurred when try to delete the pokemon", 500, details)
+	}
+
+	return nil
 }

@@ -2,6 +2,7 @@ package adapters
 
 import (
 	"encoding/json"
+	"strconv"
 	"strings"
 
 	"github.com/afmireski/garchop-api/internal/models"
@@ -68,10 +69,10 @@ func (r *SupabaseTiersRepository) FindAll(where myTypes.Where) ([]models.TierMod
 	return serializeManySupabaseDataToModel(supabaseData)
 }
 
-func (r *SupabaseTiersRepository) FindById(id string, where myTypes.Where) (*models.TierModel, error) {
+func (r *SupabaseTiersRepository) FindById(id int, where myTypes.Where) (*models.TierModel, error) {
 	var supabaseData myTypes.AnyMap
 
-	query := r.client.DB.From("tiers").Select("*").Single().Eq("id", id);
+	query := r.client.DB.From("tiers").Select("*").Single().Eq("id", strconv.Itoa(id));
 
 	if len(where) > 0 {
 		for column, filter := range where {

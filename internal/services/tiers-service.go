@@ -30,9 +30,9 @@ func (s *TiersService) FindAll() ([]entities.Tier, *customErrors.InternalError) 
 	return response, nil
 }
 
-func (s *TiersService) FindById(id string) (*entities.Tier, *customErrors.InternalError) {
-	if !validators.IsValidUuid(id) {
-		return nil, customErrors.NewInternalError("invalid id", 400, []string{"the id must be a valid uuid"})
+func (s *TiersService) FindById(id int) (*entities.Tier, *customErrors.InternalError) {
+	if !validators.IsValidNumericId(id) {
+		return nil, customErrors.NewInternalError("invalid id", 400, []string{"the id must be a valid numeric id"})
 	}
 
 	where := myTypes.Where{

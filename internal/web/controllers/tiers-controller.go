@@ -3,9 +3,12 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/afmireski/garchop-api/internal/services"
 	"github.com/go-chi/chi/v5"
+
+	customErrors "github.com/afmireski/garchop-api/internal/errors"
 )
 
 type TiersController struct {
@@ -35,10 +38,18 @@ func (c *TiersController) FindById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
 
-	response, err := c.service.FindById(idParam); if err != nil {
+	if err != nil {
+		err := customErrors.NewInternalError("invalid parameter", 400, []string{"failure on try serialize id parameter"})
 		w.WriteHeader(err.HttpCode)
 		json.NewEncoder(w).Encode(err)
+		return
+	}
+
+	response, serviceErr := c.service.FindById(id); if serviceErr != nil {
+		w.WriteHeader(serviceErr.HttpCode)
+		json.NewEncoder(w).Encode(serviceErr)
 		return
 	}
 		

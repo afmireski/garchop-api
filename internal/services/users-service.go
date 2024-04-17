@@ -62,7 +62,7 @@ func mapToUpdateClientOutput(input *models.UserModel) *myTypes.UpdateClientOutpu
 	return &res
 }
 
-func (s *UsersService) NewUser(input myTypes.NewUserInput) *customErrors.InternalError {
+func (s *UsersService) NewClient(input myTypes.NewUserInput) *customErrors.InternalError {
 	if inputErr := validateNewUserInput(input); inputErr != nil {
 		return inputErr
 	}
@@ -80,12 +80,43 @@ func (s *UsersService) NewUser(input myTypes.NewUserInput) *customErrors.Interna
 		Password:      hash,
 		PlainPassword: input.Password,
 		BirthDate:     input.BirthDate,
+		Role:          models.Client,
 	}
 
 	_, err := s.repository.Create(data)
 
 	if err != nil {
-		return customErrors.NewInternalError("a failure occurred when try to create a new user", 500, []string{err.Error()})
+		return customErrors.NewInternalError("a failure occurred when try to create a new client", 500, []string{err.Error()})
+	}
+
+	return nil
+}
+
+func (s *UsersService) NewAdmin(input myTypes.NewUserInput) *customErrors.InternalError {
+	if inputErr := validateNewUserInput(input); inputErr != nil {
+		return inputErr
+	}
+
+	// Remove special characters except '+' from phone
+	re := regexp.MustCompile(`[^+\d]`)
+	input.Phone = re.ReplaceAllString(input.Phone, "")
+
+	hash, _ := s.hashHelper.GenerateHash(input.Password, 10)
+
+	data := ports.CreateUserInput{
+		Name:          input.Name,
+		Email:         input.Email,
+		Phone:         input.Phone,
+		Password:      hash,
+		PlainPassword: input.Password,
+		BirthDate:     input.BirthDate,
+		Role:          models.Admin,
+	}
+
+	_, err := s.repository.Create(data)
+
+	if err != nil {
+		return customErrors.NewInternalError("a failure occurred when try to create a new administrator", 500, []string{err.Error()})
 	}
 
 	return nil

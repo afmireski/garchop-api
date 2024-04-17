@@ -20,7 +20,7 @@ func NewUsersController(service *services.UsersService) *UsersController {
 	}
 }
 
-func (c *UsersController) NewUser(w http.ResponseWriter, r *http.Request) {
+func (c *UsersController) NewClient(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var input myTypes.NewUserInput
@@ -34,7 +34,32 @@ func (c *UsersController) NewUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serviceErr := c.service.NewUser(input)
+	serviceErr := c.service.NewClient(input)
+
+	if serviceErr != nil {
+		w.WriteHeader(serviceErr.HttpCode)
+		json.NewEncoder(w).Encode(serviceErr)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+func (c *UsersController) NewAdministrator(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var input myTypes.NewUserInput
+
+	err := json.NewDecoder(r.Body).Decode(&input)
+
+	if err != nil {
+		err := customErrors.NewInternalError("fail on deserialize request body", 400, []string{err.Error()})
+		w.WriteHeader(err.HttpCode)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+
+	serviceErr := c.service.NewAdmin(input)
 
 	if serviceErr != nil {
 		w.WriteHeader(serviceErr.HttpCode)

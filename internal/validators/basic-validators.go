@@ -29,7 +29,10 @@ func IsValidNumericId(id int) bool {
 	return id > 0
 }
 
-func IsValidAge(birthDate time.Time, age int) bool {
+func IsValidAge(birthDate *time.Time, age int) bool {
+	if birthDate == nil {
+		return false
+	}
 	// Calculate the date `age`` years ago from today
 	minDate := time.Now().AddDate(-age, 0, 0)
 

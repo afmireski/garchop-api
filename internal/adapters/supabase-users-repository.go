@@ -67,7 +67,7 @@ func mapToUserModel(data map[string]interface{}) (*models.UserModel, error) {
 		deletedAt, _ = time.Parse("2006-01-02T15:04:05.999999999Z07:00", deletedAtString)
 	}
 
-	var role models.UserModelRoleEnum;
+	var role models.UserModelRoleEnum
 	if data["role"] == "client" {
 		role = models.Client
 	} else {
@@ -87,32 +87,37 @@ func mapToUserModel(data map[string]interface{}) (*models.UserModel, error) {
 }
 
 type CreateInput struct {
-	Name string `json:"name"`
-	Email string `json:"email"`
-	Phone string `json:"phone"`
-	Password string `json:"password"`
-	BirthDate time.Time `json:"birth_date"`
+	Name      string                   `json:"name"`
+	Email     string                   `json:"email"`
+	Phone     string                   `json:"phone"`
+	Password  string                   `json:"password"`
+	BirthDate *time.Time                `json:"birth_date"`
+	Role      models.UserModelRoleEnum `json:"role"`
 }
+
 func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, error) {
 	var supabaseData []map[string]string
 
 	data := CreateInput{
-		Name: input.Name,
-		Email: input.Email,
-		Phone: input.Phone,
-		Password: input.Password,
+		Name:      input.Name,
+		Email:     input.Email,
+		Phone:     input.Phone,
+		Password:  input.Password,
 		BirthDate: input.BirthDate,
-	}	
+		Role:      input.Role,
+	}
 
-	err := r.client.DB.From("users").Insert(data).Execute(&supabaseData); if err != nil {
+	err := r.client.DB.From("users").Insert(data).Execute(&supabaseData)
+	if err != nil {
 		return "", err
 	}
 
 	// SignUp the user into supabase auth table
 	_, signUpErr := r.client.Auth.SignUp(context.Background(), supabase.UserCredentials{
-		Email: input.Email,
+		Email:    input.Email,
 		Password: input.PlainPassword,
-	}); if signUpErr != nil {
+	})
+	if signUpErr != nil {
 		return "", err
 	}
 
@@ -147,17 +152,19 @@ func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where 
 		}
 	}
 
-	err := query.Execute(&supabaseData); if err != nil {
+	err := query.Execute(&supabaseData)
+	if err != nil {
 		return nil, err
 	}
 
-	if (len(supabaseData) == 0) {
+	if len(supabaseData) == 0 {
 		return nil, nil
 	}
 
-	result, err := serializeMany(supabaseData); if err != nil {
+	result, err := serializeMany(supabaseData)
+	if err != nil {
 		return nil, err
-	}	
+	}
 
 	return &result[0], nil
 }

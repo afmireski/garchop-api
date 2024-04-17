@@ -12,6 +12,7 @@ import (
 	"github.com/afmireski/garchop-api/internal/web/controllers"
 	"github.com/afmireski/garchop-api/internal/web/routers"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/patrickmn/go-cache"
 
 	supabase "github.com/nedpals/supabase-go"
@@ -31,6 +32,7 @@ func main() {
 	tiersController := setupTiersModule(supabaseClient)
 
 	r := chi.NewRouter()
+	enableCors(r)
 	routers.SetupUsersRouter(r, usersController)
 	routers.SetupAuthRouter(r, authController)
 	routers.SetupPokemonRouter(r, pokemonController)
@@ -39,6 +41,21 @@ func main() {
 	fmt.Println("API is running...")
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 	http.ListenAndServe(port, r)
+}
+
+func enableCors(r *chi.Mux) {
+	// Basic CORS
+	// for more ideas, see: https://developer.github.com/v3/#cross-origin-resource-sharing
+	r.Use(cors.Handler(cors.Options{
+		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		AllowedOrigins: []string{"https://*", "http://*"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "PATCH"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
 }
 
 func setupSupabase() *supabase.Client {

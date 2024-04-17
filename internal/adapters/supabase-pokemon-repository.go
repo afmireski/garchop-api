@@ -188,7 +188,7 @@ func (r *SupabasePokemonRepository) FindAll(where myTypes.Where) ([]models.Pokem
 
 func (r *SupabasePokemonRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.PokemonModel, error) {
 	var supabaseData []myTypes.AnyMap
-	query := r.client.DB.From("pokemons").Update(input).Eq("id", id);
+	query := r.client.DB.From("pokemons").Update(input).Eq("id", id)
 	if len(where) > 0 {
 		for column, filter := range where {
 			for operator, criteria := range filter {
@@ -197,11 +197,12 @@ func (r *SupabasePokemonRepository) Update(id string, input myTypes.AnyMap, wher
 		}
 	}
 
-	err := query.Execute(&supabaseData); if err != nil {
+	err := query.Execute(&supabaseData)
+	if err != nil {
 		return nil, err
 	}
 
-	if (len(supabaseData) == 0) {
+	if len(supabaseData) == 0 {
 		return nil, nil
 	}
 

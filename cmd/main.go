@@ -28,10 +28,13 @@ func main() {
 
 	pokemonController := setupPokemonModule(supabaseClient, memCache)
 
+	tiersController := setupTiersModule(supabaseClient)
+
 	r := chi.NewRouter()
 	routers.SetupUsersRouter(r, usersController)
 	routers.SetupAuthRouter(r, authController)
 	routers.SetupPokemonRouter(r, pokemonController)
+	routers.SetupTiersRouter(r, tiersController)
 
 	fmt.Println("API is running...")
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
@@ -63,4 +66,10 @@ func setupPokemonModule(supabaseClient *supabase.Client, cache *cache.Cache) *co
 	typeRepository := adapters.NewSupabasePokemonTypesRepository(supabaseClient)
 	pokemonService := services.NewPokemonService(pokemonRepository, typeRepository, cache)
 	return controllers.NewPokemonController(pokemonService)
+}
+
+func setupTiersModule(supabaseClient *supabase.Client) *controllers.TiersController {
+	tiersRepository := adapters.NewSupabaseTiersRepository(supabaseClient)
+	tiersService := services.NewTiersService(tiersRepository)
+	return controllers.NewTiersController(tiersService)
 }

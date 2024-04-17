@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+* [#27](https://github.com/afmireski/garchop-api/issues/27) - Implementar listagem dos Tiers existentes
 * [#10](https://github.com/afmireski/garchop-api/issues/10) - Implementar rota de cadastro de conta administrativa
 * [#11](https://github.com/afmireski/garchop-api/issues/11) - Implementar rota que permita retirar um pokémon de venda
 * [#12](https://github.com/afmireski/garchop-api/issues/12) - Implementar rota que permita listar todos os pokémons que estão a venda

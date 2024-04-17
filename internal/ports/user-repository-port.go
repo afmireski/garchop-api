@@ -12,6 +12,8 @@ type UserRepositoryPort interface {
 
 	FindById(id string) (*models.UserModel, error)
 
+	FindAll(where myTypes.Where) ([]*models.UserModel, error)
+
 	Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.UserModel, error)
 
 	Delete(id string) error

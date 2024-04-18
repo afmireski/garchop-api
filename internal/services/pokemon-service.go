@@ -89,11 +89,11 @@ func (s *PokemonService) obtainPokemonData(pokemonName string) (myTypes.AnyMap, 
 	return pokeJson, nil
 }
 
-func (s *PokemonService) obtainTypeData(types []interface {}) ([]string, *customErrors.InternalError) {
+func (s *PokemonService) obtainTypeData(types []interface{}) ([]string, *customErrors.InternalError) {
 
 	typesIds := make([]string, 0)
 	for _, raw := range types {
-		typeData := (raw.(myTypes.AnyMap)["type"]).(myTypes.AnyMap);
+		typeData := (raw.(myTypes.AnyMap)["type"]).(myTypes.AnyMap)
 		typeName := typeData["name"].(string)
 		typeReferenceId := (strings.Split((typeData["url"].(string)), "/")[6])
 
@@ -138,7 +138,7 @@ func (s *PokemonService) NewPokemon(input myTypes.NewPokemonInput) *customErrors
 		return err
 	}
 
-	typeIds, err := s.obtainTypeData(pokeData["types"].([]interface {}))
+	typeIds, err := s.obtainTypeData(pokeData["types"].([]interface{}))
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func (s *PokemonService) DeletePokemon(id string) *customErrors.InternalError {
 	if !validators.IsValidUuid(id) {
 		return customErrors.NewInternalError("invalid id", 400, []string{"the id must be a valid uuid"})
 	}
-	
+
 	data := myTypes.AnyMap{
 		"deleted_at": time.Now(),
 		"updated_at": time.Now(),
@@ -214,7 +214,8 @@ func (s *PokemonService) DeletePokemon(id string) *customErrors.InternalError {
 		"deleted_at": map[string]string{"is": "null"},
 	}
 
-	repositoryData, err := s.repository.Update(id, data, where); if err != nil || repositoryData == nil {
+	repositoryData, err := s.repository.Update(id, data, where)
+	if err != nil || repositoryData == nil {
 		var details []string
 		if err != nil {
 			details = append(details, err.Error())
@@ -224,4 +225,50 @@ func (s *PokemonService) DeletePokemon(id string) *customErrors.InternalError {
 	}
 
 	return nil
+}
+
+func (s *PokemonService) UpdatePokemon(id string, input myTypes.UpdatePokemonInput) (*entities.PokemonProduct, *customErrors.InternalError) {
+	if !validators.IsValidUuid(id) {
+		return nil, customErrors.NewInternalError("invalid id", 400, []string{"the id must be a valid uuid"})
+	}
+
+	data := myTypes.AnyMap{}
+
+	if input.TierId != nil {
+		if !validators.IsValidNumericId(*input.TierId) {
+			return nil, customErrors.NewInternalError("invalid tier id", 400, []string{"the tier id must be a valid numeric id"})
+		}
+
+		data["tier_id"] = *input.TierId
+	}
+	if input.Price != nil {
+		if !validators.IsPositiveNumber(*input.Price) {
+			return nil, customErrors.NewInternalError("invalid price", 400, []string{"Price must be a positive number"})
+		}
+
+		data["price"] = *input.Price
+	}
+
+	if input.Stock != nil {
+		if !validators.IsGreaterThanEqualInt(*input.Stock, 0) {
+			return nil, customErrors.NewInternalError("invalid stock", 400, []string{"Stock must be greater than or equal to 0"})
+		}
+
+		data["stock"] = *input.Stock
+	}
+
+	where := myTypes.Where{
+		"deleted_at": map[string]string{"is": "null"},
+	}
+
+	updateData, err := s.repository.Update(id, data, where)
+
+	if err != nil {
+		return nil, customErrors.NewInternalError("a failure occurred when trying to update a pokemon", 500, []string{err.Error()})
+	} else if updateData == nil {
+		return nil, customErrors.NewInternalError("no pokemon found to update", 404, []string{err.Error()})
+	}
+	repositoryData, _ := s.repository.FindById(id, where)
+
+	return entities.BuildPokemonProductFromModel(*repositoryData), nil
 }

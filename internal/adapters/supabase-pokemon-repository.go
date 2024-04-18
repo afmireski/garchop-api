@@ -87,6 +87,11 @@ type createStockInput struct {
 	PokemonId string `json:"pokemon_id"`
 	Quantity  int    `json:"quantity"`
 }
+
+type updateStockInput struct {
+	Quantity  int    `json:"quantity"`	
+}
+
 type createPokemonTypeInput struct {
 	PokemonId string `json:"pokemon_id"`
 	TypeId    string `json:"type_id"`
@@ -188,6 +193,34 @@ func (r *SupabasePokemonRepository) FindAll(where myTypes.Where) ([]models.Pokem
 
 func (r *SupabasePokemonRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.PokemonModel, error) {
 	var supabaseData []myTypes.AnyMap
+
+	if _, exists := input["price"]; exists {
+		priceInput := createPriceInput{
+			PokemonId: id,
+			Value:     input["price"].(int),
+		}
+
+		delete(input, "price")
+
+		err := r.client.DB.From("prices").Insert(priceInput).Execute(&supabaseData)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if _, exists := input["stock"]; exists {
+		stockInput := updateStockInput{
+			Quantity:  input["stock"].(int),
+		}
+
+		delete(input, "stock")
+
+		err := r.client.DB.From("stocks").Update(stockInput).Eq("pokemon_id", id).Filter("deleted_at", "is", "null").Execute(&supabaseData)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	query := r.client.DB.From("pokemons").Update(input).Eq("id", id)
 	if len(where) > 0 {
 		for column, filter := range where {

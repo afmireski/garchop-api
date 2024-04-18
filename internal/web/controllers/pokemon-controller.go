@@ -83,3 +83,26 @@ func (c *PokemonController) DeletePokemon(w http.ResponseWriter, r *http.Request
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func (c *PokemonController) UpdatePokemon(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	idParam := chi.URLParam(r, "id")
+
+	var input myTypes.UpdatePokemonInput
+	err := json.NewDecoder(r.Body).Decode(&input); if err != nil {
+		err := customErrors.NewInternalError("fail on deserialize request body", 400, []string{})
+		w.WriteHeader(err.HttpCode)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+
+	response, serviceErr := c.service.UpdatePokemon(idParam, input); if serviceErr != nil {
+		w.WriteHeader(serviceErr.HttpCode)
+		json.NewEncoder(w).Encode(serviceErr)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}

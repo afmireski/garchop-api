@@ -117,7 +117,9 @@ func (c *UsersController) GetUserById(w http.ResponseWriter, r *http.Request) {
 func (c *UsersController) GetAdmins(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	users, serviceErr := c.service.GetUsers(nil)
+	users, serviceErr := c.service.GetUsers(myTypes.Where{
+		"role": map[string]string{"eq": "admin"},
+	})
 
 	if serviceErr != nil {
 		w.WriteHeader(serviceErr.HttpCode)

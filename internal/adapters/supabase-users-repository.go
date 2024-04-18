@@ -149,7 +149,6 @@ func (r *SupabaseUsersRepository) FindAll(where myTypes.Where) ([]models.UserMod
 	if len(where) > 0 {
 		for column, filter := range where {
 			for operator, criteria := range filter {
-				fmt.Println(column, operator, criteria)
 				query = query.Filter(column, operator, criteria)
 			}
 		}

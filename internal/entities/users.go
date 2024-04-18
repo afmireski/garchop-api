@@ -34,7 +34,7 @@ func NewUser(id string, name string, email string, phone string, birthDate time.
 }
 
 func BuildManyUserFromModel(data []models.UserModel) []User {
-	var result []User
+	result := []User{}
 
 	for _, val := range data {
 		result = append(result, *NewUser(val.Id, val.Name, val.Email, val.Phone, val.BirthDate, string(val.Role)))

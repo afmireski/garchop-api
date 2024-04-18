@@ -9,6 +9,6 @@ func SetupPokemonRouter(r chi.Router, controller *controllers.PokemonController)
 	r.Post("/pokemon/new", controller.RegistryNewPokemon)
 	r.Get("/pokemon/{id}", controller.GetPokemonById)
 	r.Get("/pokemon", controller.GetAllPokemons)
-	r.Patch("/pokemon/{id}/upt", controller.UpdatePokemon)
+	r.Patch("/pokemon/{id}/update", controller.UpdatePokemon)
 	r.Delete("/pokemon/{id}/del", controller.DeletePokemon)
 }

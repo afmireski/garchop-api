@@ -180,6 +180,22 @@ func (s *UsersService) GetUserById(id string) (*entities.User, *customErrors.Int
 	return entities.NewUser(response.Id, response.Name, response.Email, response.Phone, response.BirthDate, string(response.Role)), nil
 }
 
+func (s *UsersService) GetUsers(where myTypes.Where) ([]entities.User, *customErrors.InternalError) {
+	if len(where) == 0 {
+		where = myTypes.Where{
+			"role": map[string]string{"eq": "admin"},
+		}
+	}
+
+	repositoryData, err := s.repository.FindAll(where)
+
+	if err != nil {
+		return nil, customErrors.NewInternalError("a failure occurred when trying to retrieve users", 500, []string{})
+	}
+
+	return entities.BuildManyUserFromModel(repositoryData), nil
+}
+
 func (s *UsersService) DeleteClient(id string) *customErrors.InternalError {
 	if !validators.IsValidUuid(id) {
 		return customErrors.NewInternalError("invalid uuid", 400, []string{})

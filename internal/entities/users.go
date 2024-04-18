@@ -1,6 +1,10 @@
 package entities
 
-import "time"
+import (
+	"time"
+
+	"github.com/afmireski/garchop-api/internal/models"
+)
 
 type UserRoleEnum string
 
@@ -27,4 +31,14 @@ func NewUser(id string, name string, email string, phone string, birthDate time.
 		BirthDate: birthDate,
 		Role:      UserRoleEnum(role),
 	}
+}
+
+func BuildManyUserFromModel(data []models.UserModel) []User {
+	var result []User
+
+	for _, val := range data {
+		result = append(result, *NewUser(val.Id, val.Name, val.Email, val.Phone, val.BirthDate, string(val.Role)))
+	}
+
+	return result
 }

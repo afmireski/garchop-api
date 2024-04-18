@@ -181,12 +181,6 @@ func (s *UsersService) GetUserById(id string) (*entities.User, *customErrors.Int
 }
 
 func (s *UsersService) GetUsers(where myTypes.Where) ([]entities.User, *customErrors.InternalError) {
-	if len(where) == 0 {
-		where = myTypes.Where{
-			"role": map[string]string{"eq": "admin"},
-		}
-	}
-
 	repositoryData, err := s.repository.FindAll(where)
 
 	if err != nil {

@@ -228,6 +228,10 @@ func (s *PokemonService) DeletePokemon(id string) *customErrors.InternalError {
 }
 
 func (s *PokemonService) UpdatePokemon(id string, input myTypes.UpdatePokemonInput) (*entities.PokemonProduct, *customErrors.InternalError) {
+	if !validators.IsValidUuid(id) {
+		return nil, customErrors.NewInternalError("invalid id", 400, []string{"the id must be a valid uuid"})
+	}
+
 	data := myTypes.AnyMap{}
 
 	if input.TierId != nil {

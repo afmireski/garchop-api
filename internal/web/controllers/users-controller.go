@@ -114,6 +114,23 @@ func (c *UsersController) GetUserById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
+func (c *UsersController) GetAdmins(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	users, serviceErr := c.service.GetUsers(myTypes.Where{
+		"role": map[string]string{"eq": "admin"},
+	})
+
+	if serviceErr != nil {
+		w.WriteHeader(serviceErr.HttpCode)
+		json.NewEncoder(w).Encode(serviceErr)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(users)
+}
+
 func (c *UsersController) DeleteClientAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 

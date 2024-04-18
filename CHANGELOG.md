@@ -4,6 +4,7 @@
 
 ### Added
 * [#21](https://github.com/afmireski/garchop-api/issues/27) - Implementar rota que permita a um administrador editar os detalhes de um Pokémon
+* [#13](https://github.com/afmireski/garchop-api/issues/13) - Implementar rota que permita a listagem de usuários administrativos
 * [#27](https://github.com/afmireski/garchop-api/issues/27) - Implementar listagem dos Tiers existentes
 * [#10](https://github.com/afmireski/garchop-api/issues/10) - Implementar rota de cadastro de conta administrativa
 * [#11](https://github.com/afmireski/garchop-api/issues/11) - Implementar rota que permita retirar um pokémon de venda

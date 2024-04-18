@@ -48,7 +48,7 @@ func BuildPokemonProductFromModel(model models.PokemonModel) *PokemonProduct {
 			Types:       types,
 			Tier:        tier,
 		},
-		Price:   model.Prices[0].Value,
+		Price:   model.Prices[len(model.Prices)-1].Value,
 		InStock: model.Stock.Quantity,
 	}
 }

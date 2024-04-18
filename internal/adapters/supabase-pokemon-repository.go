@@ -87,6 +87,11 @@ type createStockInput struct {
 	PokemonId string `json:"pokemon_id"`
 	Quantity  int    `json:"quantity"`
 }
+
+type updateStockInput struct {
+	Quantity  int    `json:"quantity"`	
+}
+
 type createPokemonTypeInput struct {
 	PokemonId string `json:"pokemon_id"`
 	TypeId    string `json:"type_id"`
@@ -204,14 +209,13 @@ func (r *SupabasePokemonRepository) Update(id string, input myTypes.AnyMap, wher
 	}
 
 	if _, exists := input["stock"]; exists {
-		stockInput := createStockInput{
-			PokemonId: id,
+		stockInput := updateStockInput{
 			Quantity:  input["stock"].(int),
 		}
 
 		delete(input, "stock")
 
-		err := r.client.DB.From("stocks").Insert(stockInput).Execute(&supabaseData)
+		err := r.client.DB.From("stocks").Update(stockInput).Eq("pokemon_id", id).Filter("deleted_at", "is", "null").Execute(&supabaseData)
 		if err != nil {
 			return nil, err
 		}

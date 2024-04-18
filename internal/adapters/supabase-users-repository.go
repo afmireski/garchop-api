@@ -141,6 +141,38 @@ func (r *SupabaseUsersRepository) FindById(id string) (*models.UserModel, error)
 	return mapToUserModel(supabaseData)
 }
 
+func (r *SupabaseUsersRepository) FindAll(where myTypes.Where) ([]models.UserModel, error) {
+	var supabaseData []map[string]string
+
+	query := r.client.DB.From("users").Select("*").Is("deleted_at", "null")
+
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				fmt.Println(column, operator, criteria)
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(supabaseData) == 0 {
+		return nil, nil
+	}
+
+	result, err := serializeMany(supabaseData)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.UserModel, error) {
 	var supabaseData []map[string]string
 	query := r.client.DB.From("users").Update(input).Eq("id", id)

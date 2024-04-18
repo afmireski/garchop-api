@@ -33,7 +33,7 @@ func NewUser(id string, name string, email string, phone string, birthDate time.
 	}
 }
 
-func BuildManyUsersFromModel(data []models.UserModel) []User {
+func BuildManyUserFromModel(data []models.UserModel) []User {
 	var result []User
 
 	for _, val := range data {

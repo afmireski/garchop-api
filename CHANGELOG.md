@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [Release 1](https://github.com/afmireski/garchop-api/tags/v1.0.0)
 
 ### Added
 * [#21](https://github.com/afmireski/garchop-api/issues/27) - Implementar rota que permita a um administrador editar os detalhes de um Pokémon

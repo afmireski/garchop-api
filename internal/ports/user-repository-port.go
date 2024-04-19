@@ -10,7 +10,7 @@ import (
 type UserRepositoryPort interface {
 	Create(input CreateUserInput) (string, error)
 
-	FindById(id string) (*models.UserModel, error)
+	FindById(id string, where myTypes.Where) (*models.UserModel, error)
 
 	FindAll(where myTypes.Where) ([]models.UserModel, error)
 

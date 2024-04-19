@@ -169,7 +169,11 @@ func (s *UsersService) GetUserById(id string) (*entities.User, *customErrors.Int
 		return nil, customErrors.NewInternalError("invalid id", 400, []string{})
 	}
 
-	response, err := s.repository.FindById(id)
+	where := myTypes.Where{
+		"deleted_at": map[string]string{"is": "null"},
+	}
+
+	response, err := s.repository.FindById(id, where)
 
 	if err != nil {
 		return nil, customErrors.NewInternalError("a failure occurred when try to retrieve a new user", 500, []string{})

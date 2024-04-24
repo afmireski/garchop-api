@@ -124,13 +124,20 @@ func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, e
 	return supabaseData[0]["id"], nil
 }
 
-func (r *SupabaseUsersRepository) FindById(id string) (*models.UserModel, error) {
+func (r *SupabaseUsersRepository) FindById(id string, where myTypes.Where) (*models.UserModel, error) {
 	var supabaseData map[string]interface{}
 
-	err := r.client.DB.From("users").Select("*").Single().Eq("id", id).Execute(&supabaseData)
+	query := r.client.DB.From("users").Select("*").Single().Eq("id", id)
 
-	if err != nil {
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
 
+	err := query.Execute(&supabaseData); if err != nil {
 		if strings.Contains(err.Error(), "PGRST116") { // resource not found
 			return nil, nil
 		}

@@ -9,7 +9,7 @@ type Where = map[string]map[string]string
 type Order = map[string]OrderOptions
 
 type OrderOptions struct {
-	Ascending    *bool   `json:"ascending"`
-	ForeignTable *string `json:"foreignTable"`
-	NullsFirst   *bool   `json:"nullsFirst"`
+	Ascending bool    `json:"ascending"`
+	Child     *string `json:"child"`
+	Field     string  `json:"field"`
 }

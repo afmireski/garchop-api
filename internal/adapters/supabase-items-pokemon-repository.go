@@ -34,7 +34,7 @@ func (r *SupabaseItemsRepository) serializeToModel(supabaseData myTypes.AnyMap) 
 }
 
 func (r *SupabaseItemsRepository) serializeToModels(supabaseData []myTypes.AnyMap) ([]models.ItemModel, error) {
-	var modelsData []models.ItemModel
+	var modelsData []models.ItemModel = make([]models.ItemModel, 0)
 	for _, item := range supabaseData {
 		model, err := r.serializeToModel(item)
 		if err != nil {

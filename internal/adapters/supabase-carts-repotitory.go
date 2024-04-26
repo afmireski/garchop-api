@@ -20,7 +20,7 @@ func NewSupabaseCartsRepository(client *supabase.Client) *SupabaseCartsRepositor
 	}
 }
 
-func (r *SupabaseCartsRepository) serializeToCartModel(supabaseData myTypes.Any) (*models.CartModel, error) {
+func (r *SupabaseCartsRepository) serializeToModel(supabaseData myTypes.AnyMap) (*models.CartModel, error) {
 	jsonData, err := json.Marshal(supabaseData)
 	if err != nil {
 		return nil, err
@@ -80,21 +80,18 @@ func (r *SupabaseCartsRepository) FindById(id string, where myTypes.Where) ([]my
 }
 
 func (r *SupabaseCartsRepository) FindLastCart(user_id string) (*models.CartModel, error) {
-	var supabaseData []myTypes.AnyMap
+	var cartRawData myTypes.AnyMap
 
-	cartResponse, err := r.client.DB.Rpc("get_last_cart", user_id)
-	if err != nil || cartResponse.StatusCode != 200 {
+	err := r.client.DB.From("carts").Select("*").Single().Eq("user_id", user_id).Is("deleted_at", "null").Eq("is_active", "true").Gt("expires_at", "now()").Execute(&cartRawData)
+	if err != nil {
 		if strings.Contains(err.Error(), "PGRST116") { // resource not found
 			return nil, nil
 		}
 
 		return nil, err
 	}
-	cartData, err := r.serializeToCartModel(cartResponse.Body); if err != nil {
-		return nil, err
-	}
 
-	err = r.client.DB.From("itens").Select("*, pokemons (*, pokemon_types (*, types (*)), tiers (*))").Eq("cart_id", cartData.Id).Is("deleted_at", "null").Execute(&supabaseData); if err != nil {
+	cartData, err := r.serializeToModel(cartRawData); if err != nil {
 		return nil, err
 	}
 

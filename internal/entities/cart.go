@@ -18,8 +18,9 @@ type Cart struct {
 func BuildCartFromModel(model models.CartModel) *Cart {
 
 	var items []Item
-	for _, item := range model.Items {
-		items = append(items, *BuildItemFromModel(item))
+	for _, itemData := range model.Items {
+		item := BuildItemFromModel(&itemData);
+		items = append(items, *item)
 	}
 
 	return &Cart{

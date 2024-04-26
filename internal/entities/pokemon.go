@@ -22,7 +22,11 @@ type PokemonProduct struct {
 	InStock uint `json:"in_stock"`
 }
 
-func BuildPokemonFromModel(model models.PokemonModel) *Pokemon {
+func BuildPokemonFromModel(model *models.PokemonModel) *Pokemon {
+	if model == nil {
+		return nil
+	}
+
 	var types []PokemonType
 	for _, pokemonType := range model.Types {
 		t := PokemonType{Id: pokemonType.Types.Id, Name: pokemonType.Types.Name, ReferenceId: pokemonType.Types.ReferenceId}

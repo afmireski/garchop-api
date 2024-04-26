@@ -8,7 +8,7 @@ import (
 type CartsRepositoryPort interface {
 	Create(input myTypes.Any) (string, error)
 
-	FindById(id string, where myTypes.Where, order myTypes.Order) ([]myTypes.AnyMap, error)
+	FindById(id string, where myTypes.Where) ([]myTypes.AnyMap, error)
 
 	FindLastCart(user_id string) (*models.CartModel, error)
 

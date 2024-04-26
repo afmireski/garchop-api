@@ -80,9 +80,9 @@ func (r *SupabaseCartsRepository) FindById(id string, where myTypes.Where) ([]my
 }
 
 func (r *SupabaseCartsRepository) FindLastCart(user_id string) (*models.CartModel, error) {
-	var cartRawData myTypes.AnyMap
+	var supabaseData myTypes.AnyMap
 
-	err := r.client.DB.From("carts").Select("*").Single().Eq("user_id", user_id).Is("deleted_at", "null").Eq("is_active", "true").Gt("expires_at", "now()").Execute(&cartRawData)
+	err := r.client.DB.From("carts").Select("*").Single().Eq("user_id", user_id).Is("deleted_at", "null").Eq("is_active", "true").Gt("expires_at", "now()").Execute(&supabaseData)
 	if err != nil {
 		if strings.Contains(err.Error(), "PGRST116") { // resource not found
 			return nil, nil
@@ -91,7 +91,7 @@ func (r *SupabaseCartsRepository) FindLastCart(user_id string) (*models.CartMode
 		return nil, err
 	}
 
-	cartData, err := r.serializeToModel(cartRawData); if err != nil {
+	cartData, err := r.serializeToModel(supabaseData); if err != nil {
 		return nil, err
 	}
 

@@ -34,7 +34,7 @@ func (s *AuthService) Login(input myTypes.LoginInput) (*myTypes.LoginOutput, *cu
 	}
 
 	response, err := s.authenticator.ValidateCredentials(input.Email, input.Password); if err != nil {
-		return nil, customErrors.NewInternalError("invalid credentials", 500, []string{})
+		return nil, customErrors.NewInternalError("invalid credentials", 500, []string{err.Error()})
 	}
 
 	return response, nil

@@ -22,6 +22,37 @@ type PokemonProduct struct {
 	InStock uint `json:"in_stock"`
 }
 
+func BuildPokemonFromModel(model *models.PokemonModel) *Pokemon {
+	if model == nil {
+		return nil
+	}
+
+	var types []PokemonType
+	for _, pokemonType := range model.Types {
+		t := PokemonType{Id: pokemonType.Types.Id, Name: pokemonType.Types.Name, ReferenceId: pokemonType.Types.ReferenceId}
+		types = append(types, t)
+	}
+
+	tier := Tier{
+		Id:                model.Tier.Id,
+		Name:              model.Tier.Name,
+		MinimalExperience: model.Tier.MinimalExperience,
+		LimitExperience:   model.Tier.LimitExperience,
+	}
+
+	return &Pokemon{
+		Id:          model.Id,
+		ReferenceId: model.ReferenceId,
+		Name:        model.Name,
+		Weight:      model.Weight,
+		Height:      model.Height,
+		ImageUrl:    model.ImageUrl,
+		Experience:  model.Experience,
+		Types:       types,
+		Tier:        tier,
+	}
+}
+
 func BuildPokemonProductFromModel(model models.PokemonModel) *PokemonProduct {
 	var types []PokemonType
 	for _, pokemonType := range model.Types {

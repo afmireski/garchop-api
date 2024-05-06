@@ -3,6 +3,10 @@
 ## [Unreleased]
 
 ### Added
+* [#37](https://github.com/afmireski/garchop-api/issues/37) - Implementar busca do carrinho de compra de um usuário
+    * Definição das portas de ItemsRepository e CartsRepository
+    * Implementação dos adaptadores do Supabase de ItemsRepository e CartsRepository
+    * Implementação da rota: `/users/:user_id/cart`
 
 ### Changed
 

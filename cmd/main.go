@@ -31,12 +31,15 @@ func main() {
 
 	tiersController := setupTiersModule(supabaseClient)
 
+	cartsController := setupCartsModule(supabaseClient)
+
 	r := chi.NewRouter()
 	enableCors(r)
 	routers.SetupUsersRouter(r, usersController)
 	routers.SetupAuthRouter(r, authController)
 	routers.SetupPokemonRouter(r, pokemonController)
 	routers.SetupTiersRouter(r, tiersController)
+	routers.SetupCartsRouter(r, cartsController)
 
 	fmt.Println("API is running...")
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
@@ -89,4 +92,11 @@ func setupTiersModule(supabaseClient *supabase.Client) *controllers.TiersControl
 	tiersRepository := adapters.NewSupabaseTiersRepository(supabaseClient)
 	tiersService := services.NewTiersService(tiersRepository)
 	return controllers.NewTiersController(tiersService)
+}
+
+func setupCartsModule(supabaseClient *supabase.Client) *controllers.CartController {
+	cartsRepository := adapters.NewSupabaseCartsRepository(supabaseClient)
+	itemsRepository := adapters.NewSupabaseItemsRepository(supabaseClient)
+	cartsService := services.NewCartsService(cartsRepository, itemsRepository)
+	return controllers.NewCartController(cartsService)
 }

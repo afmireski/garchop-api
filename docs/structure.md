@@ -2,9 +2,6 @@
 ---
 title: Projeto Integrador
 ---
----
-title: Projeto Integrador
----
 classDiagram
     namespace Cruds {
         class User{

@@ -64,7 +64,7 @@ func IsPositiveNumber(number int) bool {
 	return number > 0
 }
 
-func IsGreaterThanInt(value int, min int) bool {
+func IsGreaterThanInt[T int | uint](value T, min T) bool {
 	return value > min
 }
 

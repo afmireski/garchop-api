@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/afmireski/garchop-api/internal/entities"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
@@ -43,4 +45,44 @@ func (s *CartsService) GetCurrentUserCart(user_id string) (*entities.Cart, *cust
 	cartsRepositoryData.Items = itensRepositoryData
 
 	return entities.BuildCartFromModel(*cartsRepositoryData), nil
+}
+
+func validateAddItemToCartInput(input myTypes.AddItemToCartInput) *customErrors.InternalError {
+	if !validators.IsValidUuid(input.UserId) {
+		return customErrors.NewInternalError("invalid user_id", 400, []string{"the user_id must be a valid uuid"})
+	} else if !validators.IsValidUuid(input.PriceId) {
+		return customErrors.NewInternalError("invalid price_id", 400, []string{"the price_id must be a valid uuid"})
+	} else if !validators.IsValidUuid(input.PokemonId) {
+		return customErrors.NewInternalError("invalid pokemon_id", 400, []string{"the pokemon_id must be a valid uuid"})
+	} else if !validators.IsGreaterThanInt[uint](input.Quantity, 0) {
+		return customErrors.NewInternalError("invalid quantity", 400, []string{"the quantity must be greater than 0"})
+	}
+
+	return nil;
+}
+
+func (s *CartsService) AddItemToCart(userId string, input myTypes.AddItemToCartInput) *customErrors.InternalError {
+
+	if inputErr := validateAddItemToCartInput(input); inputErr != nil {
+		return inputErr
+	}
+
+	cart, findCartErr := s.cartsRepository.FindLastCart(userId); if findCartErr != nil {
+		return customErrors.NewInternalError("failed on get the cart", 500, []string{findCartErr.Error()})
+	} else if cart == nil {
+		newCartInput := myTypes.CreateCartInput{
+			UserId: userId,
+			IsActive: true,
+			ExpiresIn: time.Now().Add(time.Hour * 1),
+		}
+		newCart, createCartErr := s.cartsRepository.Create(newCartInput); if createCartErr != nil {
+			return customErrors.NewInternalError("failed on get the cart", 500, []string{findCartErr.Error()})
+		}
+
+		cart = newCart
+	}
+
+	
+
+	return nil	
 }

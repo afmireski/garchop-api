@@ -50,8 +50,16 @@ func (r *SupabaseCartsRepository) serializeToItensModel(supabaseData myTypes.Any
 	return &modelData, nil
 }
 
-func (r *SupabaseCartsRepository) Create(input myTypes.Any) (string, error) {
-	panic("implement me")
+func (r *SupabaseCartsRepository) Create(input myTypes.CreateCartInput) (string, error) {
+	var supabaseData myTypes.AnyMap
+
+	err := r.client.DB.From("carts").Insert(input).Execute(&supabaseData);
+
+	if err != nil {
+		return "", err
+	}
+
+	return supabaseData["id"].(string), nil
 }
 
 func (r *SupabaseCartsRepository) FindById(id string, where myTypes.Where) ([]myTypes.AnyMap, error) {

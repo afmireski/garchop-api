@@ -6,7 +6,7 @@ import (
 )
 
 type CartsRepositoryPort interface {
-	Create(input myTypes.Any) (string, error)
+	Create(input myTypes.CreateCartInput) (string, error)
 
 	FindById(id string, where myTypes.Where) ([]myTypes.AnyMap, error)
 

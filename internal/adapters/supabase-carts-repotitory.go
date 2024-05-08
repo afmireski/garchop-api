@@ -106,8 +106,24 @@ func (r *SupabaseCartsRepository) FindLastCart(user_id string) (*models.CartMode
 	return cartData, nil
 }
 
-func (r *SupabaseCartsRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*myTypes.AnyMap, error) {
-	panic("implement me")
+func (r *SupabaseCartsRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.CartModel, error) {
+	var supabaseData []myTypes.AnyMap
+
+	query := r.client.DB.From("carts").Update(input).Eq("id", id);
+
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData); if err != nil {
+		return nil, err
+	}
+
+	return r.serializeToModel(supabaseData[0])
 }
 
 func (r *SupabaseCartsRepository) Delete(id string) error {

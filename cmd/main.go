@@ -101,9 +101,3 @@ func setupTiersModule(supabaseClient *supabase.Client) *controllers.TiersControl
 	return controllers.NewTiersController(tiersService)
 }
 
-func setupCartsModule(supabaseClient *supabase.Client) *controllers.CartController {
-	cartsRepository := adapters.NewSupabaseCartsRepository(supabaseClient)
-	itemsRepository := adapters.NewSupabaseItemsRepository(supabaseClient)
-	cartsService := services.NewCartsService(cartsRepository, itemsRepository)
-	return controllers.NewCartController(cartsService)
-}

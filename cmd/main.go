@@ -32,9 +32,11 @@ func main() {
 
 	tiersController := setupTiersModule(supabaseClient)
 
+	pricesModules := modules.NewPricesModule(supabaseClient)
+
 	itemsModule := modules.NewItemsModule(supabaseClient)
 
-	cartsModule := modules.NewCartsModule(supabaseClient, itemsModule.Repository,)
+	cartsModule := modules.NewCartsModule(supabaseClient, itemsModule.Repository, pricesModules.Repository, )
 
 	cartsController := setupCartsModule(supabaseClient)
 

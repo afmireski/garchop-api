@@ -71,9 +71,11 @@ func (r *SupabaseItemsRepository) FindAll(where myTypes.Where) ([]models.ItemMod
 	return r.serializeToModels(supabaseData)
 }
 
-func (r *SupabaseItemsRepository) Delete(id string) error {
+func (r *SupabaseItemsRepository) Create(input myTypes.CreateItemInput) (*models.ItemModel, error) {
 	panic("implement me")
 }
 
-
+func (r *SupabaseItemsRepository) Delete(id string) error {
+	panic("implement me")
+}
 

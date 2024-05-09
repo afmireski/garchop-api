@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/afmireski/garchop-api/internal/adapters"
+	"github.com/afmireski/garchop-api/internal/modules"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/services"
 	"github.com/afmireski/garchop-api/internal/web/controllers"
@@ -30,6 +31,10 @@ func main() {
 	pokemonController := setupPokemonModule(supabaseClient, memCache)
 
 	tiersController := setupTiersModule(supabaseClient)
+
+	itemsModule := modules.NewItemsModule(supabaseClient)
+
+	cartsModule := modules.NewCartsModule(supabaseClient, itemsModule.Repository,)
 
 	cartsController := setupCartsModule(supabaseClient)
 

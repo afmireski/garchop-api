@@ -9,9 +9,9 @@ import (
 )
 
 type CartsModule struct {
-	repository ports.CartsRepositoryPort
-	service    *services.CartsService
-	controller *controllers.CartController
+	Repository ports.CartsRepositoryPort
+	Service    *services.CartsService
+	Controller *controllers.CartController
 }
 
 func NewCartsModule(
@@ -26,8 +26,8 @@ func NewCartsModule(
 		controller := controllers.NewCartController(service)
 
 		return &CartsModule{
-			repository: repository,
-			service:    service,
-			controller: controller,
+			Repository: repository,
+			Service:    service,
+			Controller: controller,
 		}
 }

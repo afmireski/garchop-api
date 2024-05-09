@@ -12,7 +12,7 @@ type CartsRepositoryPort interface {
 
 	FindLastCart(user_id string) (*models.CartModel, error)
 
-	Update(id string, input myTypes.AnyMap, where myTypes.Where) (*myTypes.AnyMap, error)
+	Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.CartModel, error)
 
 	Delete(id string) error
 }

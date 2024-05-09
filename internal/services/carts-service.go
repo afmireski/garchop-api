@@ -56,8 +56,6 @@ func (s *CartsService) GetCurrentUserCart(user_id string) (*entities.Cart, *cust
 func validateAddItemToCartInput(input myTypes.AddItemToCartInput) *customErrors.InternalError {
 	if !validators.IsValidUuid(input.UserId) {
 		return customErrors.NewInternalError("invalid user_id", 400, []string{"the user_id must be a valid uuid"})
-	} else if !validators.IsValidUuid(input.PriceId) {
-		return customErrors.NewInternalError("invalid price_id", 400, []string{"the price_id must be a valid uuid"})
 	} else if !validators.IsValidUuid(input.PokemonId) {
 		return customErrors.NewInternalError("invalid pokemon_id", 400, []string{"the pokemon_id must be a valid uuid"})
 	} else if !validators.IsGreaterThanInt[uint](input.Quantity, 0) {
@@ -67,7 +65,7 @@ func validateAddItemToCartInput(input myTypes.AddItemToCartInput) *customErrors.
 	return nil
 }
 
-func (s *CartsService) AddItemToCart(userId string, input myTypes.AddItemToCartInput) *customErrors.InternalError {
+func (s *CartsService) AddItemToCart(input myTypes.AddItemToCartInput) *customErrors.InternalError {
 
 	if inputErr := validateAddItemToCartInput(input); inputErr != nil {
 		return inputErr
@@ -84,12 +82,12 @@ func (s *CartsService) AddItemToCart(userId string, input myTypes.AddItemToCartI
 	}
 
 	// Get the user cart
-	cart, findCartErr := s.cartsRepository.FindLastCart(userId)
+	cart, findCartErr := s.cartsRepository.FindLastCart(input.UserId)
 	if findCartErr != nil {
 		return customErrors.NewInternalError("failed on get the cart", 500, []string{findCartErr.Error()})
 	} else if cart == nil {
 		newCartInput := myTypes.CreateCartInput{
-			UserId:    userId,
+			UserId:    input.UserId,
 			IsActive:  true,
 			ExpiresIn: time.Now().Add(time.Hour * 1),
 		}

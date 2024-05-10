@@ -35,9 +35,9 @@ func (r *SupabaseStocksRepository) serializeToModel(supabaseData myTypes.AnyMap)
 }
 
 func (r *SupabaseStocksRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.StockModel, error) {
-	var supabaseData myTypes.AnyMap
+	var supabaseData []myTypes.AnyMap
 
-	query := r.client.DB.From("stocks").Update(input).Eq("id", id);
+	query := r.client.DB.From("stocks").Update(input).Eq("pokemon_id", id);
 
 	if len(where) > 0 {
 		for column, filter := range where {
@@ -51,7 +51,7 @@ func (r *SupabaseStocksRepository) Update(id string, input myTypes.AnyMap, where
 		return nil, err
 	}
 
-	return r.serializeToModel(supabaseData)
+	return r.serializeToModel(supabaseData[0])
 }
 
 

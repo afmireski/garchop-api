@@ -75,10 +75,12 @@ func (s *CartsService) AddItemToCart(input myTypes.AddItemToCartInput) *customEr
 	price, priceErr := s.priceRepository.FindCurrentPrice(input.PokemonId)
 	if priceErr != nil {
 		return customErrors.NewInternalError("failed on get pokemon infos", 500, []string{priceErr.Error()})
+	} else if price == nil {
+		return customErrors.NewInternalError("pokemon not found", 400, []string{})
 	}
 
 	if price.Pokemons.Stock.Quantity < input.Quantity || price.Pokemons.Stock.Quantity == 0 {
-		return customErrors.NewInternalError("this pokemon is out of stock", 400, []string{priceErr.Error()})
+		return customErrors.NewInternalError("this pokemon is out of stock", 400, []string{})
 	}
 
 	// Get the user cart
@@ -89,11 +91,11 @@ func (s *CartsService) AddItemToCart(input myTypes.AddItemToCartInput) *customEr
 		newCartInput := myTypes.CreateCartInput{
 			UserId:    input.UserId,
 			IsActive:  true,
-			ExpiresIn: time.Now().Add(time.Hour * 1),
+			ExpiresAt: time.Now().Add(time.Hour * 1),
 		}
 		newCart, createCartErr := s.cartsRepository.Create(newCartInput)
 		if createCartErr != nil {
-			return customErrors.NewInternalError("failed on get the cart", 500, []string{findCartErr.Error()})
+			return customErrors.NewInternalError("failed on get the cart", 500, []string{createCartErr.Error()})
 		}
 
 		cart = newCart
@@ -107,7 +109,9 @@ func (s *CartsService) AddItemToCart(input myTypes.AddItemToCartInput) *customEr
 		Total:     price.Value * input.Quantity,
 	}
 
-	s.itemsRepository.Create(itemInput)
+	_, itemErr := s.itemsRepository.Create(itemInput); if itemErr != nil {
+		return customErrors.NewInternalError("failed on add item to cart", 500, []string{itemErr.Error()})
+	}
 
 	cartWhere := myTypes.Where{
 		"id":         map[string]string{"eq": cart.Id},
@@ -123,9 +127,12 @@ func (s *CartsService) AddItemToCart(input myTypes.AddItemToCartInput) *customEr
 		return customErrors.NewInternalError("failed on update cart total", 500, []string{updateCartErr.Error()})
 	}
 
-	s.stockRepository.Update(input.PokemonId, myTypes.AnyMap{"quantity": price.Pokemons.Stock.Quantity - input.Quantity}, myTypes.Where{
-		"deleted_at": map[string]string{"is": "null"},		
+	_, updateStockErr := s.stockRepository.Update(input.PokemonId, myTypes.AnyMap{"quantity": price.Pokemons.Stock.Quantity - input.Quantity}, myTypes.Where{
+		"deleted_at": map[string]string{"is": "null"},
 	})
+	if updateStockErr != nil {
+		return customErrors.NewInternalError("failed on update pokemon stock", 500, []string{updateStockErr.Error()})
+	}
 
 	return nil
 }

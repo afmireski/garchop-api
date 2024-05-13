@@ -45,6 +45,8 @@ func (s *ItemsService) RemoveItemFromCart(input myTypes.RemoveItemFromCartInput)
 
 	if err != nil {
 		return customErrors.NewInternalError("failed on get the cart", 500, []string{err.Error()})
+	} else if cartData == nil {
+		return customErrors.NewInternalError("cart not found", 404, []string{})
 	}
 
 	err = s.itemsRepository.Delete(input.ItemId)
@@ -56,6 +58,10 @@ func (s *ItemsService) RemoveItemFromCart(input myTypes.RemoveItemFromCartInput)
 	_, err = s.cartsRepository.Update(input.CartId, myTypes.AnyMap{
 		"total": cartData.Total - tmpItem.Total,
 	}, nil)
+
+	if err != nil {
+		return customErrors.NewInternalError("failed on update the cart", 500, []string{err.Error()})
+	}
 
 	return nil
 

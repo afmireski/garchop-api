@@ -47,6 +47,7 @@ func main() {
 	routers.SetupPokemonRouter(r, pokemonController)
 	routers.SetupTiersRouter(r, tiersController)
 	routers.SetupCartsRouter(r, cartsModule.Controller)
+	routers.SetupItemsRouter(r, itemsModule.Controller)
 
 	fmt.Println("API is running...")
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))

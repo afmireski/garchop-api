@@ -2,6 +2,7 @@ package adapters
 
 import (
 	"encoding/json"
+	"strings"
 
 	myTypes "github.com/afmireski/garchop-api/internal/types"
 	"github.com/afmireski/garchop-api/internal/models"
@@ -46,7 +47,29 @@ func (r *SupabaseItemsRepository) serializeToModels(supabaseData []myTypes.AnyMa
 }
 
 func (r *SupabaseItemsRepository) FindById(id string, where myTypes.Where) (*models.ItemModel, error) {
-	panic("implement me")
+	var supabaseData myTypes.AnyMap
+
+	query := r.client.DB.From("items").Select("*, pokemons (*, pokemon_types (*, types (*)), tiers (*))").Single().Eq("id", id)
+
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData)
+
+	if err != nil {
+		if strings.Contains(err.Error(), "PGRST116") { // resource not found
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return r.serializeToModel(supabaseData)
 }
 
 func (r *SupabaseItemsRepository) FindAll(where myTypes.Where) ([]models.ItemModel, error) {

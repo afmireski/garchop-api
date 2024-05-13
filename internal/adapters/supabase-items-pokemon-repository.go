@@ -105,6 +105,12 @@ func (r *SupabaseItemsRepository) Create(input myTypes.CreateItemInput) (*models
 }
 
 func (r *SupabaseItemsRepository) Delete(id string) error {
-	panic("implement me")
-}
+	var supabaseData myTypes.AnyMap
 
+	err := r.client.DB.From("items").Delete().Eq("id", id).Execute(&supabaseData)
+	if err != nil || supabaseData != nil {
+		return err
+	}
+
+	return nil
+}

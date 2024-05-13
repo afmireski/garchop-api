@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/afmireski/garchop-api/internal/adapters"
+	"github.com/afmireski/garchop-api/internal/modules"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/services"
 	"github.com/afmireski/garchop-api/internal/web/controllers"
@@ -31,7 +32,13 @@ func main() {
 
 	tiersController := setupTiersModule(supabaseClient)
 
-	cartsController := setupCartsModule(supabaseClient)
+	stockModules := modules.NewStockModule(supabaseClient)
+
+	pricesModules := modules.NewPricesModule(supabaseClient)
+
+	itemsModule := modules.NewItemsModule(supabaseClient)
+
+	cartsModule := modules.NewCartsModule(supabaseClient, itemsModule.Repository, pricesModules.Repository, stockModules.Repository)
 
 	r := chi.NewRouter()
 	enableCors(r)
@@ -39,7 +46,7 @@ func main() {
 	routers.SetupAuthRouter(r, authController)
 	routers.SetupPokemonRouter(r, pokemonController)
 	routers.SetupTiersRouter(r, tiersController)
-	routers.SetupCartsRouter(r, cartsController)
+	routers.SetupCartsRouter(r, cartsModule.Controller)
 
 	fmt.Println("API is running...")
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
@@ -94,9 +101,3 @@ func setupTiersModule(supabaseClient *supabase.Client) *controllers.TiersControl
 	return controllers.NewTiersController(tiersService)
 }
 
-func setupCartsModule(supabaseClient *supabase.Client) *controllers.CartController {
-	cartsRepository := adapters.NewSupabaseCartsRepository(supabaseClient)
-	itemsRepository := adapters.NewSupabaseItemsRepository(supabaseClient)
-	cartsService := services.NewCartsService(cartsRepository, itemsRepository)
-	return controllers.NewCartController(cartsService)
-}

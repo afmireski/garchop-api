@@ -6,13 +6,13 @@ import (
 )
 
 type CartsRepositoryPort interface {
-	Create(input myTypes.Any) (string, error)
+	Create(input myTypes.CreateCartInput) (*models.CartModel, error)
 
 	FindById(id string, where myTypes.Where) ([]myTypes.AnyMap, error)
 
 	FindLastCart(user_id string) (*models.CartModel, error)
 
-	Update(id string, input myTypes.AnyMap, where myTypes.Where) (*myTypes.AnyMap, error)
+	Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.CartModel, error)
 
 	Delete(id string) error
 }

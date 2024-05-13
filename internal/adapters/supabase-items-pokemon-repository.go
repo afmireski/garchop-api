@@ -71,9 +71,17 @@ func (r *SupabaseItemsRepository) FindAll(where myTypes.Where) ([]models.ItemMod
 	return r.serializeToModels(supabaseData)
 }
 
+func (r *SupabaseItemsRepository) Create(input myTypes.CreateItemInput) (*models.ItemModel, error) {
+	var supabaseData []myTypes.AnyMap
+
+	err := r.client.DB.From("items").Insert(input).Execute(&supabaseData); if err != nil {
+		return nil, err
+	}
+
+	return r.serializeToModel(supabaseData[0])
+}
+
 func (r *SupabaseItemsRepository) Delete(id string) error {
 	panic("implement me")
 }
-
-
 

@@ -38,3 +38,8 @@ type AddItemToCartBody struct {
 	PokemonId string `json:"pokemon_id"`
 	Quantity  uint   `json:"quantity"`
 }
+
+type RemoveItemFromCartInput struct {
+	ItemId string `json:"item_id"`
+	CartId string `json:"cart_id"`
+}

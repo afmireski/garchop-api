@@ -8,5 +8,7 @@ import (
 type PurchaseRepositoryPort interface {
 	FindById(id string, where myTypes.Where) (*models.PurchaseModel, error)
 
+	Create(input myTypes.CreatePurchaseInput) (string, error)
 
+	Delete(id string) error
 }

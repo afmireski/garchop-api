@@ -62,7 +62,7 @@ func (r *SupabaseCartsRepository) Create(input myTypes.CreateCartInput) (*models
 	return r.serializeToModel(supabaseData[0])
 }
 
-func (r *SupabaseCartsRepository) FindById(id string, where myTypes.Where) ([]myTypes.AnyMap, error) {
+func (r *SupabaseCartsRepository) FindById(id string, where myTypes.Where) (*models.CartModel, error) {
 	var supabaseData []myTypes.AnyMap
 
 	query := r.client.DB.From("carts").Select("*").Single().Eq("id", id)

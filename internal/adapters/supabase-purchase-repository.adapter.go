@@ -46,3 +46,11 @@ func (r *SupabasePurchaseRepository) Create(input myTypes.CreatePurchaseInput) (
 	return supabaseData[0]["id"].(string), nil
 }
 
+func (r *SupabasePurchaseRepository) Delete(id string) error {
+	panic("implement me")
+}
+
+func (r *SupabasePurchaseRepository) FindById(id string, where myTypes.Where) (*models.PurchaseModel, error) {
+	panic("implement me")
+}
+

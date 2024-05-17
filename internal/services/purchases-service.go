@@ -65,5 +65,9 @@ func (s *PurchasesService) FinishPurchase(input myTypes.FinishPurchaseInput) *cu
 		return customErrors.NewInternalError("failed on finish the purchase", 500, []string{finishErr.Error()})
 	}
 
+	deleteCartErr := s.cartRepository.Delete(input.CartId); if deleteCartErr != nil {
+		return customErrors.NewInternalError("failed on delete the cart", 500, []string{deleteCartErr.Error()})
+	}
+
 	return nil
 }

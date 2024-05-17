@@ -127,5 +127,7 @@ func (r *SupabaseCartsRepository) Update(id string, input myTypes.AnyMap, where 
 }
 
 func (r *SupabaseCartsRepository) Delete(id string) error {
-	panic("implement me")
+	var supabaseData []myTypes.AnyMap
+
+	return r.client.DB.From("carts").Delete().Eq("id", id).Execute(&supabaseData)
 }

@@ -16,11 +16,12 @@ type PurchasesModule struct {
 
 func NewPurchasesModule(
 	supabaseClient *supabase.Client,
-	cartsRepository ports.CartsRepositoryPort,	
+	cartsRepository ports.CartsRepositoryPort,
+	itemsRepository ports.ItemsRepositoryPort,	
 	) *PurchasesModule {
 		repository := adapters.NewSupabasePurchaseRepository(supabaseClient)
 
-		service := services.NewPurchasesService(repository, cartsRepository)
+		service := services.NewPurchasesService(repository, cartsRepository, itemsRepository)
 
 		controller := controllers.NewPurchaseController(service)
 

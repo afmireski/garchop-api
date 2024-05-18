@@ -11,14 +11,16 @@ import (
 )
 
 type PurchasesService struct {
-	repository     ports.PurchaseRepositoryPort
-	cartRepository ports.CartsRepositoryPort
+	repository      ports.PurchaseRepositoryPort
+	cartRepository  ports.CartsRepositoryPort
+	itemsRepository ports.ItemsRepositoryPort
 }
 
-func NewPurchasesService(repository ports.PurchaseRepositoryPort, cartRepository ports.CartsRepositoryPort) *PurchasesService {
+func NewPurchasesService(repository ports.PurchaseRepositoryPort, cartRepository ports.CartsRepositoryPort, itemsRepository ports.ItemsRepositoryPort) *PurchasesService {
 	return &PurchasesService{
-		repository:     repository,
-		cartRepository: cartRepository,
+		repository:      repository,
+		cartRepository:  cartRepository,
+		itemsRepository: itemsRepository,
 	}
 }
 
@@ -43,29 +45,40 @@ func (s *PurchasesService) FinishPurchase(input myTypes.FinishPurchaseInput) *cu
 
 	cart, findCartErr := s.cartRepository.FindById(input.CartId, myTypes.Where{
 		"user_id":    map[string]string{"eq": input.UserId},
-		"is_active":  map[string]string{"is": "true"},
-		"expires_in": map[string]string{"gt": "now()"},
+		"is_active":  map[string]string{"eq": "true"},
+		"expires_at": map[string]string{"gt": "now()"},
 		"deleted_at": map[string]string{"is": "null"},
 	})
 	if findCartErr != nil {
-		return customErrors.NewInternalError("failed on get the cart", 500, []string{err.Error()})
+		return customErrors.NewInternalError("failed on get the cart", 500, []string{findCartErr.Error()})
 	} else if cart == nil {
 		return customErrors.NewInternalError("cart not found", 404, []string{})
 	}
 
 	data := myTypes.CreatePurchaseInput{
-		CartId:           input.CartId,
 		UserId:           input.UserId,
 		PaymentMethodId:  input.PaymentMethodId,
 		Total:            cart.Total,
 		PaymentLimitDate: time.Now().Add(time.Minute * 30),
 	}
 
-	_, finishErr := s.repository.Create(data); if finishErr != nil {
+	purchaseId, finishErr := s.repository.Create(data)
+	if finishErr != nil {
 		return customErrors.NewInternalError("failed on finish the purchase", 500, []string{finishErr.Error()})
 	}
 
-	deleteCartErr := s.cartRepository.Delete(input.CartId); if deleteCartErr != nil {
+	// Desvincula os items do carrinho e os vincula a compra
+	_, detachItemsErr := s.itemsRepository.UpdateMany(myTypes.AnyMap{
+		"cart_id":     nil,
+		"purchase_id": purchaseId,
+		"updated_at":  time.Now(),
+	}, myTypes.Where{"cart_id": map[string]string{"eq": input.CartId}})
+	if detachItemsErr != nil {
+		return customErrors.NewInternalError("failed on detach the items from the cart", 500, []string{detachItemsErr.Error()})
+	}
+
+	deleteCartErr := s.cartRepository.Delete(input.CartId)
+	if deleteCartErr != nil {
 		return customErrors.NewInternalError("failed on delete the cart", 500, []string{deleteCartErr.Error()})
 	}
 

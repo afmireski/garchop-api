@@ -81,6 +81,27 @@ func (r *SupabaseItemsRepository) Create(input myTypes.CreateItemInput) (*models
 	return r.serializeToModel(supabaseData[0])
 }
 
+func (r *SupabaseItemsRepository) UpdateMany(input myTypes.AnyMap, where myTypes.Where) ([]models.ItemModel, error) {
+	var supabaseData []myTypes.AnyMap
+
+	if len(where) == 0 {
+		return []models.ItemModel{}, nil
+	}
+
+	query := r.client.DB.From("items").Update(input);
+	for column, filter := range where {
+		for operator, criteria := range filter {
+			query = query.Filter(column, operator, criteria)
+		}
+	}
+
+	err := query.Execute(&supabaseData); if err != nil {
+		return nil, err
+	}
+
+	return r.serializeToModels(supabaseData)
+}
+
 func (r *SupabaseItemsRepository) Delete(id string) error {
 	panic("implement me")
 }

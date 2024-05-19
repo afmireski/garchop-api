@@ -39,6 +39,8 @@ func (s *ItemsService) RemoveItemFromCart(input myTypes.RemoveItemFromCartInput)
 
 	cartData, _ := s.cartsRepository.FindById(input.CartId, nil)
 
+	stockData, _ := s.stockRepository.FindById(tmpItemData.PokemonId, myTypes.Where{"deleted_at": map[string]string{"is": "null"}})
+
 	err := s.itemsRepository.Delete(input.ItemId, itemWhere)
 
 	if err != nil {
@@ -52,8 +54,6 @@ func (s *ItemsService) RemoveItemFromCart(input myTypes.RemoveItemFromCartInput)
 	if err != nil {
 		return customErrors.NewInternalError("failed on update the cart", 500, []string{err.Error()})
 	}
-
-	stockData, _ := s.stockRepository.FindById(tmpItemData.PokemonId, myTypes.Where{"deleted_at": map[string]string{"is": "null"}})
 
 	_, err = s.stockRepository.Update(tmpItemData.PokemonId, myTypes.AnyMap{"quantity": stockData.Quantity + tmpItemData.Quantity}, myTypes.Where{
 		"deleted_at": map[string]string{"is": "null"},

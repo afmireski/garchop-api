@@ -2,6 +2,7 @@ package adapters
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/afmireski/garchop-api/internal/models"
 	supabase "github.com/nedpals/supabase-go"
@@ -34,10 +35,35 @@ func (r *SupabaseStocksRepository) serializeToModel(supabaseData myTypes.AnyMap)
 	return &modelData, nil
 }
 
+func (r *SupabaseStocksRepository) FindById(id string, where myTypes.Where) (*models.StockModel, error) {
+	var supabaseData myTypes.AnyMap
+
+	query := r.client.DB.From("stocks").Select("*").Single().Eq("pokemon_id", id)
+
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData)
+	if err != nil {
+		if strings.Contains(err.Error(), "PGRST116") { // resource not found
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return r.serializeToModel(supabaseData)
+}
+
 func (r *SupabaseStocksRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.StockModel, error) {
 	var supabaseData []myTypes.AnyMap
 
-	query := r.client.DB.From("stocks").Update(input).Eq("pokemon_id", id);
+	query := r.client.DB.From("stocks").Update(input).Eq("pokemon_id", id)
 
 	if len(where) > 0 {
 		for column, filter := range where {

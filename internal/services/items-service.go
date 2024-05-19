@@ -35,30 +35,18 @@ func (s *ItemsService) RemoveItemFromCart(input myTypes.RemoveItemFromCartInput)
 		"cart_id": map[string]string{"eq": input.CartId},
 	}
 
-	tmpItem, err := s.itemsRepository.FindById(input.ItemId, itemWhere)
+	tmpItemData, _ := s.itemsRepository.FindById(input.ItemId, itemWhere)
 
-	if err != nil {
-		return customErrors.NewInternalError("failed on get the item", 500, []string{err.Error()})
-	} else if tmpItem == nil {
-		return customErrors.NewInternalError("item not found", 404, []string{})
-	}
+	cartData, _ := s.cartsRepository.FindById(input.CartId, nil)
 
-	cartData, err := s.cartsRepository.FindById(input.CartId, nil)
-
-	if err != nil {
-		return customErrors.NewInternalError("failed on get the cart", 500, []string{err.Error()})
-	} else if cartData == nil {
-		return customErrors.NewInternalError("cart not found", 404, []string{})
-	}
-
-	err = s.itemsRepository.Delete(input.ItemId)
+	err := s.itemsRepository.Delete(input.ItemId, itemWhere)
 
 	if err != nil {
 		return customErrors.NewInternalError("failed on delete the item", 500, []string{err.Error()})
 	}
 
 	_, err = s.cartsRepository.Update(input.CartId, myTypes.AnyMap{
-		"total": cartData.Total - tmpItem.Total,
+		"total": cartData.Total - tmpItemData.Total,
 	}, nil)
 
 	if err != nil {

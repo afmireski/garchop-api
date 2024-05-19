@@ -22,11 +22,11 @@ func NewItemsService(itemsRepository ports.ItemsRepositoryPort, cartsRepository 
 
 func (s *ItemsService) RemoveItemFromCart(input myTypes.RemoveItemFromCartInput) *customErrors.InternalError {
 	if !validators.IsValidUuid(input.ItemId) {
-		return customErrors.NewInternalError("invalid user_id", 400, []string{"the item_id must be a valid uuid"})
+		return customErrors.NewInternalError("invalid item_id", 400, []string{"the item_id must be a valid uuid"})
 	}
 
 	if !validators.IsValidUuid(input.CartId) {
-		return customErrors.NewInternalError("invalid item_id", 400, []string{"the cart_id must be a valid uuid"})
+		return customErrors.NewInternalError("invalid cart_id", 400, []string{"the cart_id must be a valid uuid"})
 	}
 
 	itemWhere := myTypes.Where{

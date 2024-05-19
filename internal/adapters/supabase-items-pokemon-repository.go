@@ -104,10 +104,21 @@ func (r *SupabaseItemsRepository) Create(input myTypes.CreateItemInput) (*models
 	return r.serializeToModel(supabaseData[0])
 }
 
-func (r *SupabaseItemsRepository) Delete(id string) error {
+func (r *SupabaseItemsRepository) Delete(id string, where myTypes.Where) error {
 	var supabaseData myTypes.AnyMap
 
-	err := r.client.DB.From("items").Delete().Eq("id", id).Execute(&supabaseData)
+	query := r.client.DB.From("items").Delete().Eq("id", id)
+
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData)
+
 	if err != nil || supabaseData != nil {
 		return err
 	}

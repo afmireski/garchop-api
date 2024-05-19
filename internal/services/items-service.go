@@ -9,16 +9,16 @@ import (
 )
 
 type ItemsService struct {
-	itemsRepository  ports.ItemsRepositoryPort
-	cartsRepository  ports.CartsRepositoryPort
-	stocksRepository ports.StockRepositoryPort
+	itemsRepository ports.ItemsRepositoryPort
+	cartsRepository ports.CartsRepositoryPort
+	stockRepository ports.StockRepositoryPort
 }
 
-func NewItemsService(itemsRepository ports.ItemsRepositoryPort, cartsRepository ports.CartsRepositoryPort, stocksRepository ports.StockRepositoryPort) *ItemsService {
+func NewItemsService(itemsRepository ports.ItemsRepositoryPort, cartsRepository ports.CartsRepositoryPort, stockRepository ports.StockRepositoryPort) *ItemsService {
 	return &ItemsService{
-		itemsRepository:  itemsRepository,
-		cartsRepository:  cartsRepository,
-		stocksRepository: stocksRepository,
+		itemsRepository: itemsRepository,
+		cartsRepository: cartsRepository,
+		stockRepository: stockRepository,
 	}
 }
 

@@ -18,9 +18,9 @@ func NewItemsModule(supabaseClient *supabase.Client) *ItemsModule {
 
 	repository := adapters.NewSupabaseItemsRepository(supabaseClient)
 	cartsRepository := adapters.NewSupabaseCartsRepository(supabaseClient)
-	stocksRepository := adapters.NewSupabaseStocksRepository(supabaseClient)
+	stockRepository := adapters.NewSupabasestockRepository(supabaseClient)
 
-	service := services.NewItemsService(repository, cartsRepository, stocksRepository)
+	service := services.NewItemsService(repository, cartsRepository, stockRepository)
 
 	controller := controllers.NewItemController(service)
 

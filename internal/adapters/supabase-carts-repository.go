@@ -62,8 +62,8 @@ func (r *SupabaseCartsRepository) Create(input myTypes.CreateCartInput) (*models
 	return r.serializeToModel(supabaseData[0])
 }
 
-func (r *SupabaseCartsRepository) FindById(id string, where myTypes.Where) ([]myTypes.AnyMap, error) {
-	var supabaseData []myTypes.AnyMap
+func (r *SupabaseCartsRepository) FindById(id string, where myTypes.Where) (*models.CartModel, error) {
+	var supabaseData myTypes.AnyMap
 
 	query := r.client.DB.From("carts").Select("*").Single().Eq("id", id)
 
@@ -84,7 +84,12 @@ func (r *SupabaseCartsRepository) FindById(id string, where myTypes.Where) ([]my
 		return nil, err
 	}
 
-	return nil, nil
+	cartData, err := r.serializeToModel(supabaseData)
+	if err != nil {
+		return nil, err
+	}
+
+	return cartData, nil
 }
 
 func (r *SupabaseCartsRepository) FindLastCart(user_id string) (*models.CartModel, error) {

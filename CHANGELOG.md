@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+* [#39](https://github.com/afmireski/garchop-api/issues/39) - Implementar remoção de um item do carrinho de compras
 * [#37](https://github.com/afmireski/garchop-api/issues/37) - Implementar busca do carrinho de compra de um usuário
     * Definição das portas de ItemsRepository e CartsRepository
     * Implementação dos adaptadores do Supabase de ItemsRepository e CartsRepository

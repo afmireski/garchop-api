@@ -6,5 +6,6 @@ import (
 )
 
 type StockRepositoryPort interface {
+	FindById(id string, where myTypes.Where) (*models.StockModel, error)
 	Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.StockModel, error)
 }

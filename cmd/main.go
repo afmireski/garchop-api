@@ -49,6 +49,7 @@ func main() {
 	routers.SetupPokemonRouter(r, pokemonController)
 	routers.SetupTiersRouter(r, tiersController)
 	routers.SetupCartsRouter(r, cartsModule.Controller)
+	routers.SetupItemsRouter(r, itemsModule.Controller)
 	routers.SetupPurchasesRouter(r, purchasesModule.Controller)
 
 	fmt.Println("API is running...")

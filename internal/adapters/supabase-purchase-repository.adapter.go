@@ -35,6 +35,21 @@ func (r *SupabasePurchaseRepository) serializeToModel(supabaseData myTypes.AnyMa
 	return &modelData, nil
 }
 
+func (r *SupabasePurchaseRepository) serializeManyToModel(supabaseData []myTypes.AnyMap) ([]models.PurchaseModel, error) {
+	jsonData, err := json.Marshal(supabaseData)
+	if err != nil {
+		return nil, err
+	}
+
+	var modelData []models.PurchaseModel
+	err = json.Unmarshal(jsonData, &modelData)
+	if err != nil {
+		return nil, err
+	}
+
+	return modelData, nil
+}
+
 func (r *SupabasePurchaseRepository) Create(input myTypes.CreatePurchaseInput) (string, error) {
 
 	var supabaseData []myTypes.AnyMap

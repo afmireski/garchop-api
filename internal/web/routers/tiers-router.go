@@ -9,5 +9,5 @@ import (
 
 func SetupTiersRouter(router *chi.Mux, controller *controllers.TiersController, supabaseClient *supabase.Client) {
 	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/tiers", controller.FindAll)
-	router.Get("/tiers/{id}", controller.FindById)
+	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/tiers/{id}", controller.FindById)
 }

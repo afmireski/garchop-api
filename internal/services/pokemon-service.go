@@ -266,7 +266,7 @@ func (s *PokemonService) UpdatePokemon(id string, input myTypes.UpdatePokemonInp
 	if err != nil {
 		return nil, customErrors.NewInternalError("a failure occurred when trying to update a pokemon", 500, []string{err.Error()})
 	} else if updateData == nil {
-		return nil, customErrors.NewInternalError("no pokemon found to update", 404, []string{err.Error()})
+		return nil, customErrors.NewInternalError("no pokemon found to update", 404, []string{})
 	}
 	repositoryData, _ := s.repository.FindById(id, where)
 

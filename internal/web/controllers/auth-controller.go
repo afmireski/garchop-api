@@ -45,3 +45,17 @@ func (c *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
+
+func (c *AuthController) SignOut(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	authorizationToken := r.Header.Get("Authorization")
+
+	err := c.service.Logout(authorizationToken); if err != nil {
+		w.WriteHeader(err.HttpCode)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

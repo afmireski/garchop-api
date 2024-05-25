@@ -45,7 +45,7 @@ func main() {
 	enableCors(r)
 	r.Use(middleware.AllowContentType("application/json"))
 	routers.SetupUsersRouter(r, usersController, supabaseClient)
-	routers.SetupAuthRouter(r, authController)
+	routers.SetupAuthRouter(r, authController, supabaseClient)
 	routers.SetupPokemonRouter(r, pokemonController, supabaseClient)
 	routers.SetupTiersRouter(r, tiersController, supabaseClient)
 	routers.SetupCartsRouter(r, cartsModule.Controller, supabaseClient)

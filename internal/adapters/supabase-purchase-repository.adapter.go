@@ -69,3 +69,23 @@ func (r *SupabasePurchaseRepository) FindById(id string, where myTypes.Where) (*
 	panic("implement me")
 }
 
+func (r *SupabasePurchaseRepository) FindAll(where myTypes.Where) ([]models.PurchaseModel, error) {
+	var supabaseData []myTypes.AnyMap
+
+	query := r.supabaseClient.DB.From("purchases").Select("*")
+
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.serializeManyToModel(supabaseData)
+}

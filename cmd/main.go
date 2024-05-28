@@ -41,6 +41,8 @@ func main() {
 
 	cartsModule := modules.NewCartsModule(supabaseClient, itemsModule.Repository, pricesModules.Repository, stockModules.Repository)
 
+	purchasesModule := modules.NewPurchasesModule(supabaseClient, cartsModule.Repository, itemsModule.Repository)
+
 	r := chi.NewRouter()
 	enableCors(r)
 	r.Use(middleware.AllowContentType("application/json"))
@@ -50,6 +52,7 @@ func main() {
 	routers.SetupTiersRouter(r, tiersController, supabaseClient)
 	routers.SetupCartsRouter(r, cartsModule.Controller, supabaseClient)
 	routers.SetupItemsRouter(r, itemsModule.Controller, supabaseClient)
+	routers.SetupPurchasesRouter(r, purchasesModule.Controller, supabaseClient)
 
 	fmt.Println("API is running...")
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))

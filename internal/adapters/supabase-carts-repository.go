@@ -75,21 +75,14 @@ func (r *SupabaseCartsRepository) FindById(id string, where myTypes.Where) (*mod
 		}
 	} 
 
-	err := query.Execute(&supabaseData)
-	if err != nil {
+	err := query.Execute(&supabaseData); if err != nil {
 		if strings.Contains(err.Error(), "PGRST116") { // resource not found
 			return nil, nil
 		}
 
 		return nil, err
 	}
-
-	cartData, err := r.serializeToModel(supabaseData)
-	if err != nil {
-		return nil, err
-	}
-
-	return cartData, nil
+	return r.serializeToModel(supabaseData)
 }
 
 func (r *SupabaseCartsRepository) FindLastCart(user_id string) (*models.CartModel, error) {
@@ -132,5 +125,7 @@ func (r *SupabaseCartsRepository) Update(id string, input myTypes.AnyMap, where 
 }
 
 func (r *SupabaseCartsRepository) Delete(id string) error {
-	panic("implement me")
+	var supabaseData []myTypes.AnyMap
+
+	return r.client.DB.From("carts").Delete().Eq("id", id).Execute(&supabaseData)
 }

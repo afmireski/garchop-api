@@ -34,3 +34,9 @@ func (a *SupabaseAuthenticator) ValidateCredentials(email string, password strin
 		RefreshToken: authData.RefreshToken,
 	}, err
 }
+
+func (a *SupabaseAuthenticator) RevogueCredentials(token string) error {
+	ctx := context.Background()
+
+	return a.client.Auth.SignOut(ctx, token);
+}

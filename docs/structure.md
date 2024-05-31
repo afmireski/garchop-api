@@ -91,12 +91,27 @@ classDiagram
             string tier_id
         }
 
-
         class Tier{
             int id
             string name
             int minimal_experience
             int limit_experience
+        }
+
+        class Reward {
+            string id
+            int tier_id
+            string name
+            string description
+            int experience_required
+            PrizeTypeEnum type
+            JSON prize
+        }
+
+        class UserReward {
+            string user_id
+            string reward_id
+            time winned_at
         }
     }
     
@@ -120,4 +135,8 @@ classDiagram
 
     UserStats "0..N" --* "1" Tier : está 
     Pokemon "0..N" --* "1" Tier : está 
+
+    Reward "1" *-- "0..N" UserReward : está
+    User "1" ..> "0..N" UserReward : "pode ter"
+    Tier "1" o-- "0..N" Reward : classifica
 ```

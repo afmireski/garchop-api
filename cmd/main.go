@@ -13,6 +13,7 @@ import (
 	"github.com/afmireski/garchop-api/internal/web/controllers"
 	"github.com/afmireski/garchop-api/internal/web/routers"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/patrickmn/go-cache"
 
@@ -44,13 +45,14 @@ func main() {
 
 	r := chi.NewRouter()
 	enableCors(r)
-	routers.SetupUsersRouter(r, usersController)
-	routers.SetupAuthRouter(r, authController)
-	routers.SetupPokemonRouter(r, pokemonController)
-	routers.SetupTiersRouter(r, tiersController)
-	routers.SetupCartsRouter(r, cartsModule.Controller)
-	routers.SetupItemsRouter(r, itemsModule.Controller)
-	routers.SetupPurchasesRouter(r, purchasesModule.Controller)
+	r.Use(middleware.AllowContentType("application/json"))
+	routers.SetupUsersRouter(r, usersController, supabaseClient)
+	routers.SetupAuthRouter(r, authController, supabaseClient)
+	routers.SetupPokemonRouter(r, pokemonController, supabaseClient)
+	routers.SetupTiersRouter(r, tiersController, supabaseClient)
+	routers.SetupCartsRouter(r, cartsModule.Controller, supabaseClient)
+	routers.SetupItemsRouter(r, itemsModule.Controller, supabaseClient)
+	routers.SetupPurchasesRouter(r, purchasesModule.Controller, supabaseClient)
 
 	fmt.Println("API is running...")
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))

@@ -39,3 +39,12 @@ func (s *AuthService) Login(input myTypes.LoginInput) (*myTypes.LoginOutput, *cu
 
 	return response, nil
 }
+
+
+func (s *AuthService) Logout(token string) *customErrors.InternalError {
+	err := s.authenticator.RevogueCredentials(token); if err != nil {
+		return customErrors.NewInternalError("failed on sign out", 500, []string{err.Error()})
+	}
+
+	return nil;
+}

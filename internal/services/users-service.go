@@ -14,9 +14,9 @@ import (
 )
 
 type UsersService struct {
-	repository ports.UserRepositoryPort
+	repository          ports.UserRepositoryPort
 	userStatsRepository ports.UserStatsRepository
-	hashHelper ports.HashHelperPort
+	hashHelper          ports.HashHelperPort
 }
 
 func NewUsersService(repository ports.UserRepositoryPort, userStatsRepository ports.UserStatsRepository, hashHelper ports.HashHelperPort) *UsersService {
@@ -85,10 +85,17 @@ func (s *UsersService) NewClient(input myTypes.NewUserInput) *customErrors.Inter
 		Role:          models.Client,
 	}
 
-	_, err := s.repository.Create(data)
+	clientId, err := s.repository.Create(data)
 
 	if err != nil {
 		return customErrors.NewInternalError("a failure occurred when try to create a new client", 500, []string{err.Error()})
+	}
+
+	_, statsErr := s.userStatsRepository.Create(myTypes.CreateUserStatsInput{
+		UserId: clientId,
+		TierId: 1,
+	}); if statsErr != nil {
+		return customErrors.NewInternalError("a failure occurred when try to create client status", 500, []string{statsErr.Error()})
 	}
 
 	return nil

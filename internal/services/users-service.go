@@ -15,12 +15,14 @@ import (
 
 type UsersService struct {
 	repository ports.UserRepositoryPort
+	userStatsRepository ports.UserStatsRepository
 	hashHelper ports.HashHelperPort
 }
 
-func NewUsersService(repository ports.UserRepositoryPort, hashHelper ports.HashHelperPort) *UsersService {
+func NewUsersService(repository ports.UserRepositoryPort, userStatsRepository ports.UserStatsRepository, hashHelper ports.HashHelperPort) *UsersService {
 	return &UsersService{
 		repository,
+		userStatsRepository,
 		hashHelper,
 	}
 }

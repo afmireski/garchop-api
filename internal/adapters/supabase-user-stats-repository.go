@@ -23,7 +23,7 @@ func (s *SupabaseUserStatsRepository) Create(input myTypes.CreateUserStatsInput)
 		return "", err
 	}
 
-	return supabaseData[0]["id"].(string), nil
+	return supabaseData[0]["user_id"].(string), nil
 }
 
 func (s *SupabaseUserStatsRepository) FindById(id string, where myTypes.Where) (*models.UserStatsModel, error) {

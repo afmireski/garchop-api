@@ -5,6 +5,7 @@ import "time"
 type PurchaseModel struct {
 	Id               string     `json:"id"`
 	UserId           string     `json:"user_id"`
+	Items           []ItemModel `json:"items"`
 	PaymentMethodId  string     `json:"payment_method_id"`
 	Total            int        `json:"total"`
 	PaymentLimitTime *time.Time `json:"payment_limit_time"`

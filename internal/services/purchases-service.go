@@ -86,7 +86,7 @@ func (s *PurchasesService) FinishPurchase(input myTypes.FinishPurchaseInput) *cu
 	return nil
 }
 
-func (s *PurchasesService) GetPurchases(userId string) ([]models.PurchaseModel, *customErrors.InternalError) {
+func (s *PurchasesService) GetPurchasesByUser(userId string) ([]models.PurchaseModel, *customErrors.InternalError) {
 	if !validators.IsValidUuid(userId) {
 		return nil, customErrors.NewInternalError("invalid user_id", 400, []string{"the user_id must be a valid uuid"})
 	}

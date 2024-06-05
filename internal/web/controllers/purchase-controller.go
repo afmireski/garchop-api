@@ -39,10 +39,10 @@ func (c *PurchaseController) FinishPurchase(w http.ResponseWriter, r *http.Reque
 
 }
 
-func (c *PurchaseController) GetPurchases(w http.ResponseWriter, r *http.Request) {
+func (c *PurchaseController) GetPurchasesByUser(w http.ResponseWriter, r *http.Request) {
 	userId := chi.URLParam(r, "user_id")
 
-	purchases, err := c.service.GetPurchases(userId)
+	purchases, err := c.service.GetPurchasesByUser(userId)
 	if err != nil {
 		w.WriteHeader(err.HttpCode)
 		json.NewEncoder(w).Encode(err)

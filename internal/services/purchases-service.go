@@ -99,5 +99,14 @@ func (s *PurchasesService) GetPurchasesByUser(userId string) ([]models.PurchaseM
 		return nil, customErrors.NewInternalError("purchases not found", 404, []string{})
 	}
 
+	for i, purchase := range purchases {
+		items, err := s.itemsRepository.FindAll(myTypes.Where{"purchase_id": map[string]string{"eq": purchase.Id}})
+		if err != nil {
+			return nil, customErrors.NewInternalError("failed on get the items", 500, []string{err.Error()})
+		}
+
+		purchases[i].Items = items
+	}
+
 	return purchases, nil
 }

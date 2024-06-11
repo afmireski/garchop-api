@@ -49,6 +49,11 @@ func (c *PurchaseController) GetPurchasesByUser(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	status := http.StatusOK
+	if len(purchases) == 0 {
+		status = http.StatusNoContent
+	}
+
+	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(purchases)
 }

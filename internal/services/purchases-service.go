@@ -18,11 +18,12 @@ type PurchasesService struct {
 	userStatsService *UsersStatsService
 }
 
-func NewPurchasesService(repository ports.PurchaseRepositoryPort, cartRepository ports.CartsRepositoryPort, itemsRepository ports.ItemsRepositoryPort) *PurchasesService {
+func NewPurchasesService(repository ports.PurchaseRepositoryPort, cartRepository ports.CartsRepositoryPort, itemsRepository ports.ItemsRepositoryPort, userStatsService *UsersStatsService) *PurchasesService {
 	return &PurchasesService{
 		repository:      repository,
 		cartRepository:  cartRepository,
 		itemsRepository: itemsRepository,
+		userStatsService: userStatsService,
 	}
 }
 

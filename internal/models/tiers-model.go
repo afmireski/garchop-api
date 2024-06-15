@@ -4,6 +4,7 @@ import "time"
 
 type TierModel struct {
 	Id                uint       `json:"id"`
+	PreviousTierId    *uint      `json:"previous_tier_id,omitempty"`
 	Name              string     `json:"name"`
 	MinimalExperience uint       `json:"minimal_experience"`
 	LimitExperience   uint       `json:"limit_experience"`

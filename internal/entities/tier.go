@@ -3,18 +3,19 @@ package entities
 import "github.com/afmireski/garchop-api/internal/models"
 
 type Tier struct {
-	Id uint `json:"id"`
-	Name string `json:"name"`
-	MinimalExperience uint `json:"minimal_experience"`
-	LimitExperience uint `json:"limit_experience"`
+	Id                uint   `json:"id"`
+	Name              string `json:"name"`
+	MinimalExperience uint   `json:"minimal_experience"`
+	LimitExperience   uint   `json:"limit_experience"`
+	PreviousTier      *Tier  `json:"previous_tier,omitempty"`
 }
 
 func BuildTierFromModel(model models.TierModel) Tier {
 	return Tier{
-		Id: model.Id,
-		Name: model.Name,
+		Id:                model.Id,
+		Name:              model.Name,
 		MinimalExperience: model.MinimalExperience,
-		LimitExperience: model.LimitExperience,
+		LimitExperience:   model.LimitExperience,
 	}
 }
 

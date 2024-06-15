@@ -3,6 +3,7 @@ package services
 import (
 	"time"
 
+	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
 
@@ -68,7 +69,7 @@ func (s *PurchasesService) FinishPurchase(input myTypes.FinishPurchaseInput) *cu
 	}
 
 	// Desvincula os items do carrinho e os vincula a compra
-	_, detachItemsErr := s.itemsRepository.UpdateMany(myTypes.AnyMap{
+	items, detachItemsErr := s.itemsRepository.UpdateMany(myTypes.AnyMap{
 		"cart_id":     nil,
 		"purchase_id": purchaseId,
 		"updated_at":  time.Now(),
@@ -82,5 +83,17 @@ func (s *PurchasesService) FinishPurchase(input myTypes.FinishPurchaseInput) *cu
 		return customErrors.NewInternalError("failed on delete the cart", 500, []string{deleteCartErr.Error()})
 	}
 
+	gainedXp := s.calculateGainedXp(items)
+
 	return nil
 }
+
+func (s *PurchasesService) calculateGainedXp(items []models.ItemModel) uint {
+	var gainedXp uint
+	gainedXp = 0
+	for _, item := range items {
+		gainedXp += item.Pokemon.Experience
+	}
+
+	return gainedXp
+} 

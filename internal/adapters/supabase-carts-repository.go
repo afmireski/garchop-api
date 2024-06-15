@@ -65,7 +65,7 @@ func (r *SupabaseCartsRepository) Create(input myTypes.CreateCartInput) (*models
 func (r *SupabaseCartsRepository) FindById(id string, where myTypes.Where) (*models.CartModel, error) {
 	var supabaseData myTypes.AnyMap
 
-	query := r.client.DB.From("carts").Select("*").Single().Eq("id", id)
+	query := r.client.DB.From("carts").Select("*", "items(*)", "users(*, user_stats(*))").Single().Eq("id", id)
 
 	if len(where) > 0 {
 		for column, filter := range where {

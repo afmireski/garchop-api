@@ -5,6 +5,7 @@ import (
 
 	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
+
 	"github.com/afmireski/garchop-api/internal/validators"
 
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
@@ -15,6 +16,7 @@ type PurchasesService struct {
 	repository      ports.PurchaseRepositoryPort
 	cartRepository  ports.CartsRepositoryPort
 	itemsRepository ports.ItemsRepositoryPort
+	tiersService    *TiersService
 }
 
 func NewPurchasesService(repository ports.PurchaseRepositoryPort, cartRepository ports.CartsRepositoryPort, itemsRepository ports.ItemsRepositoryPort) *PurchasesService {
@@ -84,6 +86,16 @@ func (s *PurchasesService) FinishPurchase(input myTypes.FinishPurchaseInput) *cu
 	}
 
 	gainedXp := s.calculateGainedXp(items)
+
+	nextTier, err := s.tiersService.FindNextTier(int(cart.User.Stats.TierId))
+
+	currentXp := cart.User.Stats.Experience
+	newXp := currentXp + gainedXp
+
+	if nextTier != nil && newXp >= nextTier.MinimalExperience {
+		
+	}
+
 
 	return nil
 }

@@ -24,7 +24,37 @@ func NewSupabaseUsersRepository(client *supabase.Client) *SupabaseUsersRepositor
 	}
 }
 
-func serializeMany(data []map[string]string) ([]models.UserModel, error) {
+func (r *SupabaseUsersRepository) serializeToModel(supabaseData myTypes.AnyMap) (*models.UserModel, error) {
+	jsonData, err := json.Marshal(supabaseData)
+	if err != nil {
+		return nil, err
+	}
+
+	var modelData models.UserModel
+	err = json.Unmarshal(jsonData, &modelData)
+	if err != nil {
+		return nil, err
+	}
+
+	return &modelData, nil
+}
+
+func (r *SupabaseUsersRepository) serializeManyToModel(supabaseData []myTypes.AnyMap) ([]models.UserModel, error) {
+	jsonData, err := json.Marshal(supabaseData)
+	if err != nil {
+		return nil, err
+	}
+
+	var modelsData []models.UserModel
+	err = json.Unmarshal(jsonData, &modelsData)
+	if err != nil {
+		return nil, err
+	}
+
+	return modelsData, nil
+}
+
+func (r *SupabaseUsersRepository) serializeMany(data []map[string]string) ([]models.UserModel, error) {
 	timeLayout := "2006-01-02T15:04:05.999999-07:00"
 
 	for _, d := range data {
@@ -53,37 +83,6 @@ func serializeMany(data []map[string]string) ([]models.UserModel, error) {
 	json.Unmarshal(jsonData, &result)
 
 	return result, nil
-}
-
-func mapToUserModel(data map[string]interface{}) (*models.UserModel, error) {
-	birthDate, _ := time.Parse("2006-01-02", data["birth_date"].(string))
-
-	createdAt, _ := time.Parse("2006-01-02T15:04:05.999999999Z07:00", data["created_at"].(string))
-
-	updatedAt, _ := time.Parse("2006-01-02T15:04:05.999999999Z07:00", data["updated_at"].(string))
-
-	var deletedAt time.Time
-	if deletedAtString, ok := data["deleted_at"].(string); ok {
-		deletedAt, _ = time.Parse("2006-01-02T15:04:05.999999999Z07:00", deletedAtString)
-	}
-
-	var role models.UserModelRoleEnum
-	if data["role"] == "client" {
-		role = models.Client
-	} else {
-		role = models.Admin
-	}
-
-	return models.NewUserModel(
-		data["id"].(string),
-		data["name"].(string),
-		data["email"].(string),
-		data["phone"].(string),
-		birthDate,
-		role,
-		createdAt,
-		updatedAt,
-		deletedAt), nil
 }
 
 type CreateInput struct {
@@ -145,11 +144,11 @@ func (r *SupabaseUsersRepository) FindById(id string, where myTypes.Where) (*mod
 		return nil, err
 	}
 
-	return mapToUserModel(supabaseData)
+	return r.serializeToModel(supabaseData)
 }
 
 func (r *SupabaseUsersRepository) FindAll(where myTypes.Where) ([]models.UserModel, error) {
-	var supabaseData []map[string]string
+	var supabaseData []myTypes.AnyMap
 
 	query := r.client.DB.From("users").Select("*").Is("deleted_at", "null")
 
@@ -171,16 +170,11 @@ func (r *SupabaseUsersRepository) FindAll(where myTypes.Where) ([]models.UserMod
 		return nil, nil
 	}
 
-	result, err := serializeMany(supabaseData)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return r.serializeManyToModel(supabaseData)
 }
 
 func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.UserModel, error) {
-	var supabaseData []map[string]string
+	var supabaseData []myTypes.AnyMap
 	query := r.client.DB.From("users").Update(input).Eq("id", id)
 	if len(where) > 0 {
 		for column, filter := range where {
@@ -199,7 +193,7 @@ func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where 
 		return nil, nil
 	}
 
-	result, err := serializeMany(supabaseData)
+	result, err := r.serializeManyToModel(supabaseData)
 	if err != nil {
 		return nil, err
 	}

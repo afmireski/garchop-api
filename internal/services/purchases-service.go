@@ -3,7 +3,6 @@ package services
 import (
 	"time"
 
-	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
 
 	"github.com/afmireski/garchop-api/internal/validators"
@@ -16,7 +15,7 @@ type PurchasesService struct {
 	repository      ports.PurchaseRepositoryPort
 	cartRepository  ports.CartsRepositoryPort
 	itemsRepository ports.ItemsRepositoryPort
-	tiersService    *TiersService
+	userStatsService *UsersStatsService
 }
 
 func NewPurchasesService(repository ports.PurchaseRepositoryPort, cartRepository ports.CartsRepositoryPort, itemsRepository ports.ItemsRepositoryPort) *PurchasesService {
@@ -80,32 +79,13 @@ func (s *PurchasesService) FinishPurchase(input myTypes.FinishPurchaseInput) *cu
 		return customErrors.NewInternalError("failed on detach the items from the cart", 500, []string{detachItemsErr.Error()})
 	}
 
+	// Apaga o carrinho de compras
 	deleteCartErr := s.cartRepository.Delete(input.CartId)
 	if deleteCartErr != nil {
 		return customErrors.NewInternalError("failed on delete the cart", 500, []string{deleteCartErr.Error()})
 	}
 
-	gainedXp := s.calculateGainedXp(items)
-
-	nextTier, err := s.tiersService.FindNextTier(int(cart.User.Stats.TierId))
-
-	currentXp := cart.User.Stats.Experience
-	newXp := currentXp + gainedXp
-
-	if nextTier != nil && newXp >= nextTier.MinimalExperience {
-		
-	}
-
-
-	return nil
+	// Atualiza a experiência do usuário
+	return s.userStatsService.GainExperience(input.UserId, cart.User.Stats.TierId, cart.User.Stats.Experience, items)
 }
 
-func (s *PurchasesService) calculateGainedXp(items []models.ItemModel) uint {
-	var gainedXp uint
-	gainedXp = 0
-	for _, item := range items {
-		gainedXp += item.Pokemon.Experience
-	}
-
-	return gainedXp
-} 

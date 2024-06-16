@@ -40,8 +40,12 @@ func (s *UsersStatsService) GainExperience(userId string, currentTierId uint, cu
 	}
 	experienceSum := currentExperience + gainedXp
 
+	_, err := s.repository.Update(userId, myTypes.AnyMap{"experience": experienceSum}, myTypes.Where{}); if err != nil {
+		return customErrors.NewInternalError("a failure occurred during user experience gain", 500, []string{err.Error()})
+	}
+
 	if nextTier != nil && experienceSum >= nextTier.MinimalExperience {
-		return s.LevelUp(userId, nextTier.Id)
+		s.LevelUp(userId, nextTier.Id)
 	}
 
 	return nil

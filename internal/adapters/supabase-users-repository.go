@@ -24,34 +24,66 @@ func NewSupabaseUsersRepository(client *supabase.Client) *SupabaseUsersRepositor
 	}
 }
 
-func (r *SupabaseUsersRepository) serializeToModel(supabaseData myTypes.AnyMap) (*models.UserModel, error) {
-	jsonData, err := json.Marshal(supabaseData)
-	if err != nil {
-		return nil, err
+func (r *SupabaseUsersRepository) serializeToModel(data myTypes.AnyMap) (*models.UserModel, error) {
+	birthDate, _ := time.Parse("2006-01-02", data["birth_date"].(string))
+
+	createdAt, _ := time.Parse("2006-01-02T15:04:05.999999999Z07:00", data["created_at"].(string))
+
+	updatedAt, _ := time.Parse("2006-01-02T15:04:05.999999999Z07:00", data["updated_at"].(string))
+
+	var deletedAt time.Time
+	if deletedAtString, ok := data["deleted_at"].(string); ok {
+		deletedAt, _ = time.Parse("2006-01-02T15:04:05.999999999Z07:00", deletedAtString)
 	}
 
-	var modelData models.UserModel
-	err = json.Unmarshal(jsonData, &modelData)
-	if err != nil {
-		return nil, err
+	var role models.UserModelRoleEnum
+	if data["role"] == "client" {
+		role = models.Client
+	} else {
+		role = models.Admin
 	}
 
-	return &modelData, nil
+	return models.NewUserModel(
+		data["id"].(string),
+		data["name"].(string),
+		data["email"].(string),
+		data["phone"].(string),
+		birthDate,
+		role,
+		createdAt,
+		updatedAt,
+		&deletedAt), nil
 }
 
-func (r *SupabaseUsersRepository) serializeManyToModel(supabaseData []myTypes.AnyMap) ([]models.UserModel, error) {
-	jsonData, err := json.Marshal(supabaseData)
+func (r *SupabaseUsersRepository) serializeManyToModel(data []myTypes.AnyMap) ([]models.UserModel, error) {
+	timeLayout := "2006-01-02T15:04:05.999999-07:00"
+
+	for _, d := range data {
+		for key, value := range d {
+			if strings.Contains(key, "birth_date") {
+				t, err := time.Parse("2006-01-02", value.(string))
+				if err != nil {
+					return nil, err
+				}
+				d[key] = t.Format(timeLayout)
+			}
+			if strings.Contains(key, "deleted_at") && value != nil {
+				tmp := time.Time{}
+				d[key] = tmp.Format(timeLayout)
+			}
+		}
+	}
+
+	jsonData, err := json.Marshal(data)
+
 	if err != nil {
 		return nil, err
 	}
 
-	var modelsData []models.UserModel
-	err = json.Unmarshal(jsonData, &modelsData)
-	if err != nil {
-		return nil, err
-	}
+	var result []models.UserModel
+	json.Unmarshal(jsonData, &result)
 
-	return modelsData, nil
+	return result, nil
 }
 
 type CreateInput struct {

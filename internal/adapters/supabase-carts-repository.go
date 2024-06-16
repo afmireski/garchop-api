@@ -3,6 +3,7 @@ package adapters
 import (
 	"encoding/json"
 	"strings"
+	"time"
 
 	supabase "github.com/nedpals/supabase-go"
 
@@ -21,6 +22,10 @@ func NewSupabaseCartsRepository(client *supabase.Client) *SupabaseCartsRepositor
 }
 
 func (r *SupabaseCartsRepository) serializeToModel(supabaseData myTypes.AnyMap) (*models.CartModel, error) {
+	if supabaseData["users"] != nil {
+		(supabaseData["users"].(myTypes.AnyMap))["birth_date"], _ = time.Parse("2006-01-02", (supabaseData["users"].(myTypes.AnyMap))["birth_date"].(string))
+	}
+
 	jsonData, err := json.Marshal(supabaseData)
 	if err != nil {
 		return nil, err
@@ -65,7 +70,7 @@ func (r *SupabaseCartsRepository) Create(input myTypes.CreateCartInput) (*models
 func (r *SupabaseCartsRepository) FindById(id string, where myTypes.Where) (*models.CartModel, error) {
 	var supabaseData myTypes.AnyMap
 
-	query := r.client.DB.From("carts").Select("*", "items(*)", "users(*, user_stats(*))").Single().Eq("id", id)
+	query := r.client.DB.From("carts").Select("*", "items(*, pokemons (*, pokemon_types (*, types (*)), tiers (*)))", "users(*, user_stats(*))").Single().Eq("id", id)
 
 	if len(where) > 0 {
 		for column, filter := range where {

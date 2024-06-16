@@ -71,7 +71,7 @@ func (s *PurchasesService) FinishPurchase(input myTypes.FinishPurchaseInput) *cu
 	}
 
 	// Desvincula os items do carrinho e os vincula a compra
-	items, detachItemsErr := s.itemsRepository.UpdateMany(myTypes.AnyMap{
+	_, detachItemsErr := s.itemsRepository.UpdateMany(myTypes.AnyMap{
 		"cart_id":     nil,
 		"purchase_id": purchaseId,
 		"updated_at":  time.Now(),
@@ -87,6 +87,6 @@ func (s *PurchasesService) FinishPurchase(input myTypes.FinishPurchaseInput) *cu
 	}
 
 	// Atualiza a experiência do usuário
-	return s.userStatsService.GainExperience(input.UserId, cart.User.Stats.TierId, cart.User.Stats.Experience, items)
+	return s.userStatsService.GainExperience(input.UserId, cart.User.Stats.TierId, cart.User.Stats.Experience, cart.Items)
 }
 

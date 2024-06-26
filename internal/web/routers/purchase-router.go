@@ -7,4 +7,5 @@ import (
 
 func SetupPurchasesRouter(r chi.Router, controller *controllers.PurchaseController) {
 	r.Post("/purchases/finish", controller.FinishPurchase)
+	r.Get("/users/{user_id}/purchases", controller.GetPurchasesByUser)
 }

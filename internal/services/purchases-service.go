@@ -3,6 +3,7 @@ package services
 import (
 	"time"
 
+	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
 
@@ -83,4 +84,18 @@ func (s *PurchasesService) FinishPurchase(input myTypes.FinishPurchaseInput) *cu
 	}
 
 	return nil
+}
+
+func (s *PurchasesService) GetPurchasesByUser(userId string) ([]models.PurchaseModel, *customErrors.InternalError) {
+	if !validators.IsValidUuid(userId) {
+		return nil, customErrors.NewInternalError("invalid user_id", 400, []string{"the user_id must be a valid uuid"})
+	}
+
+	purchases, err := s.repository.FindAll(myTypes.Where{"user_id": map[string]string{"eq": userId}})
+
+	if err != nil {
+		return nil, customErrors.NewInternalError("failed on get the purchases", 500, []string{err.Error()})
+	}
+
+	return purchases, nil
 }

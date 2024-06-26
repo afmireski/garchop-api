@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/afmireski/garchop-api/internal/services"
+	"github.com/go-chi/chi/v5"
 
 	myTypes "github.com/afmireski/garchop-api/internal/types"
 )
@@ -36,4 +37,23 @@ func (c *PurchaseController) FinishPurchase(w http.ResponseWriter, r *http.Reque
 
 	w.WriteHeader(http.StatusCreated)
 
+}
+
+func (c *PurchaseController) GetPurchasesByUser(w http.ResponseWriter, r *http.Request) {
+	userId := chi.URLParam(r, "user_id")
+
+	purchases, err := c.service.GetPurchasesByUser(userId)
+	if err != nil {
+		w.WriteHeader(err.HttpCode)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+
+	status := http.StatusOK
+	if len(purchases) == 0 {
+		status = http.StatusNoContent
+	}
+
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(purchases)
 }

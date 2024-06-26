@@ -8,7 +8,6 @@ import (
 
 	"github.com/afmireski/garchop-api/internal/adapters"
 	"github.com/afmireski/garchop-api/internal/modules"
-	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/services"
 	"github.com/afmireski/garchop-api/internal/web/controllers"
 	"github.com/afmireski/garchop-api/internal/web/routers"
@@ -24,7 +23,9 @@ func main() {
 	hashHelper := adapters.NewBcryptHashHelper()
 	memCache := cache.New(10*time.Minute, 30*time.Minute)
 
-	usersController := setupUsersModule(supabaseClient, hashHelper)
+	userStatsRepository := adapters.NewSupabaseUserStatsRepository(supabaseClient)
+	
+	usersModule := modules.NewUsersModule(supabaseClient, userStatsRepository, hashHelper)
 
 	authController := setupAuthModule(supabaseClient)
 
@@ -44,7 +45,7 @@ func main() {
 
 	r := chi.NewRouter()
 	enableCors(r)
-	routers.SetupUsersRouter(r, usersController)
+	routers.SetupUsersRouter(r, usersModule.Controller)
 	routers.SetupAuthRouter(r, authController)
 	routers.SetupPokemonRouter(r, pokemonController)
 	routers.SetupTiersRouter(r, tiersController)
@@ -76,14 +77,6 @@ func setupSupabase() *supabase.Client {
 	supabaseUrl := os.Getenv("SUPABASE_URL")
 	supabaseKey := os.Getenv("SUPABASE_KEY")
 	return supabase.CreateClient(supabaseUrl, supabaseKey)
-}
-
-func setupUsersModule(supabaseClient *supabase.Client, hashHelper ports.HashHelperPort) *controllers.UsersController {
-	usersRepository := adapters.NewSupabaseUsersRepository(supabaseClient)
-	usersService := services.NewUsersService(usersRepository, hashHelper)
-	usersController := controllers.NewUsersController(usersService)
-
-	return usersController
 }
 
 func setupAuthModule(supabaseClient *supabase.Client) *controllers.AuthController {

@@ -53,8 +53,7 @@ func (s *UsersStatsService) GainExperience(userId string, currentTierId uint, cu
 
 
 func (s *UsersStatsService) calculateGainedXp(items []models.ItemModel) uint {
-	var gainedXp uint
-	gainedXp = 0
+	gainedXp := uint(0)
 	for _, item := range items {
 		gainedXp += item.Pokemon.Experience
 	}

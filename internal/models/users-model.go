@@ -22,6 +22,7 @@ type UserModel struct {
 	CreatedAt time.Time         `json:"created_at"`
 	UpdatedAt time.Time         `json:"updated_at"`
 	DeletedAt time.Time         `json:"deleted_at"`
+	Status    *UserStatsModel   `json:"stats",omitempty`
 }
 
 func NewUserModel(id string, name string, email string, phone string, birthDate time.Time, role UserModelRoleEnum,

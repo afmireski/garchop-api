@@ -48,5 +48,5 @@ func (s *TiersService) FindById(id int) (*entities.Tier, *customErrors.InternalE
 	}
 	response := entities.BuildTierFromModel(*data)
 
-	return &response, nil
+	return response, nil
 }

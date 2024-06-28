@@ -14,12 +14,13 @@ const (
 )
 
 type User struct {
-	Id        string
-	Name      string
-	Email     string
-	Phone     string
-	BirthDate time.Time
-	Role      UserRoleEnum
+	Id        string       `json:"id"`
+	Name      string       `json:"name"`
+	Email     string       `json:"email"`
+	Phone     string       `json:"phone"`
+	BirthDate time.Time    `json:"birth_date"`
+	Role      UserRoleEnum `json:"role"`
+	Status    *UserStats   `json:"status",omitempty`
 }
 
 func NewUser(id string, name string, email string, phone string, birthDate time.Time, role string) *User {
@@ -30,6 +31,18 @@ func NewUser(id string, name string, email string, phone string, birthDate time.
 		Phone:     phone,
 		BirthDate: birthDate,
 		Role:      UserRoleEnum(role),
+	}
+}
+
+func BuildUserFromModel(model models.UserModel) *User {
+	return &User{
+		Id:        model.Id,
+		Name:      model.Name,
+		Email:     model.Email,
+		Phone:     model.Phone,
+		BirthDate: model.BirthDate,
+		Role:      UserRoleEnum(model.Role),
+		Status:    BuildUserStatsFromModel(*model.Stats),
 	}
 }
 

@@ -34,7 +34,11 @@ func NewUser(id string, name string, email string, phone string, birthDate time.
 	}
 }
 
-func BuildUserFromModel(model models.UserModel) *User {
+func BuildUserFromModel(model *models.UserModel) *User {
+	if model == nil {
+		return nil
+	}
+
 	return &User{
 		Id:        model.Id,
 		Name:      model.Name,
@@ -42,7 +46,7 @@ func BuildUserFromModel(model models.UserModel) *User {
 		Phone:     model.Phone,
 		BirthDate: model.BirthDate,
 		Role:      UserRoleEnum(model.Role),
-		Status:    BuildUserStatsFromModel(*model.Stats),
+		Status:    BuildUserStatsFromModel(model.Stats),
 	}
 }
 

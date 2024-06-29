@@ -138,7 +138,7 @@ func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, e
 func (r *SupabaseUsersRepository) FindById(id string, where myTypes.Where) (*models.UserModel, error) {
 	var supabaseData map[string]interface{}
 
-	query := r.client.DB.From("users").Select("*").Single().Eq("id", id)
+	query := r.client.DB.From("users").Select("*", "user_stats(*, tiers(*))").Single().Eq("id", id)
 
 	if len(where) > 0 {
 		for column, filter := range where {

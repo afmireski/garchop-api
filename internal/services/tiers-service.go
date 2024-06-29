@@ -46,7 +46,7 @@ func (s *TiersService) FindById(id int) (*entities.Tier, *customErrors.InternalE
 	} else if data == nil {
 		return nil, customErrors.NewInternalError("tier not found", 404, []string{})
 	}
-	response := entities.BuildTierFromModel(*data)
+	response := entities.BuildTierFromModel(data)
 
 	return response, nil
 }

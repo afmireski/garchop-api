@@ -190,7 +190,7 @@ func (s *UsersService) GetUserById(id string) (*entities.User, *customErrors.Int
 		return nil, customErrors.NewInternalError("user not found", 404, []string{})
 	}
 
-	return entities.NewUser(response.Id, response.Name, response.Email, response.Phone, response.BirthDate, string(response.Role)), nil
+	return entities.BuildUserFromModel(response), nil
 }
 
 func (s *UsersService) GetUsers(where myTypes.Where) ([]entities.User, *customErrors.InternalError) {

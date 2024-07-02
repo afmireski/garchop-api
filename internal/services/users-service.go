@@ -94,7 +94,8 @@ func (s *UsersService) NewClient(input myTypes.NewUserInput) *customErrors.Inter
 	_, statsErr := s.userStatsRepository.Create(myTypes.CreateUserStatsInput{
 		UserId: clientId,
 		TierId: 1,
-	}); if statsErr != nil {
+	})
+	if statsErr != nil {
 		return customErrors.NewInternalError("a failure occurred when try to create client status", 500, []string{statsErr.Error()})
 	}
 
@@ -185,7 +186,7 @@ func (s *UsersService) GetUserById(id string) (*entities.User, *customErrors.Int
 	response, err := s.repository.FindById(id, where)
 
 	if err != nil {
-		return nil, customErrors.NewInternalError("a failure occurred when try to retrieve a new user", 500, []string{})
+		return nil, customErrors.NewInternalError("a failure occurred when try to retrieve a new user", 500, []string{err.Error()})
 	} else if response == nil {
 		return nil, customErrors.NewInternalError("user not found", 404, []string{})
 	}

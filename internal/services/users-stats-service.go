@@ -30,29 +30,32 @@ func (s *UsersStatsService) LevelUp(userId string, newTierId uint) *customErrors
 	return nil
 }
 
-func (s *UsersStatsService) GainExperience(userId string, currentTierId uint, currentExperience uint, items []models.ItemModel) *customErrors.InternalError {
-
-	gainedXp := s.calculateGainedXp(items)
-	nextTier, findNextTierErr := s.tiersService.FindNextTier(int(currentTierId))
-
-	if findNextTierErr != nil {
-		return customErrors.NewInternalError("a failure occurred when try to find the next tier", 500, []string{findNextTierErr.Error()})
-	}
+func (s *UsersStatsService) GainExperience(userId string, currentExperience uint, gainedXp uint) (*uint, *customErrors.InternalError) {
 	experienceSum := currentExperience + gainedXp
 
 	_, err := s.repository.Update(userId, myTypes.AnyMap{"experience": experienceSum}, myTypes.Where{}); if err != nil {
-		return customErrors.NewInternalError("a failure occurred during user experience gain", 500, []string{err.Error()})
+		return nil, customErrors.NewInternalError("a failure occurred during user experience gain", 500, []string{err.Error()})
 	}
 
-	if nextTier != nil && experienceSum >= nextTier.MinimalExperience {
-		s.LevelUp(userId, nextTier.Id)
+	return &experienceSum, nil
+}
+
+func (s *UsersStatsService) canLevelUp(currentTierId uint, newExperienceAmount uint) (*uint, *customErrors.InternalError) {
+	nextTier, findNextTierErr := s.tiersService.FindNextTier(int(currentTierId))
+
+	if findNextTierErr != nil {
+		return nil, customErrors.NewInternalError("a failure occurred when try to find the next tier", 500, []string{findNextTierErr.Error()})
 	}
 
-	return nil
+	if nextTier.MinimalExperience > newExperienceAmount {
+		return nil, nil
+	}
+
+	return &nextTier.Id, nil
 }
 
 
-func (s *UsersStatsService) calculateGainedXp(items []models.ItemModel) uint {
+func (s *UsersStatsService) calculateGainedXpFromItems(items []models.ItemModel) uint {
 	gainedXp := uint(0)
 	for _, item := range items {
 		gainedXp += item.Pokemon.Experience
@@ -60,3 +63,23 @@ func (s *UsersStatsService) calculateGainedXp(items []models.ItemModel) uint {
 
 	return gainedXp
 } 
+
+func (s *UsersStatsService) ComputateExperienceFromItems(userId string, currentTierId uint, currentExperience uint, items []models.ItemModel) *customErrors.InternalError {
+
+	gainedXp := s.calculateGainedXpFromItems(items)
+
+	newExperience, gainXpErr := s.GainExperience(userId,currentExperience, gainedXp); if gainXpErr != nil {
+		return gainXpErr
+	}
+
+	newTierId, canLevelUpErr := s.canLevelUp(currentTierId, *newExperience); if canLevelUpErr != nil {
+		return canLevelUpErr
+	}
+
+	if newTierId != nil {
+		return s.LevelUp(userId, *newTierId)
+	}
+
+	return nil
+	
+}

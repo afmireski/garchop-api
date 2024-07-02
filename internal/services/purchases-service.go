@@ -88,7 +88,7 @@ func (s *PurchasesService) FinishPurchase(input myTypes.FinishPurchaseInput) *cu
 	}
 
 	// Atualiza a experiência do usuário
-	return s.userStatsService.GainExperience(input.UserId, cart.User.Stats.TierId, cart.User.Stats.Experience, cart.Items)
+	return s.userStatsService.ComputateExperienceFromItems(input.UserId, cart.User.Stats.TierId, cart.User.Stats.Experience, cart.Items)
 }
 
 func (s *PurchasesService) GetPurchasesByUser(userId string) ([]models.PurchaseModel, *customErrors.InternalError) {

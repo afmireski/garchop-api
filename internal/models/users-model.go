@@ -37,5 +37,6 @@ func NewUserModel(id string, name string, email string, phone string, birthDate 
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
 		DeletedAt: deletedAt,
+		Stats:     stats,
 	}
 }

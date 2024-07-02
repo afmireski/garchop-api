@@ -24,66 +24,46 @@ func NewSupabaseUsersRepository(client *supabase.Client) *SupabaseUsersRepositor
 	}
 }
 
-func (r *SupabaseUsersRepository) serializeToModel(data myTypes.AnyMap) (*models.UserModel, error) {
-	birthDate, _ := time.Parse("2006-01-02", data["birth_date"].(string))
-
-	createdAt, _ := time.Parse("2006-01-02T15:04:05.999999999Z07:00", data["created_at"].(string))
-
-	updatedAt, _ := time.Parse("2006-01-02T15:04:05.999999999Z07:00", data["updated_at"].(string))
-
-	var deletedAt time.Time
-	if deletedAtString, ok := data["deleted_at"].(string); ok {
-		deletedAt, _ = time.Parse("2006-01-02T15:04:05.999999999Z07:00", deletedAtString)
-	}
-
-	var role models.UserModelRoleEnum
-	if data["role"] == "client" {
-		role = models.Client
-	} else {
-		role = models.Admin
-	}
-
-	return models.NewUserModel(
-		data["id"].(string),
-		data["name"].(string),
-		data["email"].(string),
-		data["phone"].(string),
-		birthDate,
-		role,
-		createdAt,
-		updatedAt,
-		&deletedAt), nil
+func (r *SupabaseUsersRepository) fixBirthDate(rawBirthDate string) string {
+	timeLayout := "2006-01-02T15:04:05.999999-03:00"
+	birthDate, _ := time.Parse("2006-01-02", rawBirthDate)
+	return birthDate.Format(timeLayout)
 }
 
-func (r *SupabaseUsersRepository) serializeManyToModel(data []myTypes.AnyMap) ([]models.UserModel, error) {
-	timeLayout := "2006-01-02T15:04:05.999999-07:00"
+func (r *SupabaseUsersRepository) serializeSupabaseDataToModel(supabaseData myTypes.AnyMap) (*models.UserModel, error) {
+	supabaseData["birth_date"] = r.fixBirthDate(supabaseData["birth_date"].(string))
 
-	for _, d := range data {
-		for key, value := range d {
-			if strings.Contains(key, "birth_date") {
-				t, err := time.Parse("2006-01-02", value.(string))
-				if err != nil {
-					return nil, err
-				}
-				d[key] = t.Format(timeLayout)
-			}
-			if strings.Contains(key, "deleted_at") && value != nil {
-				tmp := time.Time{}
-				d[key] = tmp.Format(timeLayout)
-			}
-		}
-	}
-
-	jsonData, err := json.Marshal(data)
-
+	jsonData, err := json.Marshal(supabaseData)
 	if err != nil {
 		return nil, err
 	}
 
-	var result []models.UserModel
-	json.Unmarshal(jsonData, &result)
+	var modelData models.UserModel
+	err = json.Unmarshal(jsonData, &modelData)
+	if err != nil {
+		return nil, err
+	}
 
-	return result, nil
+	return &modelData, nil
+}
+
+func (r *SupabaseUsersRepository) serializeManySupabaseDataToModel(supabaseData []myTypes.AnyMap) ([]models.UserModel, error) {
+	for i, element := range supabaseData {
+		supabaseData[i]["birth_date"] = r.fixBirthDate(element["birth_date"].(string))
+	}
+
+	jsonData, err := json.Marshal(supabaseData)
+	if err != nil {
+		return nil, err
+	}
+
+	var modelData []models.UserModel
+	err = json.Unmarshal(jsonData, &modelData)
+	if err != nil {
+		return nil, err
+	}
+
+	return modelData, nil
 }
 
 type CreateInput struct {
@@ -127,7 +107,7 @@ func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, e
 func (r *SupabaseUsersRepository) FindById(id string, where myTypes.Where) (*models.UserModel, error) {
 	var supabaseData map[string]interface{}
 
-	query := r.client.DB.From("users").Select("*").Single().Eq("id", id)
+	query := r.client.DB.From("users").Select("*", "user_stats(*, tiers(*))").Single().Eq("id", id)
 
 	if len(where) > 0 {
 		for column, filter := range where {
@@ -146,7 +126,7 @@ func (r *SupabaseUsersRepository) FindById(id string, where myTypes.Where) (*mod
 		return nil, err
 	}
 
-	return r.serializeToModel(supabaseData)
+	return r.serializeSupabaseDataToModel(supabaseData)
 }
 
 func (r *SupabaseUsersRepository) FindAll(where myTypes.Where) ([]models.UserModel, error) {
@@ -172,7 +152,7 @@ func (r *SupabaseUsersRepository) FindAll(where myTypes.Where) ([]models.UserMod
 		return nil, nil
 	}
 
-	return r.serializeManyToModel(supabaseData)
+	return r.serializeManySupabaseDataToModel(supabaseData)
 }
 
 func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.UserModel, error) {
@@ -195,7 +175,7 @@ func (r *SupabaseUsersRepository) Update(id string, input myTypes.AnyMap, where 
 		return nil, nil
 	}
 
-	result, err := r.serializeManyToModel(supabaseData)
+	result, err := r.serializeManySupabaseDataToModel(supabaseData)
 	if err != nil {
 		return nil, err
 	}

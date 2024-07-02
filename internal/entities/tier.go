@@ -4,11 +4,11 @@ import "github.com/afmireski/garchop-api/internal/models"
 
 type Tier struct {
 	Id                uint          `json:"id"`
-	PreviousTierId    uint          `json:"previous_tier_id"`
+	PreviousTierId    *uint          `json:"previous_tier_id"`
 	Name              string        `json:"name"`
 	MinimalExperience uint          `json:"minimal_experience"`
 	LimitExperience   uint          `json:"limit_experience"`
-	PreviousTier      *PreviousTier `json:"previous_tier",omitempty`
+	PreviousTier      *PreviousTier `json:"previous_tier,omitempty"`
 }
 
 type PreviousTier struct {

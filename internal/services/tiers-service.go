@@ -68,7 +68,7 @@ func (s *TiersService) FindNextTier(currentTierId int) (*entities.Tier, *customE
 		return nil, customErrors.NewInternalError("a failure occurred when try to find the next", 500, []string{err.Error()})
 	} 
 
-	response := entities.BuildTierFromModel(*data)
+	response := entities.BuildTierFromModel(data)
 
-	return &response, nil
+	return response, nil
 }

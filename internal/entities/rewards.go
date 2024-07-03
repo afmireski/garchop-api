@@ -1,6 +1,9 @@
 package entities
 
-import "github.com/afmireski/garchop-api/internal/types/enums"
+import (
+	"github.com/afmireski/garchop-api/internal/models"
+	"github.com/afmireski/garchop-api/internal/types/enums"
+)
 
 type Reward struct {
 	Id                 string              `json:"id"`
@@ -11,4 +14,17 @@ type Reward struct {
 	Prize              string              `json:"prize"`
 	PrizeType          enums.PrizeTypeEnum `json:"prize_type"`
 	Tier               *Tier               `json:"tier"`
+}
+
+func BuildRewardFromModel(model *models.RewardModel) *Reward {
+	return &Reward{
+		Id:                 model.Id,
+		TierId:             model.TierId,
+		Name:               model.Name,
+		Description:        model.Description,
+		ExperienceRequired: model.ExperienceRequired,
+		Prize:              model.Prize,
+		PrizeType:          model.PrizeType,
+		Tier:               BuildTierFromModel(model.Tier),
+	}
 }

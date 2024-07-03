@@ -10,6 +10,7 @@ func SetupUsersRouter(router *chi.Mux, controller *controllers.UsersController) 
 	router.Patch("/users/{id}/update", controller.UpdateClient)
 	router.Get("/users/{id}", controller.GetUserById)
 	router.Get("/users/admin", controller.GetAdmins)
+	router.Get("/users/{id}/stats", controller.GetUserStatsById)
 	router.Delete("/users/{id}/del", controller.DeleteClientAccount)
 
 	router.Post("/admin/new", controller.NewAdministrator)

@@ -131,6 +131,22 @@ func (c *UsersController) GetAdmins(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 
+func (c *UsersController) GetUserStatsById(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	idParam := chi.URLParam(r, "id")
+
+	user, serviceErr := c.service.GetUserStatsById(idParam)
+
+	if serviceErr != nil {
+		w.WriteHeader(serviceErr.HttpCode)
+		json.NewEncoder(w).Encode(serviceErr)
+		return
+	}
+
+	json.NewEncoder(w).Encode(user)
+}
+
 func (c *UsersController) DeleteClientAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 

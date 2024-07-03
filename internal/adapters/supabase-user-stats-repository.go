@@ -1,6 +1,7 @@
 package adapters
 
 import (
+	"encoding/json"
 	"strings"
 
 	"github.com/afmireski/garchop-api/internal/models"
@@ -16,6 +17,21 @@ func NewSupabaseUserStatsRepository(client *supabase.Client) *SupabaseUserStatsR
 	return &SupabaseUserStatsRepository{
 		client: client,
 	}
+}
+
+func (s *SupabaseUserStatsRepository) serializeSupabaseDataToModel(supabaseData myTypes.AnyMap) (*models.UserStatsModel, error) {
+	jsonData, err := json.Marshal(supabaseData)
+	if err != nil {
+		return nil, err
+	}
+
+	var modelData models.UserStatsModel
+	err = json.Unmarshal(jsonData, &modelData)
+	if err != nil {
+		return nil, err
+	}
+
+	return &modelData, nil
 }
 
 func (s *SupabaseUserStatsRepository) Create(input myTypes.CreateUserStatsInput) (string, error) {

@@ -1,6 +1,8 @@
 package adapters
 
 import (
+	"strings"
+
 	"github.com/afmireski/garchop-api/internal/models"
 	myTypes "github.com/afmireski/garchop-api/internal/types"
 	"github.com/nedpals/supabase-go"
@@ -27,7 +29,27 @@ func (s *SupabaseUserStatsRepository) Create(input myTypes.CreateUserStatsInput)
 }
 
 func (s *SupabaseUserStatsRepository) FindById(id string, where myTypes.Where) (*models.UserStatsModel, error) {
-	panic("implement me")
+	var supabaseData myTypes.AnyMap
+
+	query := s.client.DB.From("user_stats").Select("*", "tiers(*)").Single().Eq("user_id", id)
+	
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData); if err != nil {
+		if strings.Contains(err.Error(), "PGRST116") { // resource not found
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return s.serializeSupabaseDataToModel(supabaseData)
 }
 
 func (s *SupabaseUserStatsRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.UserStatsModel, error) {

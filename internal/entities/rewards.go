@@ -28,3 +28,12 @@ func BuildRewardFromModel(model *models.RewardModel) *Reward {
 		Tier:               BuildTierFromModel(model.Tier),
 	}
 }
+
+func BuildRewardsFromModels(models []models.RewardModel) []Reward {
+	var rewards []Reward
+	for _, model := range models {
+		reward := BuildRewardFromModel(&model)
+		rewards = append(rewards, *reward)
+	}
+	return rewards
+}

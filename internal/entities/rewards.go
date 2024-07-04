@@ -3,6 +3,8 @@ package entities
 import (
 	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/types/enums"
+
+	myTypes "github.com/afmireski/garchop-api/internal/types"
 )
 
 type Reward struct {
@@ -11,7 +13,7 @@ type Reward struct {
 	Name               string              `json:"name"`
 	Description        *string             `json:"description"`
 	ExperienceRequired uint                `json:"experience_required"`
-	Prize              string              `json:"prize"`
+	Prize              myTypes.AnyMap      `json:"prize"`
 	PrizeType          enums.PrizeTypeEnum `json:"prize_type"`
 	Tier               *Tier               `json:"tier"`
 }

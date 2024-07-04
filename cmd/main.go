@@ -43,6 +43,8 @@ func main() {
 
 	purchasesModule := modules.NewPurchasesModule(supabaseClient, cartsModule.Repository, itemsModule.Repository)
 
+	rewardsModule := modules.NewRewardsModule(supabaseClient)
+
 	r := chi.NewRouter()
 	enableCors(r)
 	routers.SetupUsersRouter(r, usersModule.Controller)
@@ -52,6 +54,7 @@ func main() {
 	routers.SetupCartsRouter(r, cartsModule.Controller)
 	routers.SetupItemsRouter(r, itemsModule.Controller)
 	routers.SetupPurchasesRouter(r, purchasesModule.Controller)
+	routers.SetupRewardsRouter(r, rewardsModule.Controller)
 
 	fmt.Println("API is running...")
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))

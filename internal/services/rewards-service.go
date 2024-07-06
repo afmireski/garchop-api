@@ -34,25 +34,25 @@ func (r *RewardsService) ListAllRewards() ([]entities.Reward, *customErrors.Inte
 	return rewards, nil
 }
 
-func (r *RewardsService) validateClaimRewardInput(userId string, rewardId string) *customErrors.InternalError {
+func (r *RewardsService) validateClaimRewardInput(input myTypes.UserRewardInput) *customErrors.InternalError {
 
-	if !validators.IsValidUuid(userId) {
+	if !validators.IsValidUuid(input.UserId) {
 		return customErrors.NewInternalError("invalid user_id", 400, []string{"the user_id must be a valid uuid"})
-	} else if !validators.IsValidUuid(rewardId) {
+	} else if !validators.IsValidUuid(input.RewardId) {
 		return customErrors.NewInternalError("invalid reward_id", 400, []string{"the reward_id must be a valid uuid"})
 	}
 
 	return nil
 }
 
-func (r *RewardsService) ClaimReward(userId string, rewardId string) *customErrors.InternalError {
-	validationErr := r.validateClaimRewardInput(userId, rewardId); if validationErr != nil {
+func (r *RewardsService) ClaimReward(input myTypes.UserRewardInput) *customErrors.InternalError {
+	validationErr := r.validateClaimRewardInput(input); if validationErr != nil {
 		return validationErr
 	}
 
 	_, err := r.userRewardsRepository.Create(myTypes.UserRewardInput{
-		UserId: userId,
-		RewardId: rewardId,
+		UserId: input.UserId,
+		RewardId: input.RewardId,
 	}); if err != nil {
 		return customErrors.NewInternalError("a failure occurred when try to claim the reward", 500, []string{err.Error()})
 	}

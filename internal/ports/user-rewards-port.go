@@ -9,12 +9,7 @@ import (
 type UserRewardsRepositoryPort interface {
 	FindAll(where myTypes.Where) ([]models.UserRewardModel, error)
 
-	Create(input UserRewardInput) (models.UserRewardModel, error)
+	Create(input myTypes.UserRewardInput) (models.UserRewardModel, error)
 
-	FindById(input UserRewardInput, where myTypes.Where) (models.UserRewardModel, error)
-}
-
-type UserRewardInput struct {
-	UserId string
-	RewardId string
+	FindById(input myTypes.UserRewardInput, where myTypes.Where) (models.UserRewardModel, error)
 }

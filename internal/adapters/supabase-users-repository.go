@@ -50,7 +50,7 @@ func (r *SupabaseUsersRepository) serializeSupabaseDataToModel(supabaseData myTy
 func (r *SupabaseUsersRepository) serializeManySupabaseDataToModel(supabaseData []myTypes.AnyMap) ([]models.UserModel, error) {
 	for i, element := range supabaseData {
 		supabaseData[i]["birth_date"] = r.fixBirthDate(element["birth_date"].(string))
-	}	
+	}
 
 	jsonData, err := json.Marshal(supabaseData)
 	if err != nil {
@@ -102,7 +102,7 @@ type CreateInput struct {
 	Email     string                   `json:"email"`
 	Phone     string                   `json:"phone"`
 	Password  string                   `json:"password"`
-	BirthDate *time.Time                `json:"birth_date"`
+	BirthDate *time.Time               `json:"birth_date"`
 	Role      models.UserModelRoleEnum `json:"role"`
 }
 
@@ -127,6 +127,13 @@ func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, e
 	_, signUpErr := r.client.Auth.SignUp(context.Background(), supabase.UserCredentials{
 		Email:    input.Email,
 		Password: input.PlainPassword,
+		Data: myTypes.AnyMap{
+			"id":    supabaseData[0]["id"],
+			"role":  supabaseData[0]["role"],
+			"email": supabaseData[0]["email"],
+			"name":  supabaseData[0]["name"],
+			"phone": supabaseData[0]["phone"],
+		},
 	})
 	if signUpErr != nil {
 		return "", err
@@ -148,7 +155,8 @@ func (r *SupabaseUsersRepository) FindById(id string, where myTypes.Where) (*mod
 		}
 	}
 
-	err := query.Execute(&supabaseData); if err != nil {
+	err := query.Execute(&supabaseData)
+	if err != nil {
 		if strings.Contains(err.Error(), "PGRST116") { // resource not found
 			return nil, nil
 		}

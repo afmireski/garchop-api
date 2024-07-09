@@ -26,7 +26,7 @@ func SupabaseAuthMiddleware(supabaseClient *supabase.Client) func(next http.Hand
 				return
 			}
 			ctx := context.Background()
-			_, err := supabaseClient.Auth.User(ctx, authorizationToken)
+			tokenData, err := supabaseClient.Auth.User(ctx, authorizationToken)
 	
 			if err != nil {
 				w.Header().Set("Content-Type", "application/json")
@@ -37,6 +37,11 @@ func SupabaseAuthMiddleware(supabaseClient *supabase.Client) func(next http.Hand
 				json.NewEncoder(w).Encode(err)
 				return
 			}
+
+			r.Header.Set("UserId", tokenData.UserMetadata["id"].(string))
+			r.Header.Set("UserRole", tokenData.UserMetadata["id"].(string))
+			r.Header.Set("UserEmail", tokenData.UserMetadata["email"].(string))
+			r.Header.Set("UserPhone", tokenData.UserMetadata["phone"].(string))
 	
 			next.ServeHTTP(w, r)
 		})

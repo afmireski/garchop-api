@@ -44,10 +44,11 @@ func (c *RewardsController) ClaimReward(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 
 	rewardId := chi.URLParam(r, "reward_id")
+	userId := r.Header.Get("UserId")
 
 	input := myTypes.UserRewardInput{
 		RewardId: rewardId,
-		UserId: "",
+		UserId: userId,
 	}
 
 	bodyErr := json.NewDecoder(r.Body).Decode(&input); if bodyErr != nil {

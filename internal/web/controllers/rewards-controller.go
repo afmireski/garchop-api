@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
+	customErrors "github.com/afmireski/garchop-api/internal/errors"
 	"github.com/afmireski/garchop-api/internal/services"
 	myTypes "github.com/afmireski/garchop-api/internal/types"
-	customErrors "github.com/afmireski/garchop-api/internal/errors"
+	"github.com/go-chi/chi/v5"
 )
 
 type RewardsController struct {
@@ -42,7 +43,12 @@ func (c *RewardsController) ListAllRewards(w http.ResponseWriter, r *http.Reques
 func (c *RewardsController) ClaimReward(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var input myTypes.UserRewardInput
+	rewardId := chi.URLParam(r, "reward_id")
+
+	input := myTypes.UserRewardInput{
+		RewardId: rewardId,
+		UserId: "",
+	}
 
 	bodyErr := json.NewDecoder(r.Body).Decode(&input); if bodyErr != nil {
 		err := customErrors.NewInternalError("fail on deserialize request body", 400, []string{})

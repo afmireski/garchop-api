@@ -9,7 +9,7 @@ import (
 type UserRewardsRepositoryPort interface {
 	FindAll(where myTypes.Where) ([]models.UserRewardModel, error)
 
-	Create(input myTypes.UserRewardInput) (models.UserRewardModel, error)
+	Create(input myTypes.UserRewardInput) (*models.UserRewardModel, error)
 
 	FindById(input myTypes.UserRewardInput, where myTypes.Where) (models.UserRewardModel, error)
 }

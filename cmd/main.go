@@ -43,7 +43,9 @@ func main() {
 
 	purchasesModule := modules.NewPurchasesModule(supabaseClient, cartsModule.Repository, itemsModule.Repository)
 
-	rewardsModule := modules.NewRewardsModule(supabaseClient)
+	userRewardsModule := modules.NewUserRewardsModule(supabaseClient)
+
+	rewardsModule := modules.NewRewardsModule(supabaseClient, userRewardsModule.Repository)
 
 	r := chi.NewRouter()
 	enableCors(r)

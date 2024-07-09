@@ -45,3 +45,11 @@ func (s *SupabaseUserRewardsRepository) Create(input myTypes.UserRewardInput) (*
 	return s.serializeSupabaseDataToModel(supabaseData)
 }
 
+func (s *SupabaseUserRewardsRepository) FindById(input myTypes.UserRewardInput, where myTypes.Where) (models.UserRewardModel, error) {
+	panic("implement me")
+}
+
+func (s *SupabaseUserRewardsRepository) FindAll(where myTypes.Where) ([]models.UserRewardModel, error) {
+	panic("implement me")
+}
+

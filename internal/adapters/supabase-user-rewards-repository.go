@@ -35,14 +35,14 @@ func (s *SupabaseUserRewardsRepository) serializeSupabaseDataToModel(supabaseDat
 }
 
 func (s *SupabaseUserRewardsRepository) Create(input myTypes.UserRewardInput) (*models.UserRewardModel, error) {
-	var supabaseData myTypes.AnyMap
+	var supabaseData []myTypes.AnyMap
 
-	err := s.client.DB.From("user_rewards").Insert(input).Execute(&supabaseData)
+	err := s.client.DB.From("users_rewards").Insert(input).Execute(&supabaseData)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.serializeSupabaseDataToModel(supabaseData)
+	return s.serializeSupabaseDataToModel(supabaseData[0])
 }
 
 func (s *SupabaseUserRewardsRepository) FindById(input myTypes.UserRewardInput, where myTypes.Where) (models.UserRewardModel, error) {

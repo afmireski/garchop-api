@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	customErrors "github.com/afmireski/garchop-api/internal/errors"
 	"github.com/afmireski/garchop-api/internal/services"
 	myTypes "github.com/afmireski/garchop-api/internal/types"
 	"github.com/go-chi/chi/v5"
@@ -44,18 +43,11 @@ func (c *RewardsController) ClaimReward(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 
 	rewardId := chi.URLParam(r, "reward_id")
-	userId := r.Header.Get("UserId")
+	userId := r.Header.Get("User-Id")
 
 	input := myTypes.UserRewardInput{
 		RewardId: rewardId,
 		UserId: userId,
-	}
-
-	bodyErr := json.NewDecoder(r.Body).Decode(&input); if bodyErr != nil {
-		err := customErrors.NewInternalError("fail on deserialize request body", 400, []string{})
-		w.WriteHeader(err.HttpCode)
-		json.NewEncoder(w).Encode(err)
-		return
 	}
 
 	serviceErr := c.service.ClaimReward(input)

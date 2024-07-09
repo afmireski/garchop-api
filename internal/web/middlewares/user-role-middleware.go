@@ -13,7 +13,7 @@ func UserRoleMiddleware(expectedRole enums.UserRoleEnum) func(next http.Handler)
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 			headers := r.Header
-			role := headers.Get("UserRole")
+			role := headers.Get("User-Role")
 	
 			if role != string(expectedRole) {
 				w.Header().Set("Content-Type", "application/json")

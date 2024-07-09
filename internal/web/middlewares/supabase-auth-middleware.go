@@ -38,10 +38,10 @@ func SupabaseAuthMiddleware(supabaseClient *supabase.Client) func(next http.Hand
 				return
 			}
 
-			r.Header.Set("UserId", tokenData.UserMetadata["id"].(string))
-			r.Header.Set("UserRole", tokenData.UserMetadata["id"].(string))
-			r.Header.Set("UserEmail", tokenData.UserMetadata["email"].(string))
-			r.Header.Set("UserPhone", tokenData.UserMetadata["phone"].(string))
+			r.Header.Set("User-Id", tokenData.UserMetadata["id"].(string))
+			r.Header.Set("User-Role", tokenData.UserMetadata["role"].(string))
+			r.Header.Set("User-Email", tokenData.UserMetadata["email"].(string))
+			r.Header.Set("User-Phone", tokenData.UserMetadata["phone"].(string))
 	
 			next.ServeHTTP(w, r)
 		})

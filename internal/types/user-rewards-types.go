@@ -1,6 +1,6 @@
 package types
 
 type UserRewardInput struct {
-	UserId string
-	RewardId string
+	UserId   string `json:"user_id"`
+	RewardId string `json:"reward_id"`
 }

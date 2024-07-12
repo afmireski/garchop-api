@@ -50,7 +50,7 @@ func (r *SupabaseUsersRepository) serializeSupabaseDataToModel(supabaseData myTy
 func (r *SupabaseUsersRepository) serializeManySupabaseDataToModel(supabaseData []myTypes.AnyMap) ([]models.UserModel, error) {
 	for i, element := range supabaseData {
 		supabaseData[i]["birth_date"] = r.fixBirthDate(element["birth_date"].(string))
-	}	
+	}
 
 	jsonData, err := json.Marshal(supabaseData)
 	if err != nil {
@@ -66,43 +66,12 @@ func (r *SupabaseUsersRepository) serializeManySupabaseDataToModel(supabaseData 
 	return modelData, nil
 }
 
-func (s *SupabaseUsersRepository) serializeMany(data []map[string]string) ([]models.UserModel, error) {
-	timeLayout := "2006-01-02T15:04:05.999999-07:00"
-
-	for _, d := range data {
-		for key, value := range d {
-			if strings.Contains(key, "birth_date") {
-				t, err := time.Parse("2006-01-02", value)
-				if err != nil {
-					return nil, err
-				}
-				d[key] = t.Format(timeLayout)
-			}
-			if strings.Contains(key, "deleted_at") && len(value) == 0 {
-				tmp := time.Time{}
-				d[key] = tmp.Format(timeLayout)
-			}
-		}
-	}
-
-	jsonData, err := json.Marshal(data)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var result []models.UserModel
-	json.Unmarshal(jsonData, &result)
-
-	return result, nil
-}
-
 type CreateInput struct {
 	Name      string                   `json:"name"`
 	Email     string                   `json:"email"`
 	Phone     string                   `json:"phone"`
 	Password  string                   `json:"password"`
-	BirthDate *time.Time                `json:"birth_date"`
+	BirthDate *time.Time               `json:"birth_date"`
 	Role      models.UserModelRoleEnum `json:"role"`
 }
 
@@ -148,7 +117,8 @@ func (r *SupabaseUsersRepository) FindById(id string, where myTypes.Where) (*mod
 		}
 	}
 
-	err := query.Execute(&supabaseData); if err != nil {
+	err := query.Execute(&supabaseData)
+	if err != nil {
 		if strings.Contains(err.Error(), "PGRST116") { // resource not found
 			return nil, nil
 		}

@@ -9,5 +9,5 @@ import (
 
 func SetupPurchasesRouter(r chi.Router, controller *controllers.PurchaseController, supabaseClient *supabase.Client) {
 	r.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Post("/purchases/finish", controller.FinishPurchase)
-	r.Get("/users/{user_id}/purchases", controller.GetPurchasesByUser)
+	r.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/users/{user_id}/purchases", controller.GetPurchasesByUser)
 }

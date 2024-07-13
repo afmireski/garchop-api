@@ -57,7 +57,7 @@ func main() {
 	routers.SetupCartsRouter(r, cartsModule.Controller, supabaseClient)
 	routers.SetupItemsRouter(r, itemsModule.Controller, supabaseClient)
 	routers.SetupPurchasesRouter(r, purchasesModule.Controller, supabaseClient)
-	routers.SetupRewardsRouter(r, rewardsModule.Controller, supabaseClient)
+	routers.SetupRewardsRouter(r, rewardsModule.Controller)
 
 	fmt.Println("API is running...")
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))

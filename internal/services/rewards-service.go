@@ -50,9 +50,9 @@ func (s *RewardsService) NewReward(input myTypes.NewRewardInput) *customErrors.I
 	return nil
 }
 
-func (r *RewardsService) ListAllRewards() ([]entities.Reward, *customErrors.InternalError) {
+func (s *RewardsService) ListAllRewards() ([]entities.Reward, *customErrors.InternalError) {
 
-	repositoryData, err := r.rewardsRepository.FindAll(myTypes.Where{})
+	repositoryData, err := s.rewardsRepository.FindAll(myTypes.Where{})
 
 	if err != nil {
 		return nil, customErrors.NewInternalError("a failure occurred when try to find the rewards", 500, []string{err.Error()})

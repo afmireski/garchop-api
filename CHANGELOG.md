@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+* [#58](https://github.com/afmireski/garchop-api/issues/56) - Implementar listagem geral de recompensas
 * [#51](https://github.com/afmireski/garchop-api/issues/50) - Atualizar a experiência de usuário ao comprar Pokémons
 * [#56](https://github.com/afmireski/garchop-api/issues/56) - Trazer dados de Status do Usuário na hora de listar o perfil do usuário
 * [#45](https://github.com/afmireski/garchop-api/issues/45) - Implementar listagem do histórico de compras do usuário

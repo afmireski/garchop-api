@@ -5,6 +5,7 @@ import (
 
 	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
+
 	"github.com/afmireski/garchop-api/internal/validators"
 
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
@@ -15,13 +16,15 @@ type PurchasesService struct {
 	repository      ports.PurchaseRepositoryPort
 	cartRepository  ports.CartsRepositoryPort
 	itemsRepository ports.ItemsRepositoryPort
+	userStatsService *UsersStatsService
 }
 
-func NewPurchasesService(repository ports.PurchaseRepositoryPort, cartRepository ports.CartsRepositoryPort, itemsRepository ports.ItemsRepositoryPort) *PurchasesService {
+func NewPurchasesService(repository ports.PurchaseRepositoryPort, cartRepository ports.CartsRepositoryPort, itemsRepository ports.ItemsRepositoryPort, userStatsService *UsersStatsService) *PurchasesService {
 	return &PurchasesService{
 		repository:      repository,
 		cartRepository:  cartRepository,
 		itemsRepository: itemsRepository,
+		userStatsService: userStatsService,
 	}
 }
 
@@ -78,12 +81,14 @@ func (s *PurchasesService) FinishPurchase(input myTypes.FinishPurchaseInput) *cu
 		return customErrors.NewInternalError("failed on detach the items from the cart", 500, []string{detachItemsErr.Error()})
 	}
 
+	// Apaga o carrinho de compras
 	deleteCartErr := s.cartRepository.Delete(input.CartId)
 	if deleteCartErr != nil {
 		return customErrors.NewInternalError("failed on delete the cart", 500, []string{deleteCartErr.Error()})
 	}
 
-	return nil
+	// Atualiza a experiência do usuário
+	return s.userStatsService.ComputateExperienceFromItems(input.UserId, cart.User.Stats.TierId, cart.User.Stats.Experience, cart.Items)
 }
 
 func (s *PurchasesService) GetPurchasesByUser(userId string) ([]models.PurchaseModel, *customErrors.InternalError) {

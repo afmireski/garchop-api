@@ -2,6 +2,7 @@ package adapters
 
 import (
 	"encoding/json"
+	"errors"
 	"strconv"
 	"strings"
 
@@ -84,6 +85,32 @@ func (r *SupabaseTiersRepository) FindById(id int, where myTypes.Where) (*models
 			for operator, criteria := range filter {
 				query = query.Filter(column, operator, criteria)
 			}
+		}
+	}
+	err := query.Execute(&supabaseData)
+	if err != nil {
+		if strings.Contains(err.Error(), "PGRST116") { // resource not found
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return serializeSupabaseDataToModel(supabaseData)
+}
+
+func (r *SupabaseTiersRepository) FindWhereUnique(where myTypes.Where) (*models.TierModel, error) {
+	var supabaseData myTypes.AnyMap
+
+	if len(where) == 0 {
+		return nil, errors.New("the where clause is required")
+	}
+
+	query := r.client.DB.From("tiers").Select("*").Single().Is("deleted_at", "null")
+
+	for column, filter := range where {
+		for operator, criteria := range filter {
+			query = query.Filter(column, operator, criteria)
 		}
 	}
 	err := query.Execute(&supabaseData)

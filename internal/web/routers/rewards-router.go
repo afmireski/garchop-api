@@ -7,4 +7,5 @@ import (
 
 func SetupRewardsRouter(router *chi.Mux, controller *controllers.RewardsController) {
 	router.Get("/rewards", controller.ListAllRewards)	
+	router.Post("/rewards/new", controller.NewReward)
 }

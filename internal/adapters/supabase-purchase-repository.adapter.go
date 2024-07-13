@@ -35,6 +35,21 @@ func (r *SupabasePurchaseRepository) serializeToModel(supabaseData myTypes.AnyMa
 	return &modelData, nil
 }
 
+func (r *SupabasePurchaseRepository) serializeManyToModel(supabaseData []myTypes.AnyMap) ([]models.PurchaseModel, error) {
+	jsonData, err := json.Marshal(supabaseData)
+	if err != nil {
+		return nil, err
+	}
+
+	var modelData []models.PurchaseModel
+	err = json.Unmarshal(jsonData, &modelData)
+	if err != nil {
+		return nil, err
+	}
+
+	return modelData, nil
+}
+
 func (r *SupabasePurchaseRepository) Create(input myTypes.CreatePurchaseInput) (string, error) {
 
 	var supabaseData []myTypes.AnyMap
@@ -54,3 +69,23 @@ func (r *SupabasePurchaseRepository) FindById(id string, where myTypes.Where) (*
 	panic("implement me")
 }
 
+func (r *SupabasePurchaseRepository) FindAll(where myTypes.Where) ([]models.PurchaseModel, error) {
+	var supabaseData []myTypes.AnyMap
+
+	query := r.supabaseClient.DB.From("purchases").Select("*", "items(*)")
+
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.serializeManyToModel(supabaseData)
+}

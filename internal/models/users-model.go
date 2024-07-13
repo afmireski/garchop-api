@@ -21,20 +21,6 @@ type UserModel struct {
 	Role      UserModelRoleEnum `json:"role"`
 	CreatedAt time.Time         `json:"created_at"`
 	UpdatedAt time.Time         `json:"updated_at"`
-	DeletedAt time.Time         `json:"deleted_at"`
-}
-
-func NewUserModel(id string, name string, email string, phone string, birthDate time.Time, role UserModelRoleEnum,
-	createdAt time.Time, updatedAt time.Time, deletedAt time.Time) *UserModel {
-	return &UserModel{
-		Id:        id,
-		Name:      name,
-		Email:     email,
-		Phone:     phone,
-		BirthDate: birthDate,
-		Role:      role,
-		CreatedAt: createdAt,
-		UpdatedAt: updatedAt,
-		DeletedAt: deletedAt,
-	}
+	DeletedAt *time.Time        `json:"deleted_at,omitempty"`
+	Stats     *UserStatsModel   `json:"user_stats,omitempty"`
 }

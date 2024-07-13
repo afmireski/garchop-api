@@ -8,7 +8,6 @@ import (
 
 	"github.com/afmireski/garchop-api/internal/adapters"
 	"github.com/afmireski/garchop-api/internal/modules"
-	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/services"
 	"github.com/afmireski/garchop-api/internal/web/controllers"
 	"github.com/afmireski/garchop-api/internal/web/routers"
@@ -25,13 +24,16 @@ func main() {
 	hashHelper := adapters.NewBcryptHashHelper()
 	memCache := cache.New(10*time.Minute, 30*time.Minute)
 
-	usersController := setupUsersModule(supabaseClient, hashHelper)
+	tiersModule := modules.NewTiersModule(supabaseClient)
+
+	userStatsModule := modules.NewUsersStatsModule(supabaseClient, tiersModule.Service)
+	
+	usersModule := modules.NewUsersModule(supabaseClient, userStatsModule.Repository, hashHelper)
 
 	authController := setupAuthModule(supabaseClient)
 
 	pokemonController := setupPokemonModule(supabaseClient, memCache)
 
-	tiersController := setupTiersModule(supabaseClient)
 
 	stockModules := modules.NewStockModule(supabaseClient)
 
@@ -41,18 +43,21 @@ func main() {
 
 	cartsModule := modules.NewCartsModule(supabaseClient, itemsModule.Repository, pricesModules.Repository, stockModules.Repository)
 
-	purchasesModule := modules.NewPurchasesModule(supabaseClient, cartsModule.Repository, itemsModule.Repository)
+	purchasesModule := modules.NewPurchasesModule(supabaseClient, cartsModule.Repository, itemsModule.Repository, userStatsModule.Service)
+
+	rewardsModule := modules.NewRewardsModule(supabaseClient)
 
 	r := chi.NewRouter()
 	enableCors(r)
 	r.Use(middleware.AllowContentType("application/json"))
-	routers.SetupUsersRouter(r, usersController, supabaseClient)
+	routers.SetupUsersRouter(r, usersModule.Controller, supabaseClient)
 	routers.SetupAuthRouter(r, authController, supabaseClient)
 	routers.SetupPokemonRouter(r, pokemonController, supabaseClient)
-	routers.SetupTiersRouter(r, tiersController, supabaseClient)
+	routers.SetupTiersRouter(r, tiersModule.Controller, supabaseClient)
 	routers.SetupCartsRouter(r, cartsModule.Controller, supabaseClient)
 	routers.SetupItemsRouter(r, itemsModule.Controller, supabaseClient)
 	routers.SetupPurchasesRouter(r, purchasesModule.Controller, supabaseClient)
+	routers.SetupRewardsRouter(r, rewardsModule.Controller, supabaseClient)
 
 	fmt.Println("API is running...")
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
@@ -80,14 +85,6 @@ func setupSupabase() *supabase.Client {
 	return supabase.CreateClient(supabaseUrl, supabaseKey)
 }
 
-func setupUsersModule(supabaseClient *supabase.Client, hashHelper ports.HashHelperPort) *controllers.UsersController {
-	usersRepository := adapters.NewSupabaseUsersRepository(supabaseClient)
-	usersService := services.NewUsersService(usersRepository, hashHelper)
-	usersController := controllers.NewUsersController(usersService)
-
-	return usersController
-}
-
 func setupAuthModule(supabaseClient *supabase.Client) *controllers.AuthController {
 	authAdapter := adapters.NewSupabaseAuthenticator(supabaseClient)
 	authService := services.NewAuthService(authAdapter)
@@ -100,10 +97,3 @@ func setupPokemonModule(supabaseClient *supabase.Client, cache *cache.Cache) *co
 	pokemonService := services.NewPokemonService(pokemonRepository, typeRepository, cache)
 	return controllers.NewPokemonController(pokemonService)
 }
-
-func setupTiersModule(supabaseClient *supabase.Client) *controllers.TiersController {
-	tiersRepository := adapters.NewSupabaseTiersRepository(supabaseClient)
-	tiersService := services.NewTiersService(tiersRepository)
-	return controllers.NewTiersController(tiersService)
-}
-

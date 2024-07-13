@@ -1,6 +1,8 @@
 package services
 
 import (
+	"strconv"
+
 	"github.com/afmireski/garchop-api/internal/entities"
 	"github.com/afmireski/garchop-api/internal/ports"
 
@@ -46,7 +48,27 @@ func (s *TiersService) FindById(id int) (*entities.Tier, *customErrors.InternalE
 	} else if data == nil {
 		return nil, customErrors.NewInternalError("tier not found", 404, []string{})
 	}
-	response := entities.BuildTierFromModel(*data)
+	response := entities.BuildTierFromModel(data)
 
-	return &response, nil
+	return response, nil
+}
+
+func (s *TiersService) FindNextTier(currentTierId int) (*entities.Tier, *customErrors.InternalError) {
+
+	if !validators.IsValidNumericId(currentTierId) {
+		return nil, customErrors.NewInternalError("invalid id", 400, []string{"the id must be a valid numeric id"})
+	}
+
+	where := myTypes.Where{
+		"previous_tier_id": map[string]string{"eq": strconv.Itoa(currentTierId)},
+	}
+
+	data, err := s.repository.FindWhereUnique(where)
+	if err != nil {
+		return nil, customErrors.NewInternalError("a failure occurred when try to find the next", 500, []string{err.Error()})
+	} 
+
+	response := entities.BuildTierFromModel(data)
+
+	return response, nil
 }

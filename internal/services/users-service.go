@@ -14,13 +14,15 @@ import (
 )
 
 type UsersService struct {
-	repository ports.UserRepositoryPort
-	hashHelper ports.HashHelperPort
+	repository          ports.UserRepositoryPort
+	userStatsRepository ports.UserStatsRepository
+	hashHelper          ports.HashHelperPort
 }
 
-func NewUsersService(repository ports.UserRepositoryPort, hashHelper ports.HashHelperPort) *UsersService {
+func NewUsersService(repository ports.UserRepositoryPort, userStatsRepository ports.UserStatsRepository, hashHelper ports.HashHelperPort) *UsersService {
 	return &UsersService{
 		repository,
+		userStatsRepository,
 		hashHelper,
 	}
 }
@@ -83,10 +85,18 @@ func (s *UsersService) NewClient(input myTypes.NewUserInput) *customErrors.Inter
 		Role:          models.Client,
 	}
 
-	_, err := s.repository.Create(data)
+	clientId, err := s.repository.Create(data)
 
 	if err != nil {
 		return customErrors.NewInternalError("a failure occurred when try to create a new client", 500, []string{err.Error()})
+	}
+
+	_, statsErr := s.userStatsRepository.Create(myTypes.CreateUserStatsInput{
+		UserId: clientId,
+		TierId: 1,
+	})
+	if statsErr != nil {
+		return customErrors.NewInternalError("a failure occurred when try to create client status", 500, []string{statsErr.Error()})
 	}
 
 	return nil
@@ -176,12 +186,12 @@ func (s *UsersService) GetUserById(id string) (*entities.User, *customErrors.Int
 	response, err := s.repository.FindById(id, where)
 
 	if err != nil {
-		return nil, customErrors.NewInternalError("a failure occurred when try to retrieve a new user", 500, []string{})
+		return nil, customErrors.NewInternalError("a failure occurred when try to retrieve a new user", 500, []string{err.Error()})
 	} else if response == nil {
 		return nil, customErrors.NewInternalError("user not found", 404, []string{})
 	}
 
-	return entities.NewUser(response.Id, response.Name, response.Email, response.Phone, response.BirthDate, string(response.Role)), nil
+	return entities.BuildUserFromModel(response), nil
 }
 
 func (s *UsersService) GetUsers(where myTypes.Where) ([]entities.User, *customErrors.InternalError) {

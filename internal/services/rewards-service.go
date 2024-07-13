@@ -44,7 +44,7 @@ func (s *RewardsService) NewReward(input myTypes.NewRewardInput) *customErrors.I
 	_, err := s.rewardsRepository.Create(data)
 
 	if err != nil {
-		return customErrors.NewInternalError("a failure occurred when trying to create a reward", 500, []string{})
+		return customErrors.NewInternalError("a failure occurred when trying to create a reward", 500, []string{err.Error()})
 	}
 
 	return nil

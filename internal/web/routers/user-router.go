@@ -14,5 +14,5 @@ func SetupUsersRouter(router *chi.Mux, controller *controllers.UsersController, 
 	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/users/admin", controller.GetAdmins)
 	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Delete("/users/{id}/del", controller.DeleteClientAccount)
 	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Post("/admin/new", controller.NewAdministrator)
-  router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/users/{id}/stats", controller.GetUserStatsById)
+	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/users/{id}/stats", controller.GetUserStatsById)
 }

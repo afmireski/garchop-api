@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+* [#61](https://github.com/afmireski/garchop-api/issues/61) - Implementar obtenção de recompensas por usuários
 * [#58](https://github.com/afmireski/garchop-api/issues/56) - Implementar listagem geral de recompensas
 * [#56](https://github.com/afmireski/garchop-api/issues/56) - Trazer dados de Status do Usuário na hora de listar o perfil do usuário
 * [#45](https://github.com/afmireski/garchop-api/issues/45) - Implementar listagem do histórico de compras do usuário

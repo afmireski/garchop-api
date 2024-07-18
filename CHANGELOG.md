@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+* [#52](https://github.com/afmireski/garchop-api/issues/52) - Obter Status do Usuário
 * [#47](https://github.com/afmireski/garchop-api/issues/47) - Implementar autenticação
 * [#58](https://github.com/afmireski/garchop-api/issues/56) - Implementar listagem geral de recompensas
 * [#51](https://github.com/afmireski/garchop-api/issues/50) - Atualizar a experiência de usuário ao comprar Pokémons

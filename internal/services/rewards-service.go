@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/afmireski/garchop-api/internal/entities"
+	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
 
@@ -50,6 +51,12 @@ func (r *RewardsService) ClaimReward(input myTypes.UserRewardInput) *customError
 		return validationErr
 	}
 
+	reward, findRewardErr := r.rewardsRepository.FindById(input.RewardId, myTypes.Where{})
+
+	if findRewardErr != nil {
+		return customErrors.NewInternalError("reward not found", 404, []string{findRewardErr.Error()})
+	}
+
 	_, err := r.userRewardsRepository.Create(myTypes.UserRewardInput{
 		UserId: input.UserId,
 		RewardId: input.RewardId,
@@ -58,4 +65,12 @@ func (r *RewardsService) ClaimReward(input myTypes.UserRewardInput) *customError
 	}
 
 	return nil
+}
+
+func (r *RewardsService) getRewardPrize(reward models.RewardModel) *customErrors.InternalError {
+	if reward.PrizeType == "pokemon" {
+		
+	}
+
+	return nil;
 }

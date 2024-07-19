@@ -2,6 +2,7 @@ package adapters
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/nedpals/supabase-go"
@@ -57,7 +58,7 @@ func (r *SupabaseRewardsRepository) Create(input myTypes.Any) (string, error) {
 func (r *SupabaseRewardsRepository) FindAll(where myTypes.Where) ([]models.RewardModel, error) {
 	var supabaseData []myTypes.AnyMap
 
-	query := r.client.DB.From("rewards").Select("*", "tiers(*)").Is("deleted_at", "null")
+	query := r.client.DB.From("rewards").Select("*", "tiers(*)").Single().Is("deleted_at", "null")
 
 	if len(where) > 0 {
 		for column, filter := range where {
@@ -72,7 +73,31 @@ func (r *SupabaseRewardsRepository) FindAll(where myTypes.Where) ([]models.Rewar
 		return nil, err
 	}
 
-	return r.serializeManyToModel(supabaseData)
+	return r.serializeToModel(supabaseData)
+}
+
+func (r *SupabaseRewardsRepository) FindById(id string, where myTypes.Where) (*models.RewardModel, error) {
+	var supabaseData myTypes.AnyMap
+
+	query := r.client.DB.From("rewards").Select("*", "tiers(*)").Is("deleted_at", "null")
+
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData); if err != nil {
+		if strings.Contains(err.Error(), "PGRST116") { // resource not found
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return r.serializeToModel(supabaseData)
 }
 
 func (r *SupabaseRewardsRepository) Delete(id string, where myTypes.Where) error {

@@ -204,6 +204,26 @@ func (s *UsersService) GetUsers(where myTypes.Where) ([]entities.User, *customEr
 	return entities.BuildManyUserFromModel(repositoryData), nil
 }
 
+func (s *UsersService) GetUserStatsById(id string) (*entities.UserStats, *customErrors.InternalError) {
+	if !validators.IsValidUuid(id) {
+		return nil, customErrors.NewInternalError("invalid uuid", 400, []string{})
+	}
+
+	where := myTypes.Where{
+		"deleted_at": map[string]string{"is": "null"},
+	}
+
+	response, err := s.userStatsRepository.FindById(id, where)
+
+	if err != nil {
+		return nil, customErrors.NewInternalError("a failure occurred when trying to retrieve a user stats", 500, []string{})
+	} else if response == nil {
+		return nil, customErrors.NewInternalError("user stats not found", 404, []string{})
+	}
+
+	return entities.BuildUserStatsFromModel(response), nil
+}
+
 func (s *UsersService) DeleteClient(id string) *customErrors.InternalError {
 	if !validators.IsValidUuid(id) {
 		return customErrors.NewInternalError("invalid uuid", 400, []string{})

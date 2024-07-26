@@ -45,7 +45,9 @@ func main() {
 
 	userRewardsModule := modules.NewUserRewardsModule(supabaseClient)
 
-	rewardsModule := modules.NewRewardsModule(supabaseClient, userRewardsModule.Repository)
+	userPokemonsRepository := adapters.NewSupabaseUserPokemonRepository(supabaseClient)
+
+	rewardsModule := modules.NewRewardsModule(supabaseClient, userRewardsModule.Repository, userPokemonsRepository)
 
 	r := chi.NewRouter()
 	enableCors(r)

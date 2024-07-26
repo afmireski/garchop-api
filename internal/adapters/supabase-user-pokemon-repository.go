@@ -75,3 +75,11 @@ func (r *SupabaseUserPokemonRepository) Upsert(input myTypes.UserPokemonId) (*mo
 
 	return r.serializeToModel(supabaseData[0])
 }
+
+func (r *SupabaseUserPokemonRepository) FindById(id string, where myTypes.Where) (*models.UserPokemonModel, error) {
+	panic("implement me")
+}
+
+func (r *SupabaseUserPokemonRepository) FindAll(where myTypes.Where) ([]models.UserPokemonModel, error) {
+	panic("implement me")
+}

@@ -13,12 +13,14 @@ import (
 type RewardsService struct {
 	rewardsRepository     ports.RewardsRepositoryPort
 	userRewardsRepository ports.UserRewardsRepositoryPort
+	userPokemonsRepository ports.UserPokemonRepositoryPort
 }
 
-func NewRewardsService(rewardsRepository ports.RewardsRepositoryPort, userRewardsRepository ports.UserRewardsRepositoryPort) *RewardsService {
+func NewRewardsService(rewardsRepository ports.RewardsRepositoryPort, userRewardsRepository ports.UserRewardsRepositoryPort, userPokemonsRepository ports.UserPokemonRepositoryPort) *RewardsService {
 	return &RewardsService{
 		rewardsRepository:     rewardsRepository,
 		userRewardsRepository: userRewardsRepository,
+		userPokemonsRepository: userPokemonsRepository,
 	}
 }
 
@@ -64,14 +66,24 @@ func (r *RewardsService) ClaimReward(input myTypes.UserRewardInput) *customError
 		return customErrors.NewInternalError("a failure occurred when try to claim the reward", 500, []string{err.Error()})
 	}
 
+	prizeErr := r.getRewardPrize(*reward, input.UserId); if prizeErr != nil {
+		return customErrors.NewInternalError("a failure occurred when try to claim the prize", 500, []string{err.Error()});
+	}
+
 	return nil
 }
 
-func (r *RewardsService) getRewardPrize(reward models.RewardModel) *customErrors.InternalError {
+func (r *RewardsService) getRewardPrize(reward models.RewardModel, userId string) *customErrors.InternalError {
 	if reward.PrizeType == "pokemon" {
 		pokemonId := reward.Prize["pokemon_id"].(string)
 
-		
+		_, err := r.userPokemonsRepository.Upsert(myTypes.UserPokemonId{
+			UserId: userId,
+			PokemonId: pokemonId,
+		}); if err != nil {
+			return customErrors.NewInternalError("a failure occurred when try to claim the reward", 500, []string{err.Error()})
+		}
+
 	}
 
 	return nil;

@@ -73,7 +73,7 @@ func (r *SupabaseRewardsRepository) FindAll(where myTypes.Where) ([]models.Rewar
 		return nil, err
 	}
 
-	return r.serializeToModel(supabaseData)
+	return r.serializeManyToModel(supabaseData)
 }
 
 func (r *SupabaseRewardsRepository) FindById(id string, where myTypes.Where) (*models.RewardModel, error) {

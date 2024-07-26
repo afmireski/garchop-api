@@ -67,7 +67,7 @@ func (r *RewardsService) ClaimReward(input myTypes.UserRewardInput) *customError
 	}
 
 	prizeErr := r.getRewardPrize(*reward, input.UserId); if prizeErr != nil {
-		return customErrors.NewInternalError("a failure occurred when try to claim the prize", 500, []string{prizeErr.Error()});
+		return prizeErr;
 	}
 
 	return nil
@@ -81,7 +81,7 @@ func (r *RewardsService) getRewardPrize(reward models.RewardModel, userId string
 			UserId: userId,
 			PokemonId: pokemonId,
 		}); if err != nil {
-			return customErrors.NewInternalError("a failure occurred when try to claim the reward", 500, []string{err.Error()})
+			return customErrors.NewInternalError("a failure occurred when try to get the prize", 500, []string{err.Error()})
 		}
 
 	}

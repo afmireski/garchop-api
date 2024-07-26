@@ -69,6 +69,8 @@ func (r *RewardsService) ClaimReward(input myTypes.UserRewardInput) *customError
 
 func (r *RewardsService) getRewardPrize(reward models.RewardModel) *customErrors.InternalError {
 	if reward.PrizeType == "pokemon" {
+		pokemonId := reward.Prize["pokemon_id"].(string)
+
 		
 	}
 

@@ -24,6 +24,8 @@ func main() {
 	memCache := cache.New(10*time.Minute, 30*time.Minute)
 
 	userStatsRepository := adapters.NewSupabaseUserStatsRepository(supabaseClient)
+
+	userPokemonsRepository := adapters.NewSupabaseUserPokemonRepository(supabaseClient)
 	
 	usersModule := modules.NewUsersModule(supabaseClient, userStatsRepository, hashHelper)
 
@@ -41,11 +43,9 @@ func main() {
 
 	cartsModule := modules.NewCartsModule(supabaseClient, itemsModule.Repository, pricesModules.Repository, stockModules.Repository)
 
-	purchasesModule := modules.NewPurchasesModule(supabaseClient, cartsModule.Repository, itemsModule.Repository)
+	purchasesModule := modules.NewPurchasesModule(supabaseClient, cartsModule.Repository, itemsModule.Repository, userPokemonsRepository)
 
 	userRewardsModule := modules.NewUserRewardsModule(supabaseClient)
-
-	userPokemonsRepository := adapters.NewSupabaseUserPokemonRepository(supabaseClient)
 
 	rewardsModule := modules.NewRewardsModule(supabaseClient, userRewardsModule.Repository, userPokemonsRepository)
 

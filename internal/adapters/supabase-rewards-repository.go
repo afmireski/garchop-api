@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/afmireski/garchop-api/internal/models"
+	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/nedpals/supabase-go"
 
 	myTypes "github.com/afmireski/garchop-api/internal/types"
@@ -50,8 +51,16 @@ func (r *SupabaseRewardsRepository) serializeManyToModel(supabaseData []myTypes.
 	return modelData, nil
 }
 
-func (r *SupabaseRewardsRepository) Create(input myTypes.Any) (string, error) {
-	panic("implement me")
+func (r *SupabaseRewardsRepository) Create(input ports.CreateRewardInput) (string, error) {
+	var supabaseData []myTypes.AnyMap
+
+	err := r.client.DB.From("rewards").Insert(input).Execute(&supabaseData)
+	
+	if err != nil {
+		return "", err
+	}
+
+	return "", nil
 }
 
 func (r *SupabaseRewardsRepository) FindAll(where myTypes.Where) ([]models.RewardModel, error) {

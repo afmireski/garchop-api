@@ -187,8 +187,8 @@ func (s *PokemonService) GetPokemonById(id string) (*entities.PokemonProduct, *c
 	return entities.BuildPokemonProductFromModel(*repositoryData), nil
 }
 
-func (s *PokemonService) GetAvailablePokemons() ([]entities.PokemonProduct, *customErrors.InternalError) {
-	repositoryData, err := s.repository.FindAll(nil)
+func (s *PokemonService) GetAvailablePokemons(filter myTypes.Where ) ([]entities.PokemonProduct, *customErrors.InternalError) {
+	repositoryData, err := s.repository.FindAll(filter)
 
 	if err != nil {
 		return nil, customErrors.NewInternalError("a failure occurred when try to find the pokemon", 500, []string{err.Error()})

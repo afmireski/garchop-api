@@ -16,4 +16,7 @@ func SetupRewardsRouter(
 	router.With(
 		middlewares.SupabaseAuthMiddleware(supabaseClient), 
 		middlewares.UserRoleMiddleware("client")).Post("/rewards/{reward_id}/claim", controller.ClaimReward)
+	router.With(
+		middlewares.SupabaseAuthMiddleware(supabaseClient), 
+		middlewares.UserRoleMiddleware("admin")).Post("/rewards/new", controller.NewReward)
 }

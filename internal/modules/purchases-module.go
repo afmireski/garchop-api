@@ -18,11 +18,12 @@ func NewPurchasesModule(
 	supabaseClient *supabase.Client,
 	cartsRepository ports.CartsRepositoryPort,
 	itemsRepository ports.ItemsRepositoryPort,
-	userPokemonRepository ports.UserPokemonRepositoryPort,
+	userPokemonRepository ports.UserPokemonRepositoryPort,	
+	userStatsService *services.UsersStatsService,
 	) *PurchasesModule {
 		repository := adapters.NewSupabasePurchaseRepository(supabaseClient)
 
-		service := services.NewPurchasesService(repository, cartsRepository, itemsRepository, userPokemonRepository)
+		service := services.NewPurchasesService(repository, cartsRepository, itemsRepository, userStatsService *services.UsersStatsService, userStatsService)
 
 		controller := controllers.NewPurchaseController(service)
 

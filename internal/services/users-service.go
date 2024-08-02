@@ -94,7 +94,8 @@ func (s *UsersService) NewClient(input myTypes.NewUserInput) *customErrors.Inter
 	_, statsErr := s.userStatsRepository.Create(myTypes.CreateUserStatsInput{
 		UserId: clientId,
 		TierId: 1,
-	}); if statsErr != nil {
+	})
+	if statsErr != nil {
 		return customErrors.NewInternalError("a failure occurred when try to create client status", 500, []string{statsErr.Error()})
 	}
 
@@ -185,7 +186,7 @@ func (s *UsersService) GetUserById(id string) (*entities.User, *customErrors.Int
 	response, err := s.repository.FindById(id, where)
 
 	if err != nil {
-		return nil, customErrors.NewInternalError("a failure occurred when try to retrieve a new user", 500, []string{})
+		return nil, customErrors.NewInternalError("a failure occurred when try to retrieve a new user", 500, []string{err.Error()})
 	} else if response == nil {
 		return nil, customErrors.NewInternalError("user not found", 404, []string{})
 	}
@@ -201,6 +202,26 @@ func (s *UsersService) GetUsers(where myTypes.Where) ([]entities.User, *customEr
 	}
 
 	return entities.BuildManyUserFromModel(repositoryData), nil
+}
+
+func (s *UsersService) GetUserStatsById(id string) (*entities.UserStats, *customErrors.InternalError) {
+	if !validators.IsValidUuid(id) {
+		return nil, customErrors.NewInternalError("invalid uuid", 400, []string{})
+	}
+
+	where := myTypes.Where{
+		"deleted_at": map[string]string{"is": "null"},
+	}
+
+	response, err := s.userStatsRepository.FindById(id, where)
+
+	if err != nil {
+		return nil, customErrors.NewInternalError("a failure occurred when trying to retrieve a user stats", 500, []string{})
+	} else if response == nil {
+		return nil, customErrors.NewInternalError("user stats not found", 404, []string{})
+	}
+
+	return entities.BuildUserStatsFromModel(response), nil
 }
 
 func (s *UsersService) DeleteClient(id string) *customErrors.InternalError {

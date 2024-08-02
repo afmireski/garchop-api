@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/afmireski/garchop-api/internal/services"
-	"github.com/go-chi/chi/v5"
 
 	myTypes "github.com/afmireski/garchop-api/internal/types"
+	customErrors "github.com/afmireski/garchop-api/internal/errors"
 )
 
 type PurchaseController struct {
@@ -26,6 +26,7 @@ func (c *PurchaseController) FinishPurchase(w http.ResponseWriter, r *http.Reque
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(customErrors.NewInternalError("fail on deserialize request body", 400, []string{err.Error()}))
 		return
 	}
 
@@ -40,7 +41,7 @@ func (c *PurchaseController) FinishPurchase(w http.ResponseWriter, r *http.Reque
 }
 
 func (c *PurchaseController) GetPurchasesByUser(w http.ResponseWriter, r *http.Request) {
-	userId := chi.URLParam(r, "user_id")
+	userId := r.Header.Get("User-Id")
 
 	purchases, err := c.service.GetPurchasesByUser(userId)
 	if err != nil {

@@ -3,11 +3,11 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"github.com/go-chi/chi/v5"
 
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
 	"github.com/afmireski/garchop-api/internal/services"
 	myTypes "github.com/afmireski/garchop-api/internal/types"
-	"github.com/go-chi/chi/v5"
 )
 
 type RewardsController struct {

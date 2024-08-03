@@ -35,6 +35,7 @@ func main() {
 
 	pokemonController := setupPokemonModule(supabaseClient, memCache)
 
+	paymentsMethodsModules := modules.NewPaymentsMethodsModule(supabaseClient)
 
 	stockModules := modules.NewStockModule(supabaseClient)
 
@@ -61,6 +62,7 @@ func main() {
 	routers.SetupItemsRouter(r, itemsModule.Controller, supabaseClient)
 	routers.SetupPurchasesRouter(r, purchasesModule.Controller, supabaseClient)
 	routers.SetupRewardsRouter(r, rewardsModule.Controller, supabaseClient)
+	routers.SetupPaymentsMethodsRouter(r, paymentsMethodsModules.Controller, supabaseClient)
 
 	fmt.Println("API is running...")
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))

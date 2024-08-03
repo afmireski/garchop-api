@@ -7,7 +7,6 @@ import (
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
 	"github.com/afmireski/garchop-api/internal/services"
 	myTypes "github.com/afmireski/garchop-api/internal/types"
-	"github.com/go-chi/chi/v5"
 )
 
 type UsersController struct {
@@ -150,9 +149,10 @@ func (c *UsersController) GetUserStatsById(w http.ResponseWriter, r *http.Reques
 func (c *UsersController) DeleteClientAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	idParam := chi.URLParam(r, "id")
+	idParam := r.Header.Get("User-Id")
+	token := r.Header.Get("Authorization")
 
-	serviceErr := c.service.DeleteClient(idParam)
+	serviceErr := c.service.DeleteClient(idParam, token)
 
 	if serviceErr != nil {
 		w.WriteHeader(serviceErr.HttpCode)

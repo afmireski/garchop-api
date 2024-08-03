@@ -24,12 +24,14 @@ func main() {
 	hashHelper := adapters.NewBcryptHashHelper()
 	memCache := cache.New(10*time.Minute, 30*time.Minute)
 
+	authModule := modules.NewAuthModule(supabaseClient)
+
 	userPokemonsRepository := adapters.NewSupabaseUserPokemonRepository(supabaseClient)
 	tiersModule := modules.NewTiersModule(supabaseClient)
 
 	userStatsModule := modules.NewUsersStatsModule(supabaseClient, tiersModule.Service)
 	
-	usersModule := modules.NewUsersModule(supabaseClient, userStatsModule.Repository, hashHelper)
+	usersModule := modules.NewUsersModule(supabaseClient, userStatsModule.Repository, hashHelper, authModule.Service)
 
 	authController := setupAuthModule(supabaseClient)
 

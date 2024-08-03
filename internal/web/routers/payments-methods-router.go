@@ -8,5 +8,5 @@ import (
 )
 
 func SetupPaymentsMethodsRouter(r *chi.Mux, controller *controllers.PaymentsMethodsController, supabaseClient *supabase.Client) {
-	r.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/payment-methods", controller.ListPaymentMethods)
+	r.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/payments-methods", controller.ListPaymentMethods)
 }

@@ -54,3 +54,7 @@ func (r *SupabasePaymentMethodsRepository) FindAll(where myTypes.Where) ([]model
 
 	return r.serializeManySupabaseDataToModel(supabaseData)
 }
+
+func (r *SupabasePaymentMethodsRepository) Create(name string) (*models.PaymentMethodModel, error) {
+	panic("implement me")
+}

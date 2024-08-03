@@ -29,5 +29,4 @@ func (c *PaymentsMethodsController) ListPaymentMethods(w http.ResponseWriter, r 
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
-
 }

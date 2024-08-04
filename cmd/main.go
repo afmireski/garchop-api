@@ -66,8 +66,9 @@ func main() {
 	routers.SetupRewardsRouter(r, rewardsModule.Controller, supabaseClient)
 	routers.SetupPaymentsMethodsRouter(r, paymentsMethodsModules.Controller, supabaseClient)
 
-	fmt.Println("API is running...")
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
+
+	fmt.Println("API is running on port " + port + "...")
 	http.ListenAndServe(port, r)
 }
 

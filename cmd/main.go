@@ -68,7 +68,7 @@ func main() {
 
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 
-	fmt.Println("API is running on port " + port + "...")
+	fmt.Println("API is running...")
 	http.ListenAndServe(port, r)
 }
 

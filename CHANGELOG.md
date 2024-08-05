@@ -3,6 +3,11 @@
 ## [Unreleased]
 
 ### Added
+* [#61](https://github.com/afmireski/garchop-api/issues/61) - Implementar obtenção de recompensas por usuários
+    * Removendo parâmetros `user_id` das rotas e substituindo por obtenção via `token`
+    * Passagem de parâmetro `filtro` na query da rota `/pokemon`
+    * Implementada rota para listagem de formas de pagamento
+* [#58](https://github.com/afmireski/garchop-api/issues/56) - Implementar listagem geral de recompensas
 * [#57](https://github.com/afmireski/garchop-api/issues/57) - Implementar cadastro de recompensas
 * [#52](https://github.com/afmireski/garchop-api/issues/52) - Obter Status do Usuário
 * [#47](https://github.com/afmireski/garchop-api/issues/47) - Implementar autenticação

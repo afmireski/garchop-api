@@ -16,9 +16,11 @@ type RewardsModule struct {
 
 func NewRewardsModule(
 	supabaseClient *supabase.Client,
+	userRewardsRepository ports.UserRewardsRepositoryPort,
+	userPokemonsRepository ports.UserPokemonRepositoryPort,
 ) *RewardsModule {
 	repository := adapters.NewSupabaseRewardsRepository(supabaseClient)
-	service := services.NewRewardsService(repository)
+	service := services.NewRewardsService(repository, userRewardsRepository, userPokemonsRepository)
 	controller := controllers.NewRewardsController(service)
 
 	return &RewardsModule{

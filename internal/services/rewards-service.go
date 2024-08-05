@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/afmireski/garchop-api/internal/entities"
+	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/afmireski/garchop-api/internal/validators"
 
@@ -10,12 +11,16 @@ import (
 )
 
 type RewardsService struct {
-	rewardsRepository ports.RewardsRepositoryPort
+	rewardsRepository     ports.RewardsRepositoryPort
+	userRewardsRepository ports.UserRewardsRepositoryPort
+	userPokemonsRepository ports.UserPokemonRepositoryPort
 }
 
-func NewRewardsService(rewardsRepository ports.RewardsRepositoryPort) *RewardsService {
+func NewRewardsService(rewardsRepository ports.RewardsRepositoryPort, userRewardsRepository ports.UserRewardsRepositoryPort, userPokemonsRepository ports.UserPokemonRepositoryPort) *RewardsService {
 	return &RewardsService{
-		rewardsRepository: rewardsRepository,
+		rewardsRepository:     rewardsRepository,
+		userRewardsRepository: userRewardsRepository,
+		userPokemonsRepository: userPokemonsRepository,
 	}
 }
 
@@ -61,4 +66,56 @@ func (s *RewardsService) ListAllRewards() ([]entities.Reward, *customErrors.Inte
 	rewards := entities.BuildRewardsFromModels(repositoryData)
 
 	return rewards, nil
+}
+
+func (r *RewardsService) validateClaimRewardInput(input myTypes.UserRewardInput) *customErrors.InternalError {
+
+	if !validators.IsValidUuid(input.UserId) {
+		return customErrors.NewInternalError("invalid user_id", 400, []string{"the user_id must be a valid uuid"})
+	} else if !validators.IsValidUuid(input.RewardId) {
+		return customErrors.NewInternalError("invalid reward_id", 400, []string{"the reward_id must be a valid uuid"})
+	}
+
+	return nil
+}
+
+func (r *RewardsService) ClaimReward(input myTypes.UserRewardInput) *customErrors.InternalError {
+	validationErr := r.validateClaimRewardInput(input); if validationErr != nil {
+		return validationErr
+	}
+
+	reward, findRewardErr := r.rewardsRepository.FindById(input.RewardId, myTypes.Where{})
+
+	if findRewardErr != nil {
+		return customErrors.NewInternalError("reward not found", 404, []string{findRewardErr.Error()})
+	}
+
+	_, err := r.userRewardsRepository.Create(myTypes.UserRewardInput{
+		UserId: input.UserId,
+		RewardId: input.RewardId,
+	}); if err != nil {
+		return customErrors.NewInternalError("a failure occurred when try to claim the reward", 500, []string{err.Error()})
+	}
+
+	prizeErr := r.getRewardPrize(*reward, input.UserId); if prizeErr != nil {
+		return prizeErr;
+	}
+
+	return nil
+}
+
+func (r *RewardsService) getRewardPrize(reward models.RewardModel, userId string) *customErrors.InternalError {
+	if reward.PrizeType == "pokemon" {
+		pokemonId := reward.Prize["pokemon_id"].(string)
+
+		_, err := r.userPokemonsRepository.Upsert(myTypes.UserPokemonId{
+			UserId: userId,
+			PokemonId: pokemonId,
+		}); if err != nil {
+			return customErrors.NewInternalError("a failure occurred when try to get the prize", 500, []string{err.Error()})
+		}
+
+	}
+
+	return nil;
 }

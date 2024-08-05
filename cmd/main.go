@@ -24,16 +24,20 @@ func main() {
 	hashHelper := adapters.NewBcryptHashHelper()
 	memCache := cache.New(10*time.Minute, 30*time.Minute)
 
+	authModule := modules.NewAuthModule(supabaseClient)
+
+	userPokemonsRepository := adapters.NewSupabaseUserPokemonRepository(supabaseClient)
 	tiersModule := modules.NewTiersModule(supabaseClient)
 
 	userStatsModule := modules.NewUsersStatsModule(supabaseClient, tiersModule.Service)
 	
-	usersModule := modules.NewUsersModule(supabaseClient, userStatsModule.Repository, hashHelper)
+	usersModule := modules.NewUsersModule(supabaseClient, userStatsModule.Repository, hashHelper, authModule.Service)
 
 	authController := setupAuthModule(supabaseClient)
 
 	pokemonController := setupPokemonModule(supabaseClient, memCache)
 
+	paymentsMethodsModules := modules.NewPaymentsMethodsModule(supabaseClient)
 
 	stockModules := modules.NewStockModule(supabaseClient)
 
@@ -43,9 +47,11 @@ func main() {
 
 	cartsModule := modules.NewCartsModule(supabaseClient, itemsModule.Repository, pricesModules.Repository, stockModules.Repository)
 
-	purchasesModule := modules.NewPurchasesModule(supabaseClient, cartsModule.Repository, itemsModule.Repository, userStatsModule.Service)
+	purchasesModule := modules.NewPurchasesModule(supabaseClient, cartsModule.Repository, itemsModule.Repository, userPokemonsRepository, userStatsModule.Service)
 
-	rewardsModule := modules.NewRewardsModule(supabaseClient)
+	userRewardsModule := modules.NewUserRewardsModule(supabaseClient)
+
+	rewardsModule := modules.NewRewardsModule(supabaseClient, userRewardsModule.Repository, userPokemonsRepository)
 
 	r := chi.NewRouter()
 	enableCors(r)
@@ -57,10 +63,12 @@ func main() {
 	routers.SetupCartsRouter(r, cartsModule.Controller, supabaseClient)
 	routers.SetupItemsRouter(r, itemsModule.Controller, supabaseClient)
 	routers.SetupPurchasesRouter(r, purchasesModule.Controller, supabaseClient)
-	routers.SetupRewardsRouter(r, rewardsModule.Controller)
+	routers.SetupRewardsRouter(r, rewardsModule.Controller, supabaseClient)
+	routers.SetupPaymentsMethodsRouter(r, paymentsMethodsModules.Controller, supabaseClient)
+
+	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 
 	fmt.Println("API is running...")
-	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 	http.ListenAndServe(port, r)
 }
 

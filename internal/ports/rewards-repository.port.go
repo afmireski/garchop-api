@@ -9,6 +9,7 @@ import (
 )
 
 type RewardsRepositoryPort interface {
+	FindById(id string, where myTypes.Where) (*models.RewardModel, error)
 	Create(input CreateRewardInput) (string, error)
 	FindAll(where myTypes.Where) ([]models.RewardModel, error)
 	Delete(id string, where myTypes.Where) error

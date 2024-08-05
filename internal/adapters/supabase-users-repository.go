@@ -96,6 +96,13 @@ func (r *SupabaseUsersRepository) Create(input ports.CreateUserInput) (string, e
 	_, signUpErr := r.client.Auth.SignUp(context.Background(), supabase.UserCredentials{
 		Email:    input.Email,
 		Password: input.PlainPassword,
+		Data: myTypes.AnyMap{
+			"id":    supabaseData[0]["id"],
+			"role":  supabaseData[0]["role"],
+			"email": supabaseData[0]["email"],
+			"name":  supabaseData[0]["name"],
+			"phone": supabaseData[0]["phone"],
+		},
 	})
 	if signUpErr != nil {
 		return "", err

@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"github.com/go-chi/chi/v5"
 
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
 	"github.com/afmireski/garchop-api/internal/services"
@@ -62,4 +63,26 @@ func (c *RewardsController) ListAllRewards(w http.ResponseWriter, r *http.Reques
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
+}
+
+func (c *RewardsController) ClaimReward(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	rewardId := chi.URLParam(r, "reward_id")
+	userId := r.Header.Get("User-Id")
+
+	input := myTypes.UserRewardInput{
+		RewardId: rewardId,
+		UserId: userId,
+	}
+
+	serviceErr := c.service.ClaimReward(input)
+
+	if serviceErr != nil {
+		w.WriteHeader(serviceErr.HttpCode)
+		json.NewEncoder(w).Encode(serviceErr)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }

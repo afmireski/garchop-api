@@ -18,9 +18,10 @@ func NewUsersModule(
 	supabaseClient *supabase.Client,
 	userStatsRepository ports.UserStatsRepository,
 	hashHelper ports.HashHelperPort,
+	authService *services.AuthService,
 ) *UsersModule {
 	repository := adapters.NewSupabaseUsersRepository(supabaseClient)
-	service := services.NewUsersService(repository, userStatsRepository, hashHelper)
+	service := services.NewUsersService(repository, userStatsRepository, hashHelper, authService)
 	controller := controllers.NewUsersController(service)
 
 	return &UsersModule{

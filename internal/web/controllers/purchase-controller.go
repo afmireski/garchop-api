@@ -21,6 +21,8 @@ func NewPurchaseController(service *services.PurchasesService) *PurchaseControll
 }
 
 func (c *PurchaseController) FinishPurchase(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	userId := r.Header.Get("User-Id")
 
 	var body myTypes.FinishPurchaseBody
@@ -48,6 +50,8 @@ func (c *PurchaseController) FinishPurchase(w http.ResponseWriter, r *http.Reque
 }
 
 func (c *PurchaseController) GetPurchasesByUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	userId := r.Header.Get("User-Id")
 
 	purchases, err := c.service.GetPurchasesByUser(userId)

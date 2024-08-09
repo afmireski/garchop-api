@@ -94,7 +94,7 @@ func (r *SupabasePurchaseRepository) FindById(id string, where myTypes.Where) (*
 func (r *SupabasePurchaseRepository) FindAll(where myTypes.Where) ([]models.PurchaseModel, error) {
 	var supabaseData []myTypes.AnyMap
 
-	query := r.supabaseClient.DB.From("purchases").Select("*", "items(*)")
+	query := r.supabaseClient.DB.From("purchases").Select("*", "items(*, pokemons(*, pokemon_types(*, types(*)), tiers(*)))")
 
 	if len(where) > 0 {
 		for column, filter := range where {

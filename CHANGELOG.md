@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fix
+* [#68](https://github.com/afmireski/garchop-api/issues/68) - [BUG]: Informações detalhadas de um pokémon não aparecem na compra
+
 ### Added
 * [#61](https://github.com/afmireski/garchop-api/issues/61) - Implementar obtenção de recompensas por usuários
     * Removendo parâmetros `user_id` das rotas e substituindo por obtenção via `token`

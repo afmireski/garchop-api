@@ -72,7 +72,7 @@ func (s *SupabaseUserStatsRepository) FindById(id string, where myTypes.Where) (
 func (s *SupabaseUserStatsRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.UserStatsModel, error) {
 	var supabaseData []myTypes.AnyMap
 
-	query := s.client.DB.From("user_stats").Update(input).Is("deleted_at", "null");
+	query := s.client.DB.From("user_stats").Update(input).Eq("user_id", id).Is("deleted_at", "null");
 
 	if len(where) > 0 {
 		for column, filter := range where {

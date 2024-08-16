@@ -2,6 +2,8 @@ package adapters
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/nedpals/supabase-go"
 
@@ -49,28 +51,34 @@ func (r *SupabaseUserPokemonRepository) serializeManyToModel(supabaseData []myTy
 	return modelData, nil
 }
 
-func (r *SupabaseUserPokemonRepository) Upsert(input myTypes.UserPokemonId) (*models.UserPokemonModel, error) {
+func (r *SupabaseUserPokemonRepository) Upsert(input myTypes.UserPokemonData) (*models.UserPokemonModel, error) {
 	var findData myTypes.AnyMap
 
-	findErr := r.client.DB.From("users_pokemons").Select("*").Single().Eq("user_id", input.UserId).Eq("pokemon_id", input.PokemonId).Execute(&findData)
+	findErr := r.client.DB.From("user_pokemons").Select("*").Single().Eq("user_id", input.UserId).Eq("pokemon_id", input.PokemonId).Execute(&findData)
+	
+	var supabaseData []myTypes.AnyMap
 	if findErr != nil {
+		if strings.Contains(findErr.Error(), "PGRST116") { // resource not found
+
+			createErr := r.client.DB.From("user_pokemons").Insert(input).Execute(&supabaseData)
+			if createErr != nil {
+				return nil, createErr
+			}
+
+			return r.serializeToModel(supabaseData[0])
+		}
 		return nil, findErr
 	}
 
-	var supabaseData []myTypes.AnyMap
-	if len(findData) > 0 {
-		updateErr := r.client.DB.From("users_pokemons").Update(map[string]any{"quantity": findData["quantity"].(uint) + 1}).Eq("user_id", input.UserId).Eq("pokemon_id", input.PokemonId).Execute(&findData)
-
-		if updateErr != nil {
-			return nil, updateErr
-		}
-
-		return r.serializeToModel(supabaseData[0])
+	currentQuantity := uint(findData["quantity"].(float64))
+	updateData := myTypes.UpdateUserPokemonData{
+		Quantity: currentQuantity + input.Quantity,
 	}
+	fmt.Println(updateData)
+	updateErr := r.client.DB.From("user_pokemons").Update(updateData).Eq("user_id", input.UserId).Eq("pokemon_id", input.PokemonId).Execute(&findData)
 
-	createErr := r.client.DB.From("users_rewards").Insert(input).Execute(&supabaseData)
-	if createErr != nil {
-		return nil, createErr
+	if updateErr != nil {
+		return nil, updateErr
 	}
 
 	return r.serializeToModel(supabaseData[0])

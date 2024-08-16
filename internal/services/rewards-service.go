@@ -11,15 +11,15 @@ import (
 )
 
 type RewardsService struct {
-	rewardsRepository     ports.RewardsRepositoryPort
-	userRewardsRepository ports.UserRewardsRepositoryPort
+	rewardsRepository      ports.RewardsRepositoryPort
+	userRewardsRepository  ports.UserRewardsRepositoryPort
 	userPokemonsRepository ports.UserPokemonRepositoryPort
 }
 
 func NewRewardsService(rewardsRepository ports.RewardsRepositoryPort, userRewardsRepository ports.UserRewardsRepositoryPort, userPokemonsRepository ports.UserPokemonRepositoryPort) *RewardsService {
 	return &RewardsService{
-		rewardsRepository:     rewardsRepository,
-		userRewardsRepository: userRewardsRepository,
+		rewardsRepository:      rewardsRepository,
+		userRewardsRepository:  userRewardsRepository,
 		userPokemonsRepository: userPokemonsRepository,
 	}
 }
@@ -80,7 +80,8 @@ func (r *RewardsService) validateClaimRewardInput(input myTypes.UserRewardInput)
 }
 
 func (r *RewardsService) ClaimReward(input myTypes.UserRewardInput) *customErrors.InternalError {
-	validationErr := r.validateClaimRewardInput(input); if validationErr != nil {
+	validationErr := r.validateClaimRewardInput(input)
+	if validationErr != nil {
 		return validationErr
 	}
 
@@ -91,14 +92,16 @@ func (r *RewardsService) ClaimReward(input myTypes.UserRewardInput) *customError
 	}
 
 	_, err := r.userRewardsRepository.Create(myTypes.UserRewardInput{
-		UserId: input.UserId,
+		UserId:   input.UserId,
 		RewardId: input.RewardId,
-	}); if err != nil {
+	})
+	if err != nil {
 		return customErrors.NewInternalError("a failure occurred when try to claim the reward", 500, []string{err.Error()})
 	}
 
-	prizeErr := r.getRewardPrize(*reward, input.UserId); if prizeErr != nil {
-		return prizeErr;
+	prizeErr := r.getRewardPrize(*reward, input.UserId)
+	if prizeErr != nil {
+		return prizeErr
 	}
 
 	return nil
@@ -108,14 +111,16 @@ func (r *RewardsService) getRewardPrize(reward models.RewardModel, userId string
 	if reward.PrizeType == "pokemon" {
 		pokemonId := reward.Prize["pokemon_id"].(string)
 
-		_, err := r.userPokemonsRepository.Upsert(myTypes.UserPokemonId{
-			UserId: userId,
+		_, err := r.userPokemonsRepository.Upsert(myTypes.UserPokemonData{
+			UserId:    userId,
 			PokemonId: pokemonId,
-		}); if err != nil {
+			Quantity:  1,
+		})
+		if err != nil {
 			return customErrors.NewInternalError("a failure occurred when try to get the prize", 500, []string{err.Error()})
 		}
 
 	}
 
-	return nil;
+	return nil
 }

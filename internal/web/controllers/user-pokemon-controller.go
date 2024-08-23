@@ -10,10 +10,10 @@ import (
 )
 
 type UserPokemonController struct {
-	service services.UserPokemonsService
+	service *services.UserPokemonsService
 }
 
-func NewUserPokemonController(service services.UserPokemonsService) *UserPokemonController {
+func NewUserPokemonController(service *services.UserPokemonsService) *UserPokemonController {
 	return &UserPokemonController{
 		service: service,
 	}

@@ -32,6 +32,9 @@ func (c *UserPokemonController) GetUserPokedex(w http.ResponseWriter, r *http.Re
 		w.WriteHeader(serviceErr.HttpCode)
 		json.NewEncoder(w).Encode(serviceErr)
 		return
+	} else if len(response) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)

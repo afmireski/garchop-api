@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+* [#71](https://github.com/afmireski/garchop-api/issues/71) - Implementar listagem específica de Pokémons de um usuário
+
+## [Release 2](https://github.com/afmireski/garchop-api/releases/tag/24.08.23)
+
 ### Added
 * [#61](https://github.com/afmireski/garchop-api/issues/61) - Implementar obtenção de recompensas por usuários
     * Removendo parâmetros `user_id` das rotas e substituindo por obtenção via `token`

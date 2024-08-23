@@ -109,5 +109,25 @@ func (r *SupabaseUserPokemonRepository) FindById(userId string, pokemonId string
 }
 
 func (r *SupabaseUserPokemonRepository) FindAll(where myTypes.Where) ([]models.UserPokemonModel, error) {
-	
+	var supabaseData []myTypes.AnyMap
+
+	query := r.client.DB.From("user_pokemons").Select("*", "pokemons(*, pokemon_types (*, types (*)), tiers (*))").Single().Gt("quantity", "0")
+
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData); if err != nil {
+		if strings.Contains(err.Error(), "PGRST116") { // resource not found
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return r.serializeManyToModel(supabaseData)
 }

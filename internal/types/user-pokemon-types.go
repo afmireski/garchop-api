@@ -6,6 +6,10 @@ type UserPokemonData struct {
 	Quantity  uint   `json:"quantity"`
 }
 
+type GetPokedexInput struct {
+	UserId string `json:"user_id"`
+}
+
 type UpdateUserPokemonData struct {
 	Quantity uint `json:"quantity"`
 }

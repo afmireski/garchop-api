@@ -51,14 +51,18 @@ func (s* UserPokemonsService) validateGetUserPokemonInput(input myTypes.GetUserP
 	return nil
 }	
 
-func (s* UserPokemonsService) GetUserPokemon(input myTypes.GetUserPokemonInput) (entities.UserPokemon, *customErrors.InternalError) {
+func (s* UserPokemonsService) GetUserPokemon(input myTypes.GetUserPokemonInput) (*entities.UserPokemon, *customErrors.InternalError) {
 	if inputErr := s.validateGetUserPokemonInput(input); inputErr != nil {
-		return entities.UserPokemon{}, inputErr
+		return nil, inputErr
 	}
 
-	response, err := s.userPokemonRepository.FindById(input.UserId, input.PokemonId, myTypes.Where{}); if err != nil {
-		return entities.UserPokemon{}, customErrors.NewInternalError("failed on get the user pokemon", 500, []string{err.Error()})
+	data, err := s.userPokemonRepository.FindById(input.UserId, input.PokemonId, myTypes.Where{}); if err != nil {
+		return nil, customErrors.NewInternalError("failed on get the user pokemon", 500, []string{err.Error()})
+	} else if data == nil {
+		return nil, customErrors.NewInternalError("user pokemon not found", 404, []string{})
 	}
+
+	response := entities.BuildUserPokemonFromModel(*data)
 	
-	return entities.BuildUserPokemonFromModel(*response), nil
+	return &response, nil
 }

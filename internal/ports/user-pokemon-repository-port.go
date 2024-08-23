@@ -7,6 +7,6 @@ import (
 
 type UserPokemonRepositoryPort interface {
 	Upsert(input myTypes.UserPokemonData) (*models.UserPokemonModel, error)
-	FindById(id string, where myTypes.Where) (*models.UserPokemonModel, error)
+	FindById(userId string, pokemonId string, where myTypes.Where) (*models.UserPokemonModel, error)
 	FindAll(where myTypes.Where) ([]models.UserPokemonModel, error)
 }

@@ -84,10 +84,46 @@ func (r *SupabaseUserPokemonRepository) Upsert(input myTypes.UserPokemonData) (*
 	return r.serializeToModel(supabaseData[0])
 }
 
-func (r *SupabaseUserPokemonRepository) FindById(id string, where myTypes.Where) (*models.UserPokemonModel, error) {
-	panic("implement me")
+func (r *SupabaseUserPokemonRepository) FindById(userId string, pokemonId string, where myTypes.Where) (*models.UserPokemonModel, error) {
+	var supabaseData myTypes.AnyMap
+
+	query := r.client.DB.From("user_pokemons").Select("*", "pokemons (*, pokemon_types (*, types (*)), tiers (*))").Single().Eq("user_id", userId).Eq("pokemon_id", pokemonId)
+
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData); if err != nil {
+		if strings.Contains(err.Error(), "PGRST116") { // resource not found
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return r.serializeToModel(supabaseData)
 }
 
 func (r *SupabaseUserPokemonRepository) FindAll(where myTypes.Where) ([]models.UserPokemonModel, error) {
-	panic("implement me")
+	var supabaseData []myTypes.AnyMap
+
+	query := r.client.DB.From("user_pokemons").Select("*", "pokemons (*, pokemon_types (*, types (*)), tiers (*))").Gt("quantity", "0")
+
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData); if err != nil {
+		return nil, err
+	}
+
+	return r.serializeManyToModel(supabaseData)
 }

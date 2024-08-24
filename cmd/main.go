@@ -53,6 +53,8 @@ func main() {
 
 	rewardsModule := modules.NewRewardsModule(supabaseClient, userRewardsModule.Repository, userPokemonsRepository)
 
+	pokedexModule := modules.NewUserPokemonModule(supabaseClient)
+
 	r := chi.NewRouter()
 	enableCors(r)
 	r.Use(middleware.AllowContentType("application/json"))
@@ -65,6 +67,7 @@ func main() {
 	routers.SetupPurchasesRouter(r, purchasesModule.Controller, supabaseClient)
 	routers.SetupRewardsRouter(r, rewardsModule.Controller, supabaseClient)
 	routers.SetupPaymentsMethodsRouter(r, paymentsMethodsModules.Controller, supabaseClient)
+	routers.SetupPokedexRouter(r, pokedexModule.Controller, supabaseClient)
 
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 

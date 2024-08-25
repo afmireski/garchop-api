@@ -19,4 +19,7 @@ func SetupRewardsRouter(
 	router.With(
 		middlewares.SupabaseAuthMiddleware(supabaseClient), 
 		middlewares.UserRoleMiddleware("admin")).Post("/rewards/new", controller.NewReward)
+	router.With(
+		middlewares.SupabaseAuthMiddleware(supabaseClient), 
+		middlewares.UserRoleMiddleware("admin")).Delete("/rewards/{reward_id}/remove", controller.RemoveReward)
 }

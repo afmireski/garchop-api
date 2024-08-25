@@ -45,6 +45,21 @@ func (c *RewardsController) NewReward(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+func (c *RewardsController) RemoveReward(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	rewardId := chi.URLParam(r, "reward_id")
+	err := c.service.RemoveReward(rewardId)
+
+	if err != nil {
+		w.WriteHeader(err.HttpCode)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (c *RewardsController) ListAllRewards(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 

@@ -1,25 +1,14 @@
 package ports
 
 import (
-	"encoding/json"
-
 	"github.com/afmireski/garchop-api/internal/models"
 	myTypes "github.com/afmireski/garchop-api/internal/types"
-	"github.com/afmireski/garchop-api/internal/types/enums"
 )
 
 type RewardsRepositoryPort interface {
 	FindById(id string, where myTypes.Where) (*models.RewardModel, error)
-	Create(input CreateRewardInput) (string, error)
+	Create(input myTypes.CreateRewardInput) (string, error)
 	FindAll(where myTypes.Where) ([]models.RewardModel, error)
-	Delete(id string, where myTypes.Where) error
+	Update(id string, data myTypes.AnyMap, where myTypes.Where) (*models.RewardModel, error)
 }
 
-type CreateRewardInput struct {
-	TierId             uint                `json:"tier_id"`
-	Name               string              `json:"name"`
-	Description        string              `json:"description"`
-	ExperienceRequired uint                `json:"experience_required"`
-	Type               enums.PrizeTypeEnum `json:"prize_type"`
-	Prize              json.RawMessage     `json:"prize"`
-}

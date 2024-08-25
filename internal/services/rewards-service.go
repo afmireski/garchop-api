@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/afmireski/garchop-api/internal/entities"
 	"github.com/afmireski/garchop-api/internal/models"
 	"github.com/afmireski/garchop-api/internal/ports"
@@ -37,7 +39,7 @@ func (s *RewardsService) NewReward(input myTypes.NewRewardInput) *customErrors.I
 		return inputErr
 	}
 
-	data := ports.CreateRewardInput{
+	data := myTypes.CreateRewardInput{
 		TierId:             input.TierId,
 		Name:               input.Name,
 		Description:        input.Description,
@@ -66,6 +68,23 @@ func (s *RewardsService) ListAllRewards() ([]entities.Reward, *customErrors.Inte
 	rewards := entities.BuildRewardsFromModels(repositoryData)
 
 	return rewards, nil
+}
+
+func (s *RewardsService) RemoveReward(rewardId string) *customErrors.InternalError {
+	if !validators.IsValidUuid(rewardId) {
+		return customErrors.NewInternalError("invalid reward_id", 400, []string{"the reward_id must be a valid uuid"})
+	}
+
+	data := myTypes.AnyMap{
+		"deleted_at": time.Now(),
+	}
+	_, err := s.rewardsRepository.Update(rewardId, data, myTypes.Where{})
+
+	if err != nil {
+		return customErrors.NewInternalError("a failure occurred when try to delete the reward", 500, []string{err.Error()})
+	}
+
+	return nil
 }
 
 func (r *RewardsService) validateClaimRewardInput(input myTypes.UserRewardInput) *customErrors.InternalError {

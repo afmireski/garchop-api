@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/afmireski/garchop-api/internal/models"
-	"github.com/afmireski/garchop-api/internal/ports"
 	"github.com/nedpals/supabase-go"
 
 	myTypes "github.com/afmireski/garchop-api/internal/types"
@@ -52,7 +51,7 @@ func (r *SupabaseRewardsRepository) serializeManyToModel(supabaseData []myTypes.
 	return modelData, nil
 }
 
-func (r *SupabaseRewardsRepository) Create(input ports.CreateRewardInput) (string, error) {
+func (r *SupabaseRewardsRepository) Create(input myTypes.CreateRewardInput) (string, error) {
 	var supabaseData []myTypes.AnyMap
 
 	err := r.client.DB.From("rewards").Insert(input).Execute(&supabaseData)
@@ -67,7 +66,7 @@ func (r *SupabaseRewardsRepository) Create(input ports.CreateRewardInput) (strin
 func (r *SupabaseRewardsRepository) FindAll(where myTypes.Where) ([]models.RewardModel, error) {
 	var supabaseData []myTypes.AnyMap
 
-	query := r.client.DB.From("rewards").Select("*", "tiers(*)").Single().Is("deleted_at", "null")
+	query := r.client.DB.From("rewards").Select("*", "tiers(*)").Is("deleted_at", "null")
 
 	if len(where) > 0 {
 		for column, filter := range where {
@@ -109,6 +108,27 @@ func (r *SupabaseRewardsRepository) FindById(id string, where myTypes.Where) (*m
 	return r.serializeToModel(supabaseData)
 }
 
-func (r *SupabaseRewardsRepository) Delete(id string, where myTypes.Where) error {
-	panic("implement me")
+func (r *SupabaseRewardsRepository) Update(id string, data myTypes.AnyMap, where myTypes.Where) (*models.RewardModel, error) {
+	var supabaseData []myTypes.AnyMap
+
+	query := r.client.DB.From("rewards").Update(data).Eq("id", id).Is("deleted_at", "null");
+
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData)
+	if err != nil {
+		return nil, err
+	} else if len(supabaseData) == 0 {
+		return nil, nil
+	}
+
+	
+
+	return r.serializeToModel(supabaseData[0])
 }

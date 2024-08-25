@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+* [#60](https://github.com/afmireski/garchop-api/issues/60) - Implementar exclusão de recompensa
 * [#71](https://github.com/afmireski/garchop-api/issues/71) - Implementar listagem específica de Pokémons de um usuário
 
 ## [Release 2](https://github.com/afmireski/garchop-api/releases/tag/24.08.23)

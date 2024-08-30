@@ -3,6 +3,8 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+
 	"github.com/go-chi/chi/v5"
 
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
@@ -107,8 +109,17 @@ func (c *RewardsController) ListRewardsByUser(w http.ResponseWriter, r *http.Req
 	w.Header().Set("Content-Type", "application/json")
 
 	userId := r.Header.Get("User-Id")
+	limit, _ := strconv.Atoi(r.Header.Get("pagination-limit"))
+	page, _ := strconv.Atoi(r.Header.Get("pagination-limit"))
+	offset, _ := strconv.Atoi(r.Header.Get("pagination-limit"))
 
-	response, serviceErr := c.service.ListRewardsByUser(userId)
+	pagination := myTypes.Pagination{
+		Limit: limit,
+		Page: page,
+		Offset: offset,
+	}
+
+	response, serviceErr := c.service.ListRewardsByUser(userId, pagination)
 
 	if serviceErr != nil {
 		w.WriteHeader(serviceErr.HttpCode)

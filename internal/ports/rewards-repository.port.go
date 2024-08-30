@@ -7,6 +7,6 @@ import (
 
 type RewardsRepositoryPort interface {
 	Create(input myTypes.Any) (string, error)	
-	FindAll(where myTypes.Where) ([]models.RewardModel, error)
+	FindAll(where myTypes.Where, pagination myTypes.Pagination) ([]models.RewardModel, error)
 	Delete(id string, where myTypes.Where) error
 }

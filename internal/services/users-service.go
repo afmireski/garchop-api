@@ -17,13 +17,15 @@ type UsersService struct {
 	repository          ports.UserRepositoryPort
 	userStatsRepository ports.UserStatsRepository
 	hashHelper          ports.HashHelperPort
+	authService         *AuthService
 }
 
-func NewUsersService(repository ports.UserRepositoryPort, userStatsRepository ports.UserStatsRepository, hashHelper ports.HashHelperPort) *UsersService {
+func NewUsersService(repository ports.UserRepositoryPort, userStatsRepository ports.UserStatsRepository, hashHelper ports.HashHelperPort, authService *AuthService) *UsersService {
 	return &UsersService{
 		repository,
 		userStatsRepository,
 		hashHelper,
+		authService,
 	}
 }
 
@@ -224,7 +226,7 @@ func (s *UsersService) GetUserStatsById(id string) (*entities.UserStats, *custom
 	return entities.BuildUserStatsFromModel(response), nil
 }
 
-func (s *UsersService) DeleteClient(id string) *customErrors.InternalError {
+func (s *UsersService) DeleteClient(id string, token string) *customErrors.InternalError {
 	if !validators.IsValidUuid(id) {
 		return customErrors.NewInternalError("invalid uuid", 400, []string{})
 	}
@@ -243,5 +245,5 @@ func (s *UsersService) DeleteClient(id string) *customErrors.InternalError {
 		return customErrors.NewInternalError("a failure occurred when try to delete a user", 500, []string{})
 	}
 
-	return nil
+	return s.authService.Logout(token)
 }

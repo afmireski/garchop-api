@@ -8,6 +8,6 @@ import (
 )
 
 func SetupCartsRouter(r chi.Router, controller *controllers.CartController, supabaseClient *supabase.Client) {
-	r.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/users/{user_id}/cart", controller.GetCurrentUserCart)
-	r.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Post("/users/{user_id}/items/add", controller.AddItemToCart)
+	r.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/cart", controller.GetCurrentUserCart)
+	r.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Post("/cart/add-item", controller.AddItemToCart)
 }

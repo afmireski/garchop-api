@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/afmireski/garchop-api/internal/services"
-	"github.com/go-chi/chi/v5"
 
 	myTypes "github.com/afmireski/garchop-api/internal/types"
+	customErrors "github.com/afmireski/garchop-api/internal/errors"
 )
 
 type PurchaseController struct {
@@ -21,12 +21,22 @@ func NewPurchaseController(service *services.PurchasesService) *PurchaseControll
 }
 
 func (c *PurchaseController) FinishPurchase(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 
-	var input myTypes.FinishPurchaseInput
-	err := json.NewDecoder(r.Body).Decode(&input)
+	userId := r.Header.Get("User-Id")
+
+	var body myTypes.FinishPurchaseBody
+	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(customErrors.NewInternalError("fail on deserialize request body", 400, []string{err.Error()}))
 		return
+	}
+
+	input := myTypes.FinishPurchaseInput{
+		UserId: userId,
+		CartId: body.CartId,
+		PaymentMethodId: body.PaymentMethodId,
 	}
 
 	serviceErr := c.service.FinishPurchase(input); if serviceErr != nil {
@@ -40,7 +50,9 @@ func (c *PurchaseController) FinishPurchase(w http.ResponseWriter, r *http.Reque
 }
 
 func (c *PurchaseController) GetPurchasesByUser(w http.ResponseWriter, r *http.Request) {
-	userId := chi.URLParam(r, "user_id")
+	w.Header().Set("Content-Type", "application/json")
+
+	userId := r.Header.Get("User-Id")
 
 	purchases, err := c.service.GetPurchasesByUser(userId)
 	if err != nil {

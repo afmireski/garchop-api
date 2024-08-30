@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/afmireski/garchop-api/internal/services"
-	"github.com/go-chi/chi/v5"
 	myTypes "github.com/afmireski/garchop-api/internal/types"
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
 )
@@ -23,9 +22,9 @@ func NewCartController(service *services.CartsService) *CartController {
 func (c *CartController) GetCurrentUserCart(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	userIdParam := chi.URLParam(r, "user_id")
+	userId := r.Header.Get("User-Id")
 
-	response, err := c.service.GetCurrentUserCart(userIdParam); if err != nil {
+	response, err := c.service.GetCurrentUserCart(userId); if err != nil {
 		w.WriteHeader(err.HttpCode)
 		json.NewEncoder(w).Encode(err)
 		return
@@ -46,7 +45,7 @@ func (c *CartController) AddItemToCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId := chi.URLParam(r, "user_id")
+	userId := r.Header.Get("User-Id")
 
 	input := myTypes.AddItemToCartInput{
 		UserId: userId,

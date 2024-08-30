@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/afmireski/garchop-api/internal/models"
@@ -13,18 +14,20 @@ import (
 )
 
 type PurchasesService struct {
-	repository      ports.PurchaseRepositoryPort
-	cartRepository  ports.CartsRepositoryPort
-	itemsRepository ports.ItemsRepositoryPort
-	userStatsService *UsersStatsService
+	repository            ports.PurchaseRepositoryPort
+	cartRepository        ports.CartsRepositoryPort
+	itemsRepository       ports.ItemsRepositoryPort
+	userPokemonRepository ports.UserPokemonRepositoryPort
+	userStatsService      *UsersStatsService
 }
 
-func NewPurchasesService(repository ports.PurchaseRepositoryPort, cartRepository ports.CartsRepositoryPort, itemsRepository ports.ItemsRepositoryPort, userStatsService *UsersStatsService) *PurchasesService {
+func NewPurchasesService(repository ports.PurchaseRepositoryPort, cartRepository ports.CartsRepositoryPort, itemsRepository ports.ItemsRepositoryPort, userPokemonRepository ports.UserPokemonRepositoryPort, userStatsService *UsersStatsService) *PurchasesService {
 	return &PurchasesService{
-		repository:      repository,
-		cartRepository:  cartRepository,
-		itemsRepository: itemsRepository,
-		userStatsService: userStatsService,
+		repository:            repository,
+		cartRepository:        cartRepository,
+		itemsRepository:       itemsRepository,
+		userPokemonRepository: userPokemonRepository,
+		userStatsService:      userStatsService,
 	}
 }
 
@@ -79,6 +82,17 @@ func (s *PurchasesService) FinishPurchase(input myTypes.FinishPurchaseInput) *cu
 	}, myTypes.Where{"cart_id": map[string]string{"eq": input.CartId}})
 	if detachItemsErr != nil {
 		return customErrors.NewInternalError("failed on detach the items from the cart", 500, []string{detachItemsErr.Error()})
+	}
+
+	fmt.Println(cart.Items)
+	for _, item := range cart.Items {
+		s.userPokemonRepository.Upsert(myTypes.UserPokemonData{
+			UserId:    input.UserId,
+			PokemonId: item.PokemonId,
+			Quantity:  item.Quantity,
+		})
+
+		fmt.Printf("Inserido -> %s,%s", input.UserId, item.PokemonId)
 	}
 
 	// Apaga o carrinho de compras

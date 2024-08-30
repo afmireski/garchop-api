@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/afmireski/garchop-api/internal/helpers"
 	"github.com/afmireski/garchop-api/internal/services"
 	"github.com/go-chi/chi/v5"
 
@@ -44,7 +45,16 @@ func (c *PokemonController) RegistryNewPokemon(w http.ResponseWriter, r *http.Re
 func (c *PokemonController) GetAllPokemons(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	response, err := c.service.GetAvailablePokemons()
+	var filter myTypes.Where
+	filterErr := helpers.ParseQueryParam(r.URL.Query(), "filter", &filter)
+
+	if filterErr != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(customErrors.NewInternalError("fail on deserialize query parameters", 400, []string{}))
+		return
+	}
+
+	response, err := c.service.GetAvailablePokemons(filter)
 	if err != nil {
 		w.WriteHeader(err.HttpCode)
 		json.NewEncoder(w).Encode(err)

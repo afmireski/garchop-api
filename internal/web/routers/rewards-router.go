@@ -7,8 +7,21 @@ import (
 	"github.com/nedpals/supabase-go"
 )
 
-func SetupRewardsRouter(router *chi.Mux, controller *controllers.RewardsController, supabaseClient *supabase.Client) {
+func SetupRewardsRouter(
+	router *chi.Mux, 
+	controller *controllers.RewardsController, 
+	supabaseClient *supabase.Client,
+	) {
 	router.Get("/rewards", controller.ListAllRewards)
 	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient),
 		middlewares.UserRoleMiddleware("client")).Get("/rewards", controller.ListRewardsByUser)
+	router.With(
+		middlewares.SupabaseAuthMiddleware(supabaseClient), 
+		middlewares.UserRoleMiddleware("client")).Post("/rewards/{reward_id}/claim", controller.ClaimReward)
+	router.With(
+		middlewares.SupabaseAuthMiddleware(supabaseClient), 
+		middlewares.UserRoleMiddleware("admin")).Post("/rewards/new", controller.NewReward)
+	router.With(
+		middlewares.SupabaseAuthMiddleware(supabaseClient), 
+		middlewares.UserRoleMiddleware("admin")).Delete("/rewards/{reward_id}/remove", controller.RemoveReward)
 }

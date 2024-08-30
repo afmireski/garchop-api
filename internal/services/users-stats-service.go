@@ -58,7 +58,7 @@ func (s *UsersStatsService) canLevelUp(currentTierId uint, newExperienceAmount u
 func (s *UsersStatsService) calculateGainedXpFromItems(items []models.ItemModel) uint {
 	gainedXp := uint(0)
 	for _, item := range items {
-		gainedXp += item.Pokemon.Experience
+		gainedXp += item.Pokemon.Experience * item.Quantity
 	}
 
 	return gainedXp

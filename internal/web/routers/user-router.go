@@ -9,10 +9,19 @@ import (
 
 func SetupUsersRouter(router *chi.Mux, controller *controllers.UsersController, supabaseClient *supabase.Client) {
 	router.Post("/users/new", controller.NewClient)
-	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Patch("/users/{id}/update", controller.UpdateClient)
-	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/users/{id}", controller.GetUserById)
-	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/users/admin", controller.GetAdmins)
-	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Delete("/users/{id}/del", controller.DeleteClientAccount)
-	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Post("/admin/new", controller.NewAdministrator)
-	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/users/{id}/stats", controller.GetUserStatsById)
+	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Patch("/users/update", controller.UpdateClient)
+	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/users/profile", controller.GetUserById)
+	router.With(
+		middlewares.SupabaseAuthMiddleware(supabaseClient),
+		middlewares.UserRoleMiddleware("admin"),
+	).Get("/users/admin", controller.GetAdmins)
+	router.With(
+		middlewares.SupabaseAuthMiddleware(supabaseClient), 
+		middlewares.UserRoleMiddleware("admin"),
+	).Delete("/users/del", controller.DeleteClientAccount)
+	router.With(
+		middlewares.SupabaseAuthMiddleware(supabaseClient),
+		middlewares.UserRoleMiddleware("admin"),
+	).Post("/admin/new", controller.NewAdministrator)
+	router.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Get("/users/stats", controller.GetUserStatsById)
 }

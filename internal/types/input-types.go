@@ -1,6 +1,11 @@
 package types
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+
+	"github.com/afmireski/garchop-api/internal/types/enums"
+)
 
 type NewUserInput struct {
 	Name            string     `json:"name"`
@@ -42,4 +47,13 @@ type AddItemToCartBody struct {
 type RemoveItemFromCartInput struct {
 	ItemId string `json:"item_id"`
 	CartId string `json:"cart_id"`
+}
+
+type NewRewardInput struct {
+	TierId             uint                `json:"tier_id"`
+	Name               string              `json:"name"`
+	Description        string              `json:"description"`
+	ExperienceRequired uint                `json:"experience_required"`
+	Type               enums.PrizeTypeEnum `json:"prize_type"`
+	Prize              json.RawMessage     `json:"prize"`
 }

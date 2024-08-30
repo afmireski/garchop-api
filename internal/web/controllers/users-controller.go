@@ -7,7 +7,6 @@ import (
 	customErrors "github.com/afmireski/garchop-api/internal/errors"
 	"github.com/afmireski/garchop-api/internal/services"
 	myTypes "github.com/afmireski/garchop-api/internal/types"
-	"github.com/go-chi/chi/v5"
 )
 
 type UsersController struct {
@@ -73,7 +72,7 @@ func (c *UsersController) NewAdministrator(w http.ResponseWriter, r *http.Reques
 func (c *UsersController) UpdateClient(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	idParam := chi.URLParam(r, "id")
+	idParam := r.Header.Get("User-Id")
 
 	var input myTypes.UpdateUserInput
 
@@ -101,7 +100,7 @@ func (c *UsersController) UpdateClient(w http.ResponseWriter, r *http.Request) {
 func (c *UsersController) GetUserById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	idParam := chi.URLParam(r, "id")
+	idParam := r.Header.Get("User-Id")
 
 	user, serviceErr := c.service.GetUserById(idParam)
 
@@ -134,7 +133,7 @@ func (c *UsersController) GetAdmins(w http.ResponseWriter, r *http.Request) {
 func (c *UsersController) GetUserStatsById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	idParam := chi.URLParam(r, "id")
+	idParam := r.Header.Get("User-Id")
 
 	user, serviceErr := c.service.GetUserStatsById(idParam)
 
@@ -150,9 +149,10 @@ func (c *UsersController) GetUserStatsById(w http.ResponseWriter, r *http.Reques
 func (c *UsersController) DeleteClientAccount(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	idParam := chi.URLParam(r, "id")
+	idParam := r.Header.Get("User-Id")
+	token := r.Header.Get("Authorization")
 
-	serviceErr := c.service.DeleteClient(idParam)
+	serviceErr := c.service.DeleteClient(idParam, token)
 
 	if serviceErr != nil {
 		w.WriteHeader(serviceErr.HttpCode)

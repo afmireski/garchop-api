@@ -7,10 +7,10 @@ import (
 )
 
 type UserReward struct {
-	UserId    string     `json:"user_id"`
-	RewardId  string     `json:"reward_id"`
+	UserId    string    `json:"user_id"`
+	RewardId  string    `json:"reward_id"`
 	ClaimedAt time.Time `json:"claimed_at"`
-	Reward    *Reward    `json:"reward"`
+	Reward    *Reward   `json:"reward"`
 }
 
 func BuildUserRewardFromModel(model *models.UserRewardModel) *UserReward {
@@ -20,4 +20,11 @@ func BuildUserRewardFromModel(model *models.UserRewardModel) *UserReward {
 		ClaimedAt: model.ClaimedAt,
 		Reward:    BuildRewardFromModel(model.RewardModel),
 	}
+}
+
+type AvailableReward struct {
+	Reward
+	UserId   string `json:"user_id"`
+	CanClaim bool   `json:"can_claim"`
+	Claimed  bool   `json:"claimed_at"`
 }

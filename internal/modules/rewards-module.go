@@ -18,9 +18,10 @@ func NewRewardsModule(
 	supabaseClient *supabase.Client,
 	userRewardsRepository ports.UserRewardsRepositoryPort,
 	userPokemonsRepository ports.UserPokemonRepositoryPort,
+	userStatsRepository ports.UserStatsRepository,
 ) *RewardsModule {
 	repository := adapters.NewSupabaseRewardsRepository(supabaseClient)
-	service := services.NewRewardsService(repository, userRewardsRepository, userPokemonsRepository)
+	service := services.NewRewardsService(repository, userRewardsRepository, userPokemonsRepository, userStatsRepository)
 	controller := controllers.NewRewardsController(service)
 
 	return &RewardsModule{

@@ -55,6 +55,10 @@ type UpdateItemInCartInput struct {
 	Quantity uint   `json:"quantity"`
 }
 
+type UpdateItemInCartBody struct {
+	Quantity uint   `json:"quantity"`
+}
+
 type NewRewardInput struct {
 	TierId             uint                `json:"tier_id"`
 	Name               string              `json:"name"`

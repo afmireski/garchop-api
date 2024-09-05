@@ -8,5 +8,6 @@ import (
 )
 
 func SetupItemsRouter(r chi.Router, controller *controllers.ItemController, supabaseClient *supabase.Client) {
-	r.With(middlewares.SupabaseAuthMiddleware(supabaseClient)).Delete("/carts/{cart_id}/items/{item_id}", controller.RemoveItemFromCart)
+	r.With(middlewares.SupabaseAuthMiddleware(supabaseClient), middlewares.UserRoleMiddleware("client")).Delete("/carts/{cart_id}/items/{item_id}", controller.RemoveItemFromCart)
+	r.With(middlewares.SupabaseAuthMiddleware(supabaseClient), middlewares.UserRoleMiddleware("client")).Patch("/carts/{cart_id}/items/{item_id}", controller.UpdateItemInCart)
 }

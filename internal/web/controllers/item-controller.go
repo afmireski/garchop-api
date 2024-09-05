@@ -50,7 +50,7 @@ func (c *ItemController) UpdateItemInCart(w http.ResponseWriter, r *http.Request
 
 	var body myTypes.UpdateItemInCartBody
 	bodyErr := json.NewDecoder(r.Body).Decode(&body); if bodyErr != nil {
-		err := customErrors.NewInternalError("fail on deserialize request body", 400, []string{})
+		err := customErrors.NewInternalError("fail on deserialize request body", 400, []string{bodyErr.Error()})
 		w.WriteHeader(err.HttpCode)
 		json.NewEncoder(w).Encode(err)
 		return

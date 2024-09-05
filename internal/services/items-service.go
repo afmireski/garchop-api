@@ -88,8 +88,8 @@ func (s *ItemsService) validateUpdateItemInCart(input myTypes.UpdateItemInCartIn
 		return customErrors.NewInternalError("invalid cart_id", 400, []string{"the cart_id must be a valid uuid"})
 	}
 
-	if !validators.IsGreaterThanInt(input.Quantity, 1) {
-		return customErrors.NewInternalError("invalid quantity", 400, []string{"the quantity must be greater than 1"})
+	if !validators.IsGreaterThanInt(input.Quantity, 0) {
+		return customErrors.NewInternalError("invalid quantity", 400, []string{"the quantity must be greater than 0"})
 	}
 
 	return nil

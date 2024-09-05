@@ -16,13 +16,15 @@ type RewardsService struct {
 	rewardsRepository      ports.RewardsRepositoryPort
 	userRewardsRepository  ports.UserRewardsRepositoryPort
 	userPokemonsRepository ports.UserPokemonRepositoryPort
+	userStatsRepository    ports.UserStatsRepository
 }
 
-func NewRewardsService(rewardsRepository ports.RewardsRepositoryPort, userRewardsRepository ports.UserRewardsRepositoryPort, userPokemonsRepository ports.UserPokemonRepositoryPort) *RewardsService {
+func NewRewardsService(rewardsRepository ports.RewardsRepositoryPort, userRewardsRepository ports.UserRewardsRepositoryPort, userPokemonsRepository ports.UserPokemonRepositoryPort, userStatsRepository ports.UserStatsRepository) *RewardsService {
 	return &RewardsService{
 		rewardsRepository:      rewardsRepository,
 		userRewardsRepository:  userRewardsRepository,
 		userPokemonsRepository: userPokemonsRepository,
+		userStatsRepository:    userStatsRepository,
 	}
 }
 
@@ -57,9 +59,9 @@ func (s *RewardsService) NewReward(input myTypes.NewRewardInput) *customErrors.I
 	return nil
 }
 
-func (s *RewardsService) ListAllRewards() ([]entities.Reward, *customErrors.InternalError) {
+func (s *RewardsService) ListAllRewards(pagination myTypes.Pagination) ([]entities.Reward, *customErrors.InternalError) {
 
-	repositoryData, err := s.rewardsRepository.FindAll(myTypes.Where{})
+	repositoryData, err := s.rewardsRepository.FindAll(myTypes.Where{}, pagination)
 
 	if err != nil {
 		return nil, customErrors.NewInternalError("a failure occurred when try to find the rewards", 500, []string{err.Error()})
@@ -68,6 +70,49 @@ func (s *RewardsService) ListAllRewards() ([]entities.Reward, *customErrors.Inte
 	rewards := entities.BuildRewardsFromModels(repositoryData)
 
 	return rewards, nil
+}
+
+func (s *RewardsService) ListRewardsByUser(userId string, pagination myTypes.Pagination) ([]entities.AvailableReward, *customErrors.InternalError) {
+
+	rewardsData, rewardsErr := s.rewardsRepository.FindAll(myTypes.Where{}, pagination)
+	if rewardsErr != nil {
+		return nil, customErrors.NewInternalError("a failure occurred when try to find the rewards", 500, []string{rewardsErr.Error()})
+	}
+
+	userStats, userStatsErr := s.userStatsRepository.FindById(userId, myTypes.Where{}); if userStatsErr != nil {
+		return nil, customErrors.NewInternalError("a failure occurred when try to find the user stats", 500, []string{userStatsErr.Error()})
+	}
+
+	userRewards, userRewardsErr := s.userRewardsRepository.FindAll(myTypes.Where{
+		"user_id": {
+			"eq": userId,
+		},
+	}); if userRewardsErr != nil {
+		return nil, customErrors.NewInternalError("a failure occurred when try to find the user rewards", 500, []string{userRewardsErr.Error()})
+	}
+
+	userRewardsMap := make(map[string]time.Time)
+	for _, userReward := range userRewards {
+		userRewardsMap[userReward.RewardId] = userReward.ClaimedAt
+	}
+
+	rewards := entities.BuildRewardsFromModels(rewardsData)
+
+	var response []entities.AvailableReward
+
+	for _, reward := range rewards {
+		_, claimed := userRewardsMap[reward.Id]
+		canClaim := userStats.Experience >= reward.ExperienceRequired && !claimed
+
+		response = append(response, entities.AvailableReward{
+			Reward: reward,
+			UserId: userId,
+			CanClaim: canClaim,
+			Claimed: claimed,
+		})
+	}
+
+	return response, nil
 }
 
 func (s *RewardsService) RemoveReward(rewardId string) *customErrors.InternalError {

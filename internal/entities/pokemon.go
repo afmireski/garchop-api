@@ -89,8 +89,10 @@ func BuildManyPokemonProductFromModel(data []models.PokemonModel) []PokemonProdu
 
 	for _, val := range data {
 		var tmp *PokemonProduct
-		tmp = BuildPokemonProductFromModel(val)
-		result = append(result, *tmp)
+		if val.Stock.Quantity > 0 {
+			tmp = BuildPokemonProductFromModel(val)
+			result = append(result, *tmp)
+		}
 	}
 
 	return result

@@ -63,10 +63,10 @@ func (r *SupabaseRewardsRepository) Create(input myTypes.CreateRewardInput) (str
 	return "", nil
 }
 
-func (r *SupabaseRewardsRepository) FindAll(where myTypes.Where) ([]models.RewardModel, error) {
+func (r *SupabaseRewardsRepository) FindAll(where myTypes.Where, pagination myTypes.Pagination) ([]models.RewardModel, error) {
 	var supabaseData []myTypes.AnyMap
 
-	query := r.client.DB.From("rewards").Select("*", "tiers(*)").Is("deleted_at", "null")
+	query := r.client.DB.From("rewards").Select("*", "tiers(*)").LimitWithOffset(pagination.Limit, pagination.Offset).Is("deleted_at", "null")
 
 	if len(where) > 0 {
 		for column, filter := range where {

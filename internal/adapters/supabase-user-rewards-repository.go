@@ -34,6 +34,21 @@ func (s *SupabaseUserRewardsRepository) serializeSupabaseDataToModel(supabaseDat
 	return &modelData, nil
 }
 
+func (s *SupabaseUserRewardsRepository) serializeManyToModel(supabaseData []myTypes.AnyMap) ([]models.UserRewardModel, error) {
+	jsonData, err := json.Marshal(supabaseData)
+	if err != nil {
+		return nil, err
+	}
+
+	var modelData []models.UserRewardModel
+	err = json.Unmarshal(jsonData, &modelData)
+	if err != nil {
+		return nil, err
+	}
+
+	return modelData, nil
+}
+
 func (s *SupabaseUserRewardsRepository) Create(input myTypes.UserRewardInput) (*models.UserRewardModel, error) {
 	var supabaseData []myTypes.AnyMap
 
@@ -50,6 +65,23 @@ func (s *SupabaseUserRewardsRepository) FindById(input myTypes.UserRewardInput, 
 }
 
 func (s *SupabaseUserRewardsRepository) FindAll(where myTypes.Where) ([]models.UserRewardModel, error) {
-	panic("implement me")
+	var supabaseData []myTypes.AnyMap
+
+	query := s.client.DB.From("users_rewards").Select("*").Not().Is("user_id", "null")
+	
+	if len(where) > 0 {
+		for column, filter := range where {
+			for operator, criteria := range filter {
+				query = query.Filter(column, operator, criteria)
+			}
+		}
+	}
+
+	err := query.Execute(&supabaseData)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.serializeManyToModel(supabaseData)
 }
 

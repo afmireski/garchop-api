@@ -51,7 +51,7 @@ func main() {
 
 	userRewardsModule := modules.NewUserRewardsModule(supabaseClient)
 
-	rewardsModule := modules.NewRewardsModule(supabaseClient, userRewardsModule.Repository, userPokemonsRepository)
+	rewardsModule := modules.NewRewardsModule(supabaseClient, userRewardsModule.Repository, userPokemonsRepository, userStatsModule.Repository)
 
 	pokedexModule := modules.NewUserPokemonModule(supabaseClient)
 

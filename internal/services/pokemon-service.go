@@ -187,7 +187,7 @@ func (s *PokemonService) GetPokemonById(id string) (*entities.PokemonProduct, *c
 	return entities.BuildPokemonProductFromModel(*repositoryData), nil
 }
 
-func (s *PokemonService) GetAvailablePokemons(filter myTypes.Where ) ([]entities.PokemonProduct, *customErrors.InternalError) {
+func (s *PokemonService) GetAvailablePokemons(filter myTypes.Where) ([]entities.PokemonProduct, *customErrors.InternalError) {
 	repositoryData, err := s.repository.FindAll(filter)
 
 	if err != nil {

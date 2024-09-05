@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+* [#75](https://github.com/afmireski/garchop-api/issues/75) - Implementar rota que atualiza a quantidade de um item no carrinho
 * [#60](https://github.com/afmireski/garchop-api/issues/60) - Implementar exclusão de recompensa
 * [#71](https://github.com/afmireski/garchop-api/issues/71) - Implementar listagem específica de Pokémons de um usuário
 

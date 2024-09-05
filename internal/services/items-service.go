@@ -78,3 +78,77 @@ func (s *ItemsService) RemoveItemFromCart(input myTypes.RemoveItemFromCartInput)
 	return nil
 
 }
+
+func (s *ItemsService) validateUpdateItemInCart(input myTypes.UpdateItemInCartInput) *customErrors.InternalError {
+	if !validators.IsValidUuid(input.ItemId) {
+		return customErrors.NewInternalError("invalid item_id", 400, []string{"the item_id must be a valid uuid"})
+	}
+
+	if !validators.IsValidUuid(input.CartId) {
+		return customErrors.NewInternalError("invalid cart_id", 400, []string{"the cart_id must be a valid uuid"})
+	}
+
+	if !validators.IsGreaterThanInt(input.Quantity, 0) {
+		return customErrors.NewInternalError("invalid quantity", 400, []string{"the quantity must be greater than 0"})
+	}
+
+	return nil
+}
+
+func (s *ItemsService) UpdateItemInCart(input myTypes.UpdateItemInCartInput) *customErrors.InternalError {
+
+	inputErr := s.validateUpdateItemInCart(input); if inputErr != nil {
+		return inputErr
+	}
+
+	findWhere := myTypes.Where{
+		"cart_id": map[string]string{"eq": input.CartId},
+		"deleted_at": map[string]string{"is": "null"},
+		"purchase_id": map[string]string{"is": "null"},
+	}
+	item, findErr := s.itemsRepository.FindById(input.ItemId, findWhere); if findErr != nil {
+		return customErrors.NewInternalError("a failure occurred when try to update the item", 500, []string{findErr.Error()})
+	}
+
+	// Se a quantidade do item não mudou, não faz nada.
+	if input.Quantity == item.Quantity {
+		return nil
+	}
+
+	remainStock := item.Pokemon.Stock.Quantity
+	// Se a quantidade do item aumentou, então precisa verificar o estoque
+	if input.Quantity > item.Quantity  {
+		deltaQuantity := input.Quantity - item.Quantity // Descobre quanto aumentou
+		remainStock -= deltaQuantity // Calcula quanto de estoque vai sobrar
+
+		if remainStock < 0 {
+			return customErrors.NewInternalError("the quantity is greater than the stock", 400, []string{"the quantity is greater than the stock"})
+		}
+	} else {
+		// Se a quantidade do item diminuiu, então precisa repor o estoque
+
+		deltaQuantity := item.Quantity - input.Quantity // Descobre quanto diminuiu
+		remainStock += deltaQuantity // Calcula quanto de estoque vai sobrar
+	}
+
+	_, stockErr := s.stockRepository.Update(item.PokemonId, myTypes.AnyMap{"quantity": remainStock}, myTypes.Where{
+		"deleted_at": map[string]string{"is": "null"},
+	}); if stockErr != nil {
+		return customErrors.NewInternalError("a failure occurred when try to update the stock", 500, []string{stockErr.Error()})
+	}
+
+
+	data := myTypes.AnyMap{
+		"quantity": input.Quantity,
+		"total": item.Price * input.Quantity,
+	}
+	where := myTypes.Where{
+		"deleted_at": map[string]string{"is": "null"},
+	}
+	_, err := s.itemsRepository.Update(input.ItemId, data, where); if err != nil {
+		return customErrors.NewInternalError("a failure occurred when try to update the item", 500, []string{err.Error()})
+	}
+
+
+	return nil
+}

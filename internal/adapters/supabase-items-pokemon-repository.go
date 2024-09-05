@@ -49,7 +49,7 @@ func (r *SupabaseItemsRepository) serializeToModels(supabaseData []myTypes.AnyMa
 func (r *SupabaseItemsRepository) FindById(id string, where myTypes.Where) (*models.ItemModel, error) {
 	var supabaseData myTypes.AnyMap
 
-	query := r.client.DB.From("items").Select("*, pokemons (*, pokemon_types (*, types (*)), tiers (*))").Single().Eq("id", id)
+	query := r.client.DB.From("items").Select("*, pokemons (*, stocks (*), pokemon_types (*, types (*)), tiers (*))").Single().Eq("id", id)
 
 	if len(where) > 0 {
 		for column, filter := range where {
@@ -123,6 +123,23 @@ func (r *SupabaseItemsRepository) UpdateMany(input myTypes.AnyMap, where myTypes
 	}
 
 	return r.serializeToModels(supabaseData)
+}
+
+func (r *SupabaseItemsRepository) Update(id string, input myTypes.AnyMap, where myTypes.Where) (*models.ItemModel, error) {
+	var supabaseData []myTypes.AnyMap
+
+	query := r.client.DB.From("items").Update(input).Eq("id", id);
+	for column, filter := range where {
+		for operator, criteria := range filter {
+			query = query.Filter(column, operator, criteria)
+		}
+	}
+
+	err := query.Execute(&supabaseData); if err != nil {
+		return nil, err
+	}
+
+	return r.serializeToModel(supabaseData[0])
 }
 
 func (r *SupabaseItemsRepository) Delete(id string, where myTypes.Where) error {

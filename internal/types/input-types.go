@@ -49,6 +49,12 @@ type RemoveItemFromCartInput struct {
 	CartId string `json:"cart_id"`
 }
 
+type UpdateItemInCartInput struct {
+	ItemId   string `json:"item_id"`
+	CartId   string `json:"cart_id"`
+	Quantity uint   `json:"quantity"`
+}
+
 type NewRewardInput struct {
 	TierId             uint                `json:"tier_id"`
 	Name               string              `json:"name"`

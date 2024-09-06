@@ -49,7 +49,7 @@ func (r *SupabaseItemsRepository) serializeToModels(supabaseData []myTypes.AnyMa
 func (r *SupabaseItemsRepository) FindById(id string, where myTypes.Where) (*models.ItemModel, error) {
 	var supabaseData myTypes.AnyMap
 
-	query := r.client.DB.From("items").Select("*, pokemons (*, stocks (*), pokemon_types (*, types (*)), tiers (*))").Single().Eq("id", id)
+	query := r.client.DB.From("items").Select("*, pokemons (*, carts (*), stocks (*), pokemon_types (*, types (*)), tiers (*))").Single().Eq("id", id)
 
 	if len(where) > 0 {
 		for column, filter := range where {

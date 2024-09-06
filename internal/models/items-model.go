@@ -4,7 +4,7 @@ import "time"
 
 type ItemModel struct {
 	Id         string        `json:"id"`
-	CartId     *string        `json:"cart_id"`
+	CartId     *string       `json:"cart_id"`
 	PokemonId  string        `json:"pokemon_id"`
 	PurchaseId *string       `json:"purchase_id",omitempty`
 	Quantity   uint          `json:"quantity"`
@@ -14,4 +14,5 @@ type ItemModel struct {
 	UpdatedAt  time.Time     `json:"updated_at"`
 	DeletedAt  *time.Time    `json:"deleted_at,omitempty"`
 	Pokemon    *PokemonModel `json:"pokemons"`
+	Cart       *CartModel    `json:"carts"`
 }

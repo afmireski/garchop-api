@@ -138,9 +138,10 @@ func (s *ItemsService) UpdateItemInCart(input myTypes.UpdateItemInCartInput) *cu
 	}
 
 
+	newTotal :=  item.Price * input.Quantity
 	data := myTypes.AnyMap{
 		"quantity": input.Quantity,
-		"total": item.Price * input.Quantity,
+		"total": newTotal,
 	}
 	where := myTypes.Where{
 		"deleted_at": map[string]string{"is": "null"},
@@ -148,6 +149,11 @@ func (s *ItemsService) UpdateItemInCart(input myTypes.UpdateItemInCartInput) *cu
 	_, err := s.itemsRepository.Update(input.ItemId, data, where); if err != nil {
 		return customErrors.NewInternalError("a failure occurred when try to update the item", 500, []string{err.Error()})
 	}
+
+	newCartTotal := item.Cart.Total - item.Total + newTotal
+	_, err = s.cartsRepository.Update(*item.CartId, myTypes.AnyMap{
+		"total": newCartTotal,
+	}, nil)
 
 
 	return nil

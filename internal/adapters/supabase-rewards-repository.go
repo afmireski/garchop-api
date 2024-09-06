@@ -87,7 +87,7 @@ func (r *SupabaseRewardsRepository) FindAll(where myTypes.Where, pagination myTy
 func (r *SupabaseRewardsRepository) FindById(id string, where myTypes.Where) (*models.RewardModel, error) {
 	var supabaseData myTypes.AnyMap
 
-	query := r.client.DB.From("rewards").Select("*", "tiers(*)").Is("deleted_at", "null")
+	query := r.client.DB.From("rewards").Select("*", "tiers(*)").Single().Eq("id", id).Is("deleted_at", "null")
 
 	if len(where) > 0 {
 		for column, filter := range where {

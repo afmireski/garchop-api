@@ -153,6 +153,8 @@ func (r *RewardsService) ClaimReward(input myTypes.UserRewardInput) *customError
 
 	if findRewardErr != nil {
 		return customErrors.NewInternalError("reward not found", 404, []string{findRewardErr.Error()})
+	} else if reward == nil {
+		return customErrors.NewInternalError("reward not found", 404, []string{"reward not found"})
 	}
 
 	_, err := r.userRewardsRepository.Create(myTypes.UserRewardInput{
